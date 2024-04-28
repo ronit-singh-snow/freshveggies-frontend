@@ -6,13 +6,24 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "nodev": "expo start --no-dev --minify"
   },
   "dependencies": {
+    "@react-native-picker/picker": "^2.7.2",
+    "@react-navigation/native": "^6.1.17",
+    "@react-navigation/native-stack": "^6.9.26",
+    "axios": "^1.6.8",
     "expo": "~50.0.14",
+    "expo-image": "~1.10.6",
+    "expo-secure-store": "^12.8.1",
     "expo-status-bar": "~1.11.1",
     "react": "18.2.0",
-    "react-native": "0.73.6"
+    "react-native": "0.73.6",
+    "react-native-google-places-autocomplete": "^2.5.6",
+    "react-native-picker": "^4.3.7",
+    "react-native-safe-area-context": "4.8.2",
+    "react-native-screens": "~3.29.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
