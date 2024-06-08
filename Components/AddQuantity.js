@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
 const AddQuantity = ({ initialQuantity, onQuantityChange, stock }) => {
     const [quantity, setQuantity] = useState(initialQuantity);
@@ -26,11 +26,11 @@ const AddQuantity = ({ initialQuantity, onQuantityChange, stock }) => {
     const renderAddQuantity = () => {
         return (
             <View style={styles.container}>
-                <TouchableOpacity onPress={handleDecrement} disabled={quantity === 1}>
+                <TouchableOpacity onPress={handleDecrement} disabled={quantity === 0}>
                     <Text style={styles.quantityButtons}>-</Text>
                 </TouchableOpacity>
                 <Text style={styles.quantityText}>{initialQuantity}</Text>
-                <TouchableOpacity onPress={handleIncrement} disabled={quantity === stock}>
+                <TouchableOpacity onPress={handleIncrement} disabled={quantity > stock}>
                     <Text style={styles.quantityButtons}>+</Text>
                 </TouchableOpacity>
             </View>

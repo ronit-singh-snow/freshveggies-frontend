@@ -4,12 +4,13 @@ import { useContext, useEffect, useState } from 'react';
 import { useRoute } from '@react-navigation/native';
 
 import AddQuantity from "../Components/AddQuantity.js";
-import { getTotalValue, findAddedCartItem } from "../Services/Utils.js";
+import { getTotalValue, findAddedCartItem, handleOnQuantityChange } from "../Services/Utils.js";
+import { Footer } from '../Components/Footer.js';
 
-import {AppContext} from "../Services/AppContextProvider.js";
+import { AppContext } from "../Services/AppContextProvider.js";
 
 const FruitDetails = ({ navigation }) => {
-    const {addToCart, getCart} = useContext(AppContext);
+    const { addToCart, getCart, removeFromCart } = useContext(AppContext);
     const cartItems = getCart();
     const route = useRoute();
     const item = route.params?.item;
@@ -19,49 +20,22 @@ const FruitDetails = ({ navigation }) => {
         });
     }, [navigation, item]);
 
-    const [quantityArray, setQuantityArray] = useState([
-        {
-            title: "1KG",
-            value: 1000,
-            isSelected: true,
-            id: 1
-        },
-        {
-            title: "2KG",
-            value: 2000,
-            isSelected: false,
-            id: 2
-        },
-        {
-            title: "3KG",
-            value: 3000,
-            isSelected: false,
-            id: 3
-        },
-        {
-            title: "5KG",
-            value: 5000,
-            isSelected: false,
-            id: 4
-        }
-    ]);
-
     return (
         <View style={styles.container}>
-            <ScrollView style={{ ...styles.body, backgroundColor: item.bgColorCode }}>
-                <View style={{ ...styles.imageContainer, flex: 1 }}>
+            <ScrollView style={{ ...styles.body }}>
+                <View style={{ ...styles.imageContainer, backgroundColor: item.bgColorCode }}>
                     <Image style={styles.fruitImage} source={item.img} contentFit="cover" transition={1000}></Image>
                 </View>
-                <View style={{ ...styles.details, flex: 2 }}>
+                <View style={{ ...styles.details }}>
                     <Text style={styles.name}>{item.title}</Text>
                     <View style={[styles.displayRow, styles.alignBottm]}>
                         <View>
                             <Text style={styles.unitValue}>{item.unit}</Text>
                             <Text style={styles.unitPrice}>Rs. {item.unitPrice}</Text>
-                     </View>
+                        </View>
                         <AddQuantity stock={5} initialQuantity={findAddedCartItem(cartItems, item.id)} onQuantityChange={(quantity) => {
-                            addToCart(item, quantity);
-                        }}/>
+                            quantity === 0 ? removeFromCart(item.id) : addToCart(item, quantity);
+                        }} />
                     </View>
 
                     <Text style={styles.descriptionTitle}>Description</Text>
@@ -70,12 +44,7 @@ const FruitDetails = ({ navigation }) => {
                     <Text style={styles.description}>{item.benefits}</Text>
                 </View>
             </ScrollView>
-            <View style={[styles.footer, styles.displayRow]}>
-                <Text style={styles.priceDetail}>{getTotalValue(quantityArray, item)}</Text>
-                <Pressable onPress={() => navigation.navigate("CartSummary")} style={styles.pillButton}>
-                    <Text style={styles.textStyle}>Buy now</Text>
-                </Pressable>
-            </View>
+            <Footer />
         </View>
     )
 }
@@ -85,7 +54,8 @@ const styles = StyleSheet.create({
         flex: 1
     },
     body: {
-        flex: 1
+        
+        flexDirection: "column"
     },
     footer: {
         justifyContent: "center",
@@ -112,8 +82,6 @@ const styles = StyleSheet.create({
     },
     details: {
         backgroundColor: "#FFF",
-        borderTopLeftRadius: 25,
-        borderTopRightRadius: 25,
         paddingVertical: 25,
         paddingHorizontal: 15
     },

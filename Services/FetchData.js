@@ -18,3 +18,28 @@ export const getVegetables = () => {
 export const getFruitById = (fruitId) => {
     return axios.get(`${HOST_URL}/fruit/${fruitId}`);
 }
+
+export const getProductsList = (searchText) => {
+    searchText = searchText ? searchText : '';
+    return axios.get(`${HOST_URL}/getsearchlist?search_text=${searchText}`);
+}
+
+export const getAddresses = (emailId) => {
+    return axios.get(`${HOST_URL}/getuseraddresses/${emailId}`);
+}
+
+export const insertUser = (emailId, name, phoneNumber) => {
+    axios.get(`${HOST_URL}/insertuser?email_id=${emailId}&name=${name}&phone_number=${phoneNumber}`)
+}
+
+export const findUser = (emailId) => {
+    return axios.get(`${HOST_URL}/finduser?email_id=${emailId}`);
+}
+
+export const submitAddress = (address) => {
+    return axios.post(`${HOST_URL}/submitaddress`, address);
+}
+
+export const submitOrder = (orderDetails) => {
+    return axios.post(`${HOST_URL}/submitorder`, orderDetails);
+}

@@ -5,6 +5,9 @@ import { useNavigation } from '@react-navigation/native';
 import AddQuantity from './AddQuantity';
 import { findAddedCartItem } from '../Services/Utils';
 import { AppContext } from '../Services/AppContextProvider';
+import { PriceValue } from './PriceValue';
+
+
 const { width: screenWidth } = Dimensions.get('window');
 
 const getBannerContent = (item) => {
@@ -16,7 +19,7 @@ const getBannerContent = (item) => {
     )
 }
 
-const getCardContent = (item, addToCart, cartItems) => {
+const getCardContent = (item, addToCart, cartItems, removeFromCart) => {
     const {title, img, unitPrice, unit} = item;
     let initialQuantity = findAddedCartItem(cartItems, item.id);
 
@@ -25,9 +28,11 @@ const getCardContent = (item, addToCart, cartItems) => {
             {img ? <Image style={styles.image} source={img} contentFit="cover" transition={1000} /> : null}
             <Text style={{ color: "#000", fontWeight: "bold" }}> {title}</Text>
             <Text style={styles.smMargin}>{unit}</Text>
-            <Text style={{...styles.smMargin, marginBottom: 10}}>Rs. {unitPrice}</Text>
+            <View style={{...styles.smMargin, marginBottom: 10}}>
+                <PriceValue price={unitPrice} />
+            </View>
             <AddQuantity stock={5} initialQuantity={initialQuantity} onQuantityChange={(quantity) => {
-                addToCart(item, quantity);
+                quantity === 0 ? removeFromCart(item.id) : addToCart(item, quantity);
             }} />
         </View>
     )
@@ -35,7 +40,7 @@ const getCardContent = (item, addToCart, cartItems) => {
 
 export default function Card({ item }) {
     const navigation = useNavigation();
-    const {addToCart, getCart} = useContext(AppContext);
+    const {addToCart, getCart, removeFromCart} = useContext(AppContext);
     const {cardWidthRatio, bgColorCode} = item;
     const width = cardWidthRatio ? (screenWidth/cardWidthRatio - 24) : (screenWidth -24);
     const bgColor = bgColorCode ? bgColorCode : "#FFF";
@@ -48,7 +53,7 @@ export default function Card({ item }) {
             onPress={() => navigation.navigate("FruitDetails", {
                 item
             })}>
-                {item.type == "banner" ? getBannerContent(item) : getCardContent(item, addToCart, cartItems)}
+                {item.type == "banner" ? getBannerContent(item) : getCardContent(item, addToCart, cartItems, removeFromCart)}
         </TouchableOpacity>
     )
 }

@@ -1,34 +1,192 @@
-import { useContext } from "react"
+import { useContext, useEffect, useState } from "react"
 import { AppContext } from "../Services/AppContextProvider";
-import { FlatList, Image, StyleSheet, Text, View } from "react-native";
+import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import AddQuantity from "../Components/AddQuantity";
+import { cartItemsAndValue, getDeliveryDates, handleOnQuantityChange } from "../Services/Utils";
+import { PriceValue } from "../Components/PriceValue";
+import { DELIVERY_FEE, PLATFORM_FEE } from "../Constants";
+import { getAddresses } from "../Services/FetchData";
 
-export default function CartSummary() {
-    const {getCart} = useContext(AppContext);
-    return (<FlatList data={getCart()} renderItem={({item}) => {
-        return <View style={styles.container}>
-            <Image style={styles.image} source={item.item.img} contentFit="cover" transition={1000} />
-            <View>
-                <Text style={styles.title}>{item.item.title}</Text>
-                <Text style={styles.unit}>{item.item.unit}</Text>
-                <Text style={styles.unitPrice}>{item.item.unitPrice}</Text>
+const getAddress = (address, navigation) => {
+    if (!address)
+        return [];
+    return (
+        <>
+            <View style={styles.deliveryHeader}>
+                <Text>Deliver to address: </Text>
+                <Text style={styles.addressType}>{address.type}</Text>
+                <TouchableOpacity onPress={() => navigation.navigate("AddAddress")} style={styles.changeAddr}>
+                    <Text style={styles.changeAddress}>Change</Text>
+                </TouchableOpacity>
             </View>
-            <View style={styles.listActions}>
-                <Text>Delte</Text>
-                <AddQuantity initialQuantity={item.quantity} />
+
+            <Text>{address.name} | {address.phone_number}</Text>
+            <Text>{address.house_flat_no}, {address.street_locality}, {address.pincode}</Text>
+        </>
+    );
+}
+
+export default function CartSummary({ navigation }) {
+    const { authData, getCart, addToCart, removeFromCart, getSelectedAddress, setSelectedAddress } = useContext(AppContext);
+    const cartItems = getCart();
+    let cartItemsValue = cartItemsAndValue(cartItems);
+    const selectedAddress = getSelectedAddress();
+    const deliveryDates = getDeliveryDates();
+    const [selectedDeliveryDateIndex, setSelectedDeliveryDateIndex] = useState(0);
+    const [selectedTimeSlot, setSelectedTimeSlot] = useState(1);
+
+    useEffect(() => {
+        if (!selectedAddress) {
+            getAddresses(authData.email).then(res => {
+                setSelectedAddress(res?.data[0])
+            });
+        }
+    }, []);
+
+    const slot1BgColor = selectedTimeSlot == 1 ? "#75da7c" : "#e5e5e5";
+    const slot2BgColor = selectedTimeSlot == 2 ? "#75da7c" : "#e5e5e5";
+
+    if (cartItemsValue.count > 0) {
+        return (
+            <View style={styles.summaryWrapper}>
+                <ScrollView style={styles.summaryContainer}>
+                    <Text style={styles.myCartText}>My cart ({cartItemsValue.count} {cartItemsValue.count === 1 ? 'item' : 'items'})</Text>
+                    { cartItems.map( (item, index) => {
+                        return <View style={[styles.container, styles.cardBackground]} key={index}>
+                            <Image style={styles.image} source={item.item.img} contentFit="cover" transition={1000} />
+                            <View>
+                                <Text style={styles.title}>{item.item.title}</Text>
+                                <Text style={styles.unit}>{item.item.unit}</Text>
+                                <PriceValue price={item.item.unitPrice} />
+                            </View>
+                            <View style={styles.listActions}>
+                                <AddQuantity stock={5} initialQuantity={item.quantity} onQuantityChange={quantity => {
+                                    quantity === 0 ? removeFromCart(item.item.id) : addToCart(item.item, quantity);
+                                }} />
+                                <PriceValue price={item.item.unitPrice * item.quantity} />
+                            </View>
+                        </View>
+                    })}
+                    <View style={styles.cardBackground}>
+                        <Text>Select delivery date</Text>
+                        <View style={styles.datesContainer}>
+                            {deliveryDates.map((date, index) => {
+                                const bgColor = selectedDeliveryDateIndex === index ? "#75da7c" : "#e5e5e5";
+                                return (
+                                    <TouchableOpacity key={index} onPress={() => setSelectedDeliveryDateIndex(index)}>
+                                        <View style={{ ...styles.deliveryDates, backgroundColor: bgColor }}>
+                                            <Text style={styles.deliveryDatesDay}>{date.day}</Text>
+                                            <Text style={styles.deliveryDatesDay}>{date.date}</Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                )
+                            })}
+                        </View>
+
+                        <Text>Select delivery time slot</Text>
+                        <View style={styles.slotBtnContainer}>
+                            <Pressable onPress={() => setSelectedTimeSlot(1)}>
+                                <Text style={{ ...styles.slotBtn, backgroundColor: slot1BgColor }}>6AM - 9AM</Text>
+                            </Pressable>
+                            <Pressable onPress={() => setSelectedTimeSlot(2)}>
+                                <Text style={{ ...styles.slotBtn, backgroundColor: slot2BgColor }}>5PM - 8PM</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                    <View style={styles.cardBackground}>
+                        {getAddress(selectedAddress, navigation)}
+                    </View>
+                    <View style={styles.cardBackground}>
+                        <View style={styles.summaryKeyMap}>
+                            <Text>Item total</Text>
+                            <PriceValue price={cartItemsValue.totalPrice} />
+                        </View>
+                        <View style={styles.summaryKeyMap}>
+                            <Text>Delivery fee</Text>
+                            <PriceValue price={DELIVERY_FEE} />
+                        </View>
+                        <View style={styles.summaryKeyMap}>
+                            <Text>Platform fee</Text>
+                            <PriceValue price={PLATFORM_FEE} />
+                        </View>
+                        <View style={styles.summaryKeyMap}>
+                            <Text>Grand total</Text>
+                            <PriceValue price={cartItemsValue.totalPrice + DELIVERY_FEE + PLATFORM_FEE} />
+                        </View>
+                    </View>
+                </ScrollView>
+                <View style={styles.footer}>
+                    <Pressable style={{ width: "100%" }} onPress={() => {
+                        navigation.navigate("OrderSummary")
+                    }}>
+                        <Text style={styles.btn}>Pay</Text>
+                    </Pressable>
+                </View>
             </View>
+        )
+    } else {
+        return <View style={styles.emptyCart}>
+            <Text>There are no items added into the cart</Text>
+            <Pressable onPress={() => navigation.navigate("Home")}>
+                <Text style={styles.pillButton}>Continue adding item</Text>
+            </Pressable>
         </View>
-    }} />)
+    }
 }
 
 const styles = StyleSheet.create({
+    emptyCart: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center"
+    },
+    summaryWrapper: {
+        flex: 1
+    },
+    pillButton: {
+        paddingHorizontal: 25,
+        paddingVertical: 10,
+        margin: 10,
+        backgroundColor: "#24ca4f",
+        borderRadius: 10,
+        color: "#FFF",
+        fontWeight: "bold",
+        fontSize: 18
+    },
+    myCartText: {
+        marginHorizontal: 15,
+        fontSize: 18
+    },
+    summaryContainer: {
+        flex: 1,
+        margin: 10
+    },
     container: {
         flexDirection: "row",
-        padding: 10,
+        padding: 15,
         gap: 15,
-        alignItems: "center",
-        borderBottomWidth: 1,
-        borderBottomColor: "gray"
+        alignItems: "center"
+    },
+    cardBackground: {
+        backgroundColor: "#FFF",
+        borderRadius: 10,
+        padding: 10,
+        margin: 10
+    },
+    footer: {
+        flexDirection: "row-reverse",
+        paddingHorizontal: 10,
+        marginTop: "auto",
+        marginBottom: 10
+    },
+    btn: {
+        paddingHorizontal: 15,
+        paddingVertical: 12,
+        backgroundColor: "#32cd32",
+        borderRadius: 10,
+        color: "#FFF",
+        fontWeight: "bold",
+        textAlign: "center"
     },
     image: {
         width: 64,
@@ -40,5 +198,51 @@ const styles = StyleSheet.create({
     listActions: {
         marginLeft: "auto",
         alignItems: "flex-end"
+    },
+    summaryKeyMap: {
+        paddingHorizontal: 15,
+        paddingVertical: 5,
+        flexDirection: "row",
+        justifyContent: "space-between"
+    },
+    addressType: {
+        fontWeight: "bold"
+    },
+    deliveryHeader: {
+        flexDirection: "row",
+        marginBottom: 10
+    },
+    changeAddress: {
+        color: "blue"
+    },
+    changeAddr: {
+        marginLeft: "auto",
+        alignSelf: "flex-end"
+    },
+    datesContainer: {
+        width: "100%",
+        flexDirection: "row",
+        gap: 15,
+        marginVertical: 10
+    },
+    deliveryDates: {
+        width: 50,
+        backgroundColor: "#e5e5e5",
+        paddingHorizontal: 5,
+        paddingVertical: 10,
+        alignItems: "center",
+        borderRadius: 5,
+        color: "#FFF"
+    },
+    slotBtn: {
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 5,
+        backgroundColor: "#e5e5e5"
+    },
+    slotBtnContainer: {
+        marginTop: 5,
+        flexDirection: "row",
+        gap: 15
     }
 });

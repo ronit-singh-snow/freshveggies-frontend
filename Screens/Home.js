@@ -1,17 +1,14 @@
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StyleSheet, Text, View, ScrollView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect, useState } from 'react';
 
 import Card from '../Components/Card.js';
 import Header from "../Components/Header.js";
 import Carousel from '../Components/Carousel.js';
+import { Footer } from '../Components/Footer.js';
 import { formatFruits, getResourceURL } from '../Services/Utils.js';
 import { getFruits, getVegetables } from '../Services/FetchData.js';
-import { useContext, useEffect, useState } from 'react';
-
-
-const avatarImage = require('../assets/images/avatar.png');
-
 
 export default function Home({ navigation }) {
     const data = [
@@ -37,35 +34,44 @@ export default function Home({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView>
+            <ScrollView style={{flex: 1}}>
                 <StatusBar style="auto" />
                 <Header />
                 <Carousel data={data} renderItem={renderItem} loop={false} />
                 <View style={styles.sectionHeader}>
                     <Text style={styles.header}>Seasonal fruits</Text>
-                    <Text style={styles.textLink} >See all</Text>
+                    <Text onPress={() => navigation.navigate("ListItems", {
+                        dataItems: seasonalItems,
+                        title: "Seasonal Fruits"
+                    })} style={styles.textLink} >See all</Text>
                 </View>
-                <Carousel data={seasonalItems} renderItem={renderItem} loop={false} />
+                <Carousel data={seasonalItems ? seasonalItems.slice(0,3) : []} renderItem={renderItem} loop={false} />
 
                 <View style={styles.sectionHeader}>
                     <Text style={styles.header}>Fresh vegetables</Text>
-                    <Text onPress={() => navigation.navigate("ListItems")} style={styles.textLink}>See all</Text>
+                    <Text onPress={() => navigation.navigate("ListItems", {
+                        dataItems: seasonalVegetableItems,
+                        title: "Seasonal vegetables"
+                    })} style={styles.textLink}>See all</Text>
                 </View>
-                <Carousel data={seasonalVegetableItems} renderItem={renderItem} loop={false} />
+                <Carousel data={seasonalVegetableItems ? seasonalVegetableItems.slice(0,3) : []} renderItem={renderItem} loop={false} />
             </ScrollView>
+            <Footer />
         </SafeAreaView>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 10
+        marginTop: 10,
+        flex: 1
     },
     sectionHeader: {
         flexDirection: "row",
         justifyContent: "space-between",
         marginHorizontal: 12,
-        alignItems: "center"
+        alignItems: "center",
+        marginTop: 25
     },
     header: {
         fontSize: 24

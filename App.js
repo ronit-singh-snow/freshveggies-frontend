@@ -1,16 +1,19 @@
 import { StyleSheet } from 'react-native';
+import { PaperProvider } from 'react-native-paper';
 
 import Router from './Navigations/Router.js';
-import { AppContextProvider } from './Services/AppContextProvider.js'; 
+import { AppContextProvider } from './Services/AppContextProvider.js';
 
 
 
 export default function App() {
 
     return (
-        <AppContextProvider>
-            <Router />
-        </AppContextProvider>
+        <PaperProvider>
+            <AppContextProvider>
+                <Router />
+            </AppContextProvider>
+        </PaperProvider>
     )
 }
 

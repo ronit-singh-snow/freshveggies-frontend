@@ -1,24 +1,9 @@
 // import * as SecureStore from "expo-secure-store";
-import {HOST_URL} from "../Constants.js";
+import { HOST_URL } from "../Constants.js";
 
-// export const saveToSecureStore = (key, value) => {
-//     SecureStore.setItem(key, value);
-// }
-
-// export const fetchFromSecureStore = (key, value) => {
-//     SecureStore.getItem(key);
-// }
-
+const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export const getResourceURL = (resource) => {
     return `${HOST_URL}${resource}`;
-}
-
-export const getTotalValue = (quantityArray, item) => {
-    let selectedItem = quantityArray.find((item) => item.isSelected);
-    if (!selectedItem)
-        return "Rs. " + 0;
-
-    return "Rs. " + (selectedItem.value/item.unitValue) * item.unitPrice;
 }
 
 export const formatFruits = (data) => {
@@ -27,7 +12,7 @@ export const formatFruits = (data) => {
         d.unitPrice = parseInt(d.unit_price);
         d.unitValue = 1000;
         d.cardWidthRatio = 2;
-        d.img = {uri: getResourceURL(d.image_path)};
+        d.img = { uri: getResourceURL(d.image_path) };
         d.bgColorCode = d.color_hex_code;
         return d;
     })
@@ -35,8 +20,45 @@ export const formatFruits = (data) => {
 
 export const findAddedCartItem = (cartItems, id) => {
     const itemIndex = cartItems.findIndex((item) => item.item.id == id);
-    if(itemIndex >= 0) {
+    if (itemIndex >= 0) {
         return cartItems[itemIndex].quantity
     }
     return 0;
+}
+
+export const cartItemsAndValue = (cartItems) => {
+    let count = 0;
+    let totalPrice = 0;
+
+    cartItems.forEach(item => {
+        count++;
+        totalPrice += item.item.unitPrice * item.quantity;
+    })
+
+    return {
+        count,
+        totalPrice
+    }
+}
+
+Date.prototype.addDays = function (days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+}
+
+export const getDeliveryDates = () => {
+    let dates = [];
+    let currentDate = new Date();
+
+    for (let i = 0; i < 4; i++) {
+        let nextDate = currentDate.addDays(i);
+        dates.push({
+            day: DAYS[nextDate.getDay()],
+            date: nextDate.getDate(),
+            dateObj: new Date(nextDate)
+        });
+    }
+
+    return dates;
 }
