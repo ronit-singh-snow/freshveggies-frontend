@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { FIREBASE_AUTH } from "./Firebase";
-import {  createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
+import {  createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPhoneNumber, getAuth, updateProfile, RecaptchaVerifier } from "firebase/auth";
+import auth from "@react-native-firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { insertUser } from "./FetchData";
 
@@ -12,11 +13,17 @@ export const AppContextProvider = ({children}) => {
     const [authData, setAuthData] = useState();
     const [selectedAddress, setUserSelectedAddress] = useState();
 
-    const setToken = async (user) => {
-        return await AsyncStorage.multiSet([
-            ["user_token", user.refreshToken],
-            ["email", user.email]
-        ]);
+    const setToken = async (user, phoneNumber, loginType) => {
+        const number = user?.phoneNumber || phoneNumber;
+        const storeData = [];
+        user.uid ? storeData.push(["user_token", user.uid]) : null;
+        user.email ? storeData.push(["email", user.email]) : null;
+        number ? storeData.push(["phone_number", number]) : null;
+        loginType ? storeData.push(["login_type", loginType]) : null;
+
+        console.log("TestAuth", storeData);
+
+        return await AsyncStorage.multiSet(storeData);
     }
 
     const getToken = async () => {
@@ -37,24 +44,27 @@ export const AppContextProvider = ({children}) => {
         getToken();
     }, [])
 
-    const signIn = async (email, password) => {
-        signInWithEmailAndPassword(FIREBASE_AUTH, email, password)
-            .then((userCredential) => {
+    const signIn = async (userCredential, phoneNumber, loginType) => { 
+        // signInWithEmailAndPassword(FIREBASE_AUTH, email, password)
+        //     .then((userCredential) => {
                 // Signed in 
                 const user = userCredential.user;
-                setToken(user);
+                console.log(user);
+                setToken(user, phoneNumber, loginType);
                 const _authData = {
-                    user_token: user.refreshToken,
-                    email: user.email
+                    user_token: user.uid,
+                    email: user?.email,
+                    loginType,
+                    phoneNumber
                 }
+                console.log(_authData);
                 setAuthData(_authData);
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.log(error);
-            });
-
+            // })
+            // .catch((error) => {
+            //     const errorCode = error.code;
+            //     const errorMessage = error.message;
+            //     console.log(error);
+            // });
     };
 
     const signOut = async () => {

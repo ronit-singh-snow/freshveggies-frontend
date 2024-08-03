@@ -9,6 +9,7 @@ import { AddAddress } from "../Screens/AddAddress.js";
 import { AddNewAddress } from "../Screens/AddNewAddress.js";
 import { OrderSummary } from "../Screens/OrderSummary.js";
 import { OrderConfirmation } from "../Screens/OrderConfirmation.js";
+import OrdersList from "../Screens/OrdersList.js";
 
 const Stack = createNativeStackNavigator();
 
@@ -62,6 +63,11 @@ export default function AppStack() {
                 name="OrderConfirmation"
                 component={OrderConfirmation}
                 options={{title: "Order confirmed", headerShown: false}}
+            />
+            <Stack.Screen
+                name="OrdersList"
+                component={OrdersList}
+                options={{title: "Your orders"}}
             />
         </Stack.Navigator>
     );

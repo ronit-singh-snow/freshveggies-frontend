@@ -29,7 +29,7 @@ export const getAddresses = (emailId) => {
 }
 
 export const insertUser = (emailId, name, phoneNumber) => {
-    axios.get(`${HOST_URL}/insertuser?email_id=${emailId}&name=${name}&phone_number=${phoneNumber}`)
+    return axios.get(`${HOST_URL}/insertuser?email_id=${emailId}&name=${name}&phone_number=${phoneNumber}`)
 }
 
 export const findUser = (emailId) => {
@@ -42,4 +42,8 @@ export const submitAddress = (address) => {
 
 export const submitOrder = (orderDetails) => {
     return axios.post(`${HOST_URL}/submitorder`, orderDetails);
+}
+
+export const listOrders = (emailId) => {
+    return axios.get(`${HOST_URL}/listorders?email_id=${emailId}`);
 }

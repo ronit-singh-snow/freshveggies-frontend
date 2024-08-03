@@ -15,7 +15,6 @@ export default function Header() {
 
     useEffect(() => {
         findUser(authData.email).then(response => {
-            console.log(response.data);
             setUserData(response.data[0]);
         });
     }, [])
