@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
 import { FIREBASE_AUTH } from "./Firebase";
-import {  createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPhoneNumber, getAuth, updateProfile, RecaptchaVerifier } from "firebase/auth";
-import auth from "@react-native-firebase/auth";
+import {  createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { insertUser } from "./FetchData";
 
@@ -21,23 +21,31 @@ export const AppContextProvider = ({children}) => {
         number ? storeData.push(["phone_number", number]) : null;
         loginType ? storeData.push(["login_type", loginType]) : null;
 
-        console.log("TestAuth", storeData);
-
         return await AsyncStorage.multiSet(storeData);
     }
 
     const getToken = async () => {
-        const val = await AsyncStorage.multiGet(["user_token", "email"]);
+        const val = await AsyncStorage.multiGet(["user_token", "email", "phone_number", "selected_address"]);
         const serialiseAsyncData = val.reduce((acc, item) => {
             acc[item[0]] = item[1];
             return acc;
         }, {});
-        
+
+        val.forEach(storageItem => {
+            if (storageItem[0] == "selected_address") {
+                setUserSelectedAddress(JSON.parse(storageItem[1]));
+            }
+        })
+
         setAuthData(serialiseAsyncData);
     }
 
+    const setAddressToAsyncStorage = async (addr) => {
+        return await AsyncStorage.setItem("selected_address", JSON.stringify(addr));
+    }
+
     const removeToken = () => {
-        AsyncStorage.removeItem("user_token");
+        AsyncStorage.clear();
     }
 
     useEffect(() => {
@@ -45,26 +53,15 @@ export const AppContextProvider = ({children}) => {
     }, [])
 
     const signIn = async (userCredential, phoneNumber, loginType) => { 
-        // signInWithEmailAndPassword(FIREBASE_AUTH, email, password)
-        //     .then((userCredential) => {
-                // Signed in 
-                const user = userCredential.user;
-                console.log(user);
-                setToken(user, phoneNumber, loginType);
-                const _authData = {
-                    user_token: user.uid,
-                    email: user?.email,
-                    loginType,
-                    phoneNumber
-                }
-                console.log(_authData);
-                setAuthData(_authData);
-            // })
-            // .catch((error) => {
-            //     const errorCode = error.code;
-            //     const errorMessage = error.message;
-            //     console.log(error);
-            // });
+        const user = userCredential.user;
+        setToken(user, phoneNumber, loginType);
+        const _authData = {
+            user_token: user.uid,
+            email: user?.email,
+            loginType,
+            phoneNumber
+        }
+        setAuthData(_authData);
     };
 
     const signOut = async () => {
@@ -87,7 +84,8 @@ export const AppContextProvider = ({children}) => {
             setAuthData(_authData);
             updateProfile(user, {
                 displayName: name,
-                phoneNumber: mobile
+                phoneNumber: mobile,
+                email: email
             });
 
             insertUser(email, name, mobile);
@@ -137,6 +135,7 @@ export const AppContextProvider = ({children}) => {
 
     const setSelectedAddress = (addr) => {
         setUserSelectedAddress(addr);
+        setAddressToAsyncStorage(addr);
     }
 
     return (

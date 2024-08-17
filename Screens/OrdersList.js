@@ -55,7 +55,7 @@ export default function OrdersList({ navigation }) {
     const [orders, setOrders] = useState([]);
 
     useEffect(() => {
-        listOrders(authData.email).then(res => {
+        listOrders(authData.phone_number).then(res => {
             setOrders(res.data);
         });
     }, [])

@@ -7,12 +7,17 @@ export const getBannerImage = (imageName) => {
     return axios.get("https://api.foursquare.com/v3/autocomplete");
 }
 
-export const getFruits = () => {
-    return axios.get(`${HOST_URL}/fruits`);
+export const getProducts = (category, subCategory, extraConditions, limit) => {
+    return axios.post(`${HOST_URL}/prodcts`, {
+        category: category,
+        subcategory: subCategory,
+        extra_query: extraConditions,
+        limit: limit
+    });
 }
 
-export const getVegetables = () => {
-    return axios.get(`${HOST_URL}/vegetables`);
+export const homepageDetails = () => {
+    return axios.get(`${HOST_URL}/homepage`);
 }
 
 export const getFruitById = (fruitId) => {
@@ -24,16 +29,16 @@ export const getProductsList = (searchText) => {
     return axios.get(`${HOST_URL}/getsearchlist?search_text=${searchText}`);
 }
 
-export const getAddresses = (emailId) => {
-    return axios.get(`${HOST_URL}/getuseraddresses/${emailId}`);
+export const getAddresses = (phoneNo, id) => {
+    return axios.get(`${HOST_URL}/getuseraddresses/${phoneNo}/${id}`);
 }
 
 export const insertUser = (emailId, name, phoneNumber) => {
     return axios.get(`${HOST_URL}/insertuser?email_id=${emailId}&name=${name}&phone_number=${phoneNumber}`)
 }
 
-export const findUser = (emailId) => {
-    return axios.get(`${HOST_URL}/finduser?email_id=${emailId}`);
+export const findUser = (value) => {
+    return axios.get(`${HOST_URL}/finduser?id=${value}`);
 }
 
 export const submitAddress = (address) => {
@@ -44,6 +49,6 @@ export const submitOrder = (orderDetails) => {
     return axios.post(`${HOST_URL}/submitorder`, orderDetails);
 }
 
-export const listOrders = (emailId) => {
-    return axios.get(`${HOST_URL}/listorders?email_id=${emailId}`);
+export const listOrders = (phoneNumber) => {
+    return axios.get(`${HOST_URL}/listorders?phone_number=${phoneNumber}`);
 }

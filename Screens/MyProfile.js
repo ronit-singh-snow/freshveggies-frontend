@@ -67,7 +67,7 @@ export const MyProfile = ({navigation}) => {
     const [profileData, setProfileData] = useState({});
     
     useEffect(() => {
-        findUser(authData.email).then(res => {
+        findUser(authData.phone_number).then(res => {
             if (res && res.data.length > 0) {
                 const data = res.data[0];
                 setProfileData({

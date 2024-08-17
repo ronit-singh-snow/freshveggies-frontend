@@ -1,13 +1,16 @@
+import { useContext } from "react"
 import { View, Text, StyleSheet, Image, Pressable } from "react-native"
 import { RadioButton } from "react-native-paper"
+import { AppContext } from "../Services/AppContextProvider"
+import { useRoute } from "@react-navigation/native"
 
 export const OrderSummary = ({ navigation }) => {
+    const { authData, getCart, getSelectedAddress } = useContext(AppContext);
+    const route = useRoute();
+    const {items, itemValue, address, date, timeslot} = route.params;
+    console.log(items, itemValue, address, date, timeslot);
     return (<View style={styles.container}>
         <View style={{ flex: 1 }}>
-            {/* <View style={[styles.totalValue, styles.cardBackground]}>
-                <Text>Total</Text>
-                <Text>{'\u20B9'} 180</Text>
-            </View> */}
             <View>
                 <Text style={styles.paymentMethodText}>Payment method</Text>
                 <View style={[styles.cardBackground, styles.row]}>

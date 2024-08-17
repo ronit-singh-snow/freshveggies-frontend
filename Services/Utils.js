@@ -50,7 +50,9 @@ Date.prototype.addDays = function (days) {
 export const getDeliveryDates = () => {
     let dates = [];
     let currentDate = new Date();
-
+    if (isTimeSlotDisabled(20)) {
+        currentDate = currentDate.addDays(1);
+    }
     for (let i = 0; i < 4; i++) {
         let nextDate = currentDate.addDays(i);
         dates.push({
@@ -61,4 +63,15 @@ export const getDeliveryDates = () => {
     }
 
     return dates;
+}
+
+export const isTimeSlotDisabled = (deliveryDate, hour) => {
+    let currentTime = new Date();
+    let slotEndTime = new Date(deliveryDate);
+    slotEndTime.setHours(hour);
+    slotEndTime.setMinutes(0);
+    slotEndTime.setSeconds(0);
+    slotEndTime.setMilliseconds(0);
+
+    return slotEndTime.getTime() < currentTime.getTime();
 }

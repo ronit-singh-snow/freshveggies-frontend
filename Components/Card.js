@@ -38,7 +38,7 @@ const getCardContent = (item, addToCart, cartItems, removeFromCart) => {
     )
 }
 
-export default function Card({ item }) {
+export default function Card({ item, clickHandler }) {
     const navigation = useNavigation();
     const {addToCart, getCart, removeFromCart} = useContext(AppContext);
     const {cardWidthRatio, bgColorCode} = item;
@@ -50,9 +50,7 @@ export default function Card({ item }) {
     return (
         <TouchableOpacity 
             style={{...styles.container, width, backgroundColor: bgColor}}
-            onPress={() => navigation.navigate("FruitDetails", {
-                item
-            })}>
+            onPress={() => clickHandler(item)}>
                 {item.type == "banner" ? getBannerContent(item) : getCardContent(item, addToCart, cartItems, removeFromCart)}
         </TouchableOpacity>
     )

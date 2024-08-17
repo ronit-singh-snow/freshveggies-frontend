@@ -3,9 +3,11 @@ import { StyleSheet, FlatList, Text, Button, View, Image, Pressable } from 'reac
 import AddQuantity from '../Components/AddQuantity';
 import { Footer } from '../Components/Footer';
 import { AppContext } from '../Services/AppContextProvider';
-import { useContext, useEffect } from 'react';
-import { findAddedCartItem } from '../Services/Utils';
+import { useContext, useEffect, useState } from 'react';
+import { findAddedCartItem, formatFruits } from '../Services/Utils';
 import { PriceValue } from '../Components/PriceValue';
+import { getProducts } from '../Services/FetchData';
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -42,19 +44,26 @@ export default function ListItems({ navigation }) {
     const route = useRoute();
     const dataItems = route.params?.dataItems;
     const title = route.params?.title;
+    const query = route.params?.query;
     const { addToCart, getCart, removeFromCart } = useContext(AppContext);
     const cartItems = getCart();
+
+    const [listData, setListData] = useState([]);
 
     useEffect(() => {
         navigation.setOptions({
             title: title
-        })
+        });
+        
+        getProducts(query.category, query.subcategory, query.extraConditions, query.limit).then(response => {
+            setListData(formatFruits(response.data));
+        });
     }, [navigation, title])
 
     return (
         <View style={styles.container}>
             <FlatList
-                data={dataItems}
+                data={listData}
                 renderItem={({ item }) => {
                     return <Pressable style={[styles.row, styles.cardBackground]} onPress={() => navigation.navigate("FruitDetails", {
                         item

@@ -6,7 +6,7 @@ import { Image } from 'expo-image';
 import { insertUser } from '../Services/FetchData';
 import Loader from '../Components/Loader';
 
-export default function LoginPage() {
+export default function LoginPage({navigation}) {
     const [phoneNumber, setPhoneNumber] = useState();
     const [confirmationResult, setconfirmationResult] = useState();
     const [fetchingOtp, setFetchingOtp] = useState(true);
@@ -80,9 +80,10 @@ export default function LoginPage() {
            {isLoading ? <Loader /> : null}
             {!extraDetails ?
                 <View style={styles.container}>
-                    <Text style={styles.welcome}>Welcome back!</Text>
                     {
-                        fetchingOtp ? <View>
+                        fetchingOtp ? <View style={styles.loginContainer}>
+                            <Text style={styles.enterNumberText}>Enter your mobile number</Text>
+                            <Text style={styles.textLightColor}>We will send you a confirmation code</Text>
                             <View style={styles.countryInput}>
                                 <Image
                                     style={styles.image}
@@ -90,6 +91,7 @@ export default function LoginPage() {
                                     contentFit="cover"
                                     transition={1000}
                                 />
+                                
                                 <Text style={styles.countryCode}>+91</Text>
                                 <TextInput
                                     style={styles.signInInput}
@@ -99,22 +101,23 @@ export default function LoginPage() {
                                         setPhoneNumber(`+91${val}`)
                                     }} />
                             </View>
-                            <TouchableOpacity onPress={async () => {
+                            <TouchableOpacity style={{width: "100%"}} onPress={async () => {
                                 setIsLoading(true);
                                 signInWithPhone(phoneNumber);
                             }}>
-                                <Text style={styles.signInButton}>Send OTP</Text>
+                                <Text style={styles.signInButton}>Send</Text>
                             </TouchableOpacity>
                         </View>
                             : null
                     }
                     {
-                        fetchingConfirmation ? <View>
-                            <Text>Enter 6 digit OTP</Text>
+                        fetchingConfirmation ? <View style={styles.loginContainer}>
+                            <Text style={styles.enterNumberText}>Enter verification code</Text>
+                            <Text style={[styles.textLightColor, styles.headerDescription]}>6 digit verification code is sent to your mobile number {phoneNumber}</Text>
                             <View style={styles.otpContainer}>
                                 {renderInputs()}
                             </View>
-                            <TouchableOpacity onPress={async () => {
+                            <TouchableOpacity style={{width: "100%"}} onPress={async () => {
                                 setIsLoading(true);
                                 const userCred = await confirmationResult.confirm(otp);
                                 setIsLoading(false);
@@ -128,8 +131,24 @@ export default function LoginPage() {
                                     signIn(userCred, phoneNumber, "phone");
                                 }
                             }}>
-                                <Text style={styles.signInButton}>Confirm</Text>
+                                <Text style={styles.signInButton}>Verify</Text>
                             </TouchableOpacity>
+                            
+                            <View style={styles.resendContainer}>
+                                <Text style={styles.textLightColor}>Did not receive the OTP?</Text>
+                                <Text style={styles.textLink}>Resend OTP</Text>
+                            </View>
+
+                            <View style={styles.changeNumber}>
+                                <Text>OR</Text>
+                                <Pressable onPress={() => {
+                                    setFetchingOtp(true);
+                                    setFetchingConfirmation(false);
+                                    setExtraDetails(false);
+                                }}>
+                                    <Text style={styles.textLink}>Change number</Text>
+                                </Pressable>
+                            </View>
                         </View>
                             : null
                     }
@@ -175,6 +194,13 @@ const styles = StyleSheet.create({
         fontSize: 20,
         marginBottom: 20
     },
+    textLightColor: {
+        color: "#3e4740b8"
+    },
+    headerDescription: {
+        textAlign: "center",
+        width: "90%"
+    },
     textinput: {
         borderRadius: 10,
         borderWidth: 1,
@@ -187,7 +213,12 @@ const styles = StyleSheet.create({
         alignItems: "center",
         borderRadius: 10,
         borderWidth: 1,
-        paddingHorizontal: 10
+        paddingHorizontal: 10,
+        width: "100%",
+        marginTop: 20
+    },
+    textLink: {
+        color: "#0000FF"
     },
     countryCode: {
         padding: 8,
@@ -216,15 +247,39 @@ const styles = StyleSheet.create({
         height: 32
     },
     otpInput: {
-        backgroundColor: '#cacbcd',
+        // backgroundColor: '#c6e5c7',
         padding: 10,
         borderRadius: 5,
         textAlign: 'center',
         fontSize: 16,
+        borderColor: "#2b582c",
+        borderWidth: 1
     },
     otpContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        width: '100%',
+        marginTop: 20
+    },
+    enterNumberText: {
+        fontWeight: "400",
+        fontSize: 22
+    },
+    loginContainer: {
+        textAlign: "center",
+        alignItems: "center",
+        justifyContent: "space-evenly",
         width: '100%'
+    },
+    resendContainer: {
+        flexDirection: "row",
+        marginTop: 20,
+        gap: 10
+    },
+    changeNumber: {
+        width: "100%",
+        alignItems: "center",
+        marginTop: 25,
+        gap: 20
     }
 });

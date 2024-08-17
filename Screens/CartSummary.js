@@ -2,29 +2,10 @@ import { useContext, useEffect, useState } from "react"
 import { AppContext } from "../Services/AppContextProvider";
 import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import AddQuantity from "../Components/AddQuantity";
-import { cartItemsAndValue, getDeliveryDates, handleOnQuantityChange } from "../Services/Utils";
+import { cartItemsAndValue, getDeliveryDates, handleOnQuantityChange, isTimeSlotDisabled } from "../Services/Utils";
 import { PriceValue } from "../Components/PriceValue";
 import { DELIVERY_FEE, PLATFORM_FEE } from "../Constants";
-import { getAddresses } from "../Services/FetchData";
-
-const getAddress = (address, navigation) => {
-    if (!address)
-        return [];
-    return (
-        <>
-            <View style={styles.deliveryHeader}>
-                <Text>Deliver to address: </Text>
-                <Text style={styles.addressType}>{address.type}</Text>
-                <TouchableOpacity onPress={() => navigation.navigate("AddAddress")} style={styles.changeAddr}>
-                    <Text style={styles.changeAddress}>Change</Text>
-                </TouchableOpacity>
-            </View>
-
-            <Text>{address.name} | {address.phone_number}</Text>
-            <Text>{address.house_flat_no}, {address.street_locality}, {address.pincode}</Text>
-        </>
-    );
-}
+import { findUser, getAddresses } from "../Services/FetchData";
 
 export default function CartSummary({ navigation }) {
     const { authData, getCart, addToCart, removeFromCart, getSelectedAddress, setSelectedAddress } = useContext(AppContext);
@@ -34,24 +15,61 @@ export default function CartSummary({ navigation }) {
     const deliveryDates = getDeliveryDates();
     const [selectedDeliveryDateIndex, setSelectedDeliveryDateIndex] = useState(0);
     const [selectedTimeSlot, setSelectedTimeSlot] = useState(1);
+    const [userData, setUserData] = useState();
 
     useEffect(() => {
-        if (!selectedAddress) {
-            getAddresses(authData.email).then(res => {
+        if (authData.selected_address) {
+            let addr = JSON.parse(authData.selected_address);
+            getAddresses(authData.phone_number.replace("+", " "), addr.idaddress).then(res => {
                 setSelectedAddress(res?.data[0])
+                selectedAddress = res?.data[0];
             });
         }
+
+        findUser(authData.phone_number.replace("+", " ")).then((response) => {
+            if (response.data && response.data.length > 0) {
+                setUserData(response.data[0]);
+            }
+        })
     }, []);
 
-    const slot1BgColor = selectedTimeSlot == 1 ? "#75da7c" : "#e5e5e5";
-    const slot2BgColor = selectedTimeSlot == 2 ? "#75da7c" : "#e5e5e5";
+    const getAddress = () => {
+        if (!selectedAddress)
+            return <View>
+                <Text> Deliver to: {userData?.username} {userData?.phone_number ? " | " + userData.phone_number : ""} </Text>
+                <TouchableOpacity onPress={() => navigation.navigate("AddAddress")} style={styles.selectAddress}>
+                    <Image source={require("../assets/images/location_pin.png")} style={styles.locationPin} />
+                    <Text style={styles.changeAddress}>Select a delivery address</Text>
+                </TouchableOpacity>
+            </View>;
+        return (
+            <>
+                <View style={styles.deliveryHeader}>
+                    <Text>Deliver to address: </Text>
+                    <Text style={styles.addressType}>{selectedAddress.type}</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate("AddAddress")} style={styles.changeAddr}>
+                        <Text style={styles.changeAddress}>Change</Text>
+                    </TouchableOpacity>
+                </View>
+
+                <Text>{selectedAddress.name} | {selectedAddress.phone_number}</Text>
+                <Text>{selectedAddress.street_locality}, {selectedAddress.pincode}</Text>
+            </>
+        );
+    }
+
+    const slot1Disabled = isTimeSlotDisabled(deliveryDates[selectedDeliveryDateIndex].dateObj, 9);
+    const slot2Disabled = isTimeSlotDisabled(deliveryDates[selectedDeliveryDateIndex].dateObj, 20);
+
+    const slot1BgColor = slot1Disabled ? "#e5e5e5bd" : selectedTimeSlot == 1 ? "#75da7c" : "#e5e5e5";
+    const slot2BgColor = slot2Disabled ? "#e5e5e5bd" : selectedTimeSlot == 2 ? "#75da7c" : "#e5e5e5";
 
     if (cartItemsValue.count > 0) {
         return (
             <View style={styles.summaryWrapper}>
                 <ScrollView style={styles.summaryContainer}>
                     <Text style={styles.myCartText}>My cart ({cartItemsValue.count} {cartItemsValue.count === 1 ? 'item' : 'items'})</Text>
-                    { cartItems.map( (item, index) => {
+                    {cartItems.map((item, index) => {
                         return <View style={[styles.container, styles.cardBackground]} key={index}>
                             <Image style={styles.image} source={item.item.img} contentFit="cover" transition={1000} />
                             <View>
@@ -85,16 +103,16 @@ export default function CartSummary({ navigation }) {
 
                         <Text>Select delivery time slot</Text>
                         <View style={styles.slotBtnContainer}>
-                            <Pressable onPress={() => setSelectedTimeSlot(1)}>
-                                <Text style={{ ...styles.slotBtn, backgroundColor: slot1BgColor }}>6AM - 9AM</Text>
+                            <Pressable onPress={() => setSelectedTimeSlot(1)} disabled={slot1Disabled}>
+                                <Text style={{ ...styles.slotBtn, backgroundColor: slot1BgColor, opacity: slot1Disabled ? .4 : 1 }}>6AM - 9AM</Text>
                             </Pressable>
-                            <Pressable onPress={() => setSelectedTimeSlot(2)}>
-                                <Text style={{ ...styles.slotBtn, backgroundColor: slot2BgColor }}>5PM - 8PM</Text>
+                            <Pressable onPress={() => setSelectedTimeSlot(2)} disabled={slot2Disabled}>
+                                <Text style={{ ...styles.slotBtn, backgroundColor: slot2BgColor, opacity: slot2Disabled ? .4 : 1 }}>5PM - 8PM</Text>
                             </Pressable>
                         </View>
                     </View>
                     <View style={styles.cardBackground}>
-                        {getAddress(selectedAddress, navigation)}
+                        {getAddress(selectedAddress, navigation, userData)}
                     </View>
                     <View style={styles.cardBackground}>
                         <View style={styles.summaryKeyMap}>
@@ -117,7 +135,13 @@ export default function CartSummary({ navigation }) {
                 </ScrollView>
                 <View style={styles.footer}>
                     <Pressable style={{ width: "100%" }} onPress={() => {
-                        navigation.navigate("OrderSummary")
+                        navigation.navigate("OrderSummary", {
+                            items: cartItems,
+                            itemValue: cartItemsValue,
+                            address: selectedAddress.idaddress,
+                            date: deliveryDates[selectedDeliveryDateIndex].dateObj.getTime(),
+                            timeslot: selectedTimeSlot
+                        })
                     }}>
                         <Text style={styles.btn}>Pay</Text>
                     </Pressable>
@@ -244,5 +268,13 @@ const styles = StyleSheet.create({
         marginTop: 5,
         flexDirection: "row",
         gap: 15
+    },
+    selectAddress: {
+        flexDirection: "row",
+        alignItems: "center"
+    },
+    locationPin: {
+        width: 18,
+        height: 18
     }
 });

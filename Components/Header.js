@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import auth from "@react-native-firebase/auth";
 import { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../Services/AppContextProvider';
 import { findUser } from '../Services/FetchData';
@@ -13,13 +14,25 @@ export default function Header() {
     const { authData, getSelectedAddress } = useContext(AppContext);
     const [userData, setUserData] = useState({});
 
+    function onAuthStateChanged(user) {
+        findUser(user.phoneNumber.replace("+", " ")).then((response) => {
+            if (response.data && response.data.length > 0){
+                setUserData(response.data[0]);
+            }
+        })
+    }
+
     useEffect(() => {
-        findUser(authData.email).then(response => {
-            setUserData(response.data[0]);
-        });
+        findUser(authData.phone_number.replace("+", " ")).then((response) => {
+            console.log(response)
+            if (response.data && response.data.length > 0) {
+                setUserData(response.data[0]);
+            }
+        })
     }, [])
 
-    const selectedAddress = getSelectedAddress();
+    let selectedAddress = getSelectedAddress();
+    selectedAddress = JSON.parse(selectedAddress);
 
     return (
         <View style={styles.main}>
@@ -33,7 +46,7 @@ export default function Header() {
                             transition={1000}
                         />
                         {selectedAddress
-                            ? <Text style={styles.location}>{selectedAddress.street_locality}</Text>
+                            ? <Text style={styles.location} numberOfLines={1}>{selectedAddress.street_locality}</Text>
                             : <Text>Select an address</Text>
                         }
                     </View>
@@ -59,9 +72,13 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         gap: 7
+        
     },
     location: {
-        color: "#345f22"
+        color: "#345f22",
+        flexWrap: "wrap",
+        width: "80%",
+        fontWeight: "bold"
     },
     main: {
         backgroundColor: "#6cbb8a",
@@ -84,7 +101,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         fontWeight: "bold",
         fontSize: 18,
-        // marginTop: 10,
         color: "#345f22"
     },
     description: {

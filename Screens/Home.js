@@ -8,28 +8,37 @@ import Header from "../Components/Header.js";
 import Carousel from '../Components/Carousel.js';
 import { Footer } from '../Components/Footer.js';
 import { formatFruits, getResourceURL } from '../Services/Utils.js';
-import { getFruits, getVegetables } from '../Services/FetchData.js';
+import { homepageDetails } from '../Services/FetchData.js';
 
 export default function Home({ navigation }) {
-    const data = [
-        { id: 1, type: "banner", title: 'Apple', img: { uri: getResourceURL("/static/images/banner_image_1.jpg") }, cardWidthRatio: 1 },
-        { id: 2, type: "banner", title: 'Bell pepper', img: { uri: getResourceURL("/static/images/banner_image_2.jpg") }, cardWidthRatio: 1 }
-    ];
-
-    const [seasonalItems, setSeasonalItems] = useState();
-    const [seasonalVegetableItems, setSeasonalVegetableItems] = useState();
+    const [banners, setBanners] = useState([]);
+    const [downSections, setDownsections] = useState([]);
 
     const renderItem = (item) => {
-        return <Card item={item} />;
-    }
+        return <Card item={item} key={`product_${item.id}`} clickHandler={() => {
+            navigation.navigate("FruitDetails", {
+                item
+            })
+        }} />;
+    }  
 
     useEffect(() => {
-        getFruits().then((response) => {
-            setSeasonalItems(formatFruits(response.data));
-        });
-        getVegetables().then((response) => {
-            setSeasonalVegetableItems(formatFruits(response.data));
-        });
+        homepageDetails().then(response => {
+            let bannersData = response?.data.banners.map((banner, index) => {
+                banner.id = `banner_${index}`;
+                banner.type = "banner";
+                banner.img = {
+                    uri: getResourceURL(banner.imageSource)
+                };
+                cardWidthRatio = 1;
+
+                return banner;
+            });
+
+            setBanners(bannersData);
+
+            setDownsections(response?.data.downSections);
+        })
     }, []);
 
     return (
@@ -37,24 +46,36 @@ export default function Home({ navigation }) {
             <ScrollView style={{flex: 1}}>
                 <StatusBar style="auto" />
                 <Header />
-                <Carousel data={data} renderItem={renderItem} loop={false} />
-                <View style={styles.sectionHeader}>
-                    <Text style={styles.header}>Seasonal fruits</Text>
-                    <Text onPress={() => navigation.navigate("ListItems", {
-                        dataItems: seasonalItems,
-                        title: "Seasonal Fruits"
-                    })} style={styles.textLink} >See all</Text>
-                </View>
-                <Carousel data={seasonalItems ? seasonalItems.slice(0,3) : []} renderItem={renderItem} loop={false} />
-
-                <View style={styles.sectionHeader}>
-                    <Text style={styles.header}>Fresh vegetables</Text>
-                    <Text onPress={() => navigation.navigate("ListItems", {
-                        dataItems: seasonalVegetableItems,
-                        title: "Seasonal vegetables"
-                    })} style={styles.textLink}>See all</Text>
-                </View>
-                <Carousel data={seasonalVegetableItems ? seasonalVegetableItems.slice(0,3) : []} renderItem={renderItem} loop={false} />
+                
+                {/* Banner */}
+                <Carousel 
+                    data={banners}
+                    loop={false}
+                    renderItem={(item) => {
+                        return <Card item={item} clickHandler={(item) => {
+                            console.log(item);
+                            navigation.navigate("ListItems", {
+                                title: item.title,
+                                query: item.query
+                            });
+                        }} key={`product_${item.id}`} />
+                    }}
+                />
+                
+                {downSections ? downSections.map((section, index) => {
+                    return (<View key={`${section.title.replaceAll(" ", "")}_${index}`}>
+                                <View style={styles.sectionHeader}>
+                                    <Text style={styles.header}>{section.title}</Text>
+                                    <Text onPress={() => navigation.navigate("ListItems", {
+                                        dataItems: section.data,
+                                        title: section.title,
+                                        query: section.query
+                                    })} style={styles.textLink} >See all</Text>
+                                </View>
+                                <Carousel data={formatFruits(section.data)} renderItem={renderItem} loop={false} />
+                            </View>);
+                }) : null}
+                
             </ScrollView>
             <Footer />
         </SafeAreaView>

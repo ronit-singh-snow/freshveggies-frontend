@@ -23,7 +23,8 @@ const styles = StyleSheet.create({
         color: "#FFF",
         borderRadius: 10,
         marginTop: 40,
-        width: "100%"
+        width: "100%",
+        textAlign: "center"
     },
     moto: {
         alignSelf: "flex-start",
@@ -38,7 +39,13 @@ const styles = StyleSheet.create({
     },
     login: {
         flexDirection: "row",
-        marginTop: 10
+        marginTop: 10,
+        
+    },
+    signUpButtonContainer: {
+        width: "100%",
+        alignItems: "center",
+        justifyContent: "center"
     }
 })
 export const Welcome = ({ navigation }) => {
@@ -61,15 +68,15 @@ export const Welcome = ({ navigation }) => {
                 <Text style={styles.appMoto}>We always ensure that quality of fruits and vegetables is never compromised.</Text>
             </View>
             
-            <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
-                <Text style={styles.signUpButton}>Sign up</Text>
+            <TouchableOpacity style={styles.signUpButtonContainer} onPress={() => navigation.navigate("Login")}>
+                <Text style={styles.signUpButton}>Login</Text>
             </TouchableOpacity>
-            <View style={styles.login}>
+            {/* <View style={styles.login}>
                 <Text>Already have an account? </Text>
                 <TouchableOpacity onPress={() => navigation.navigate("Login")}>
                     <Text style={styles.textLink}>Login</Text>
                 </TouchableOpacity>
-            </View>
+            </View> */}
         </View>
     </ImageBackground>)
 }
