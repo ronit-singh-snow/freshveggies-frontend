@@ -6,10 +6,10 @@ import CartSummary from "../Screens/CartSummary.js";
 import { SearchItem } from "../Screens/SearchItems.js";
 import { MyProfile } from "../Screens/MyProfile.js";
 import { AddAddress } from "../Screens/AddAddress.js";
-import { AddNewAddress } from "../Screens/AddNewAddress.js";
 import { OrderSummary } from "../Screens/OrderSummary.js";
 import { OrderConfirmation } from "../Screens/OrderConfirmation.js";
 import OrdersList from "../Screens/OrdersList.js";
+import { UpdateAddress } from "../Screens/UpdateAddress.js";
 
 const Stack = createNativeStackNavigator();
 
@@ -50,11 +50,6 @@ export default function AppStack() {
                 options={{title: "My Addresses"}}
             />
             <Stack.Screen
-                name="AddNewAddress"
-                component={AddNewAddress}
-                options={{title: "Add New Address"}}
-            />
-            <Stack.Screen
                 name="OrderSummary"
                 component={OrderSummary}
                 options={{title: "Order summary"}}
@@ -68,6 +63,11 @@ export default function AppStack() {
                 name="OrdersList"
                 component={OrdersList}
                 options={{title: "Your orders"}}
+            />
+            <Stack.Screen
+                name="UpdateAddress"
+                component={UpdateAddress}
+                options={{title: "Enter complete address"}}
             />
         </Stack.Navigator>
     );

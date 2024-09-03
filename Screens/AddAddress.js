@@ -1,21 +1,19 @@
 import { useContext, useEffect, useState } from "react"
 import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import auth from "@react-native-firebase/auth";
-import { useFocusEffect } from "@react-navigation/native";
 import * as Location from "expo-location";
+import Toast from 'react-native-root-toast';
 
 import { AppContext } from "../Services/AppContextProvider"
-import { getAddresses } from "../Services/FetchData"
-import BottomSheet from "../Components/BottomSheet";
+import { deleteRecord, getAddresses } from "../Services/FetchData"
+import RoundedIconButton from "../Components/RoundedIconButton";
+import { useIsFocused } from "@react-navigation/native";
 
 const styles = StyleSheet.create({
     mainContainer: {
         flex: 1,
-        // padding: 20
     },
     container: {
-        // padding: 20,'
         width: "100%",
         textAlign: "center"
     },
@@ -23,7 +21,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#FFF",
         borderRadius: 10,
         padding: 10,
-        marginBottom: 10
+        marginBottom: 20
     },
     savedAddrTitle: {
         fontSize: 20,
@@ -47,11 +45,14 @@ const styles = StyleSheet.create({
     currentAddressContainer: {
         borderRadius: 10,
         padding: 8,
-        width: "100%"
+        width: "100%",
+        flexDirection: "row",
+        gap: 10,
+        alignItems: "center"
     },
     chevronRight: {
-        height: 18,
-        width: 18,
+        height: 24,
+        width: 24,
         marginLeft: "auto"
     },
     searchBarContainer: {
@@ -68,13 +69,65 @@ const styles = StyleSheet.create({
         marginTop: 70,
         padding: 20,
         width: "100%"
+    },
+    selectedAddress: {
+        backgroundColor: "#73c8cac7"
+    },
+    addressHeaderItems: {
+        flexDirection: "row",
+        justifyContent: "space-between"
+    },
+    cardOverflowActions: {
+        width: 16,
+        height: 16,
+        padding: 4,
+        borderWidth: 1,
+        borderColor: "#ddd",
+        backgroundColor: "#44b678"
+
+    },
+    placesSearchContainer: {
+        width: 40,
+        height: 40,
+        justifyContent: "center",
+        borderTopLeftRadius: 0,
+        borderBottomLeftRadius: 0,
+        backgroundColor: "#FFF",
+        borderWidth: 1,
+        borderRadius: 5,
+        borderLeftWidth: 0,
+        borderColor: '#ddd'
+    },
+    cardBottomShadow: {
+        shadowColor: '#171717',
+        shadowOffset: { width: -2, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 3,
+    },
+    currentLocationText: {
+        fontWeight: "bold",
+        color: "#44b678"
+    },
+    currentLocationIcon: {
+        alignSelf: "baseline",
+        width: 24,
+        height: 24
+    },
+    addAddressBtn: {
+        color: "#44b678",
+        fontWeight: "bold",
+        borderTopWidth: 1,
+        borderColor: "#ddd",
+        paddingTop: 10,
+        paddingLeft: 20,
+        fontSize: 16
     }
 });
 const autoCompleteStyles = StyleSheet.create({
     container: {
         width: '100%',
         marginTop: 10,
-        zIndex: 1,
+        zIndex: 1
     },
     listView: {
         borderColor: '#c8c7cc',
@@ -82,15 +135,34 @@ const autoCompleteStyles = StyleSheet.create({
         borderRadius: 2,
         position: 'absolute',
         top: 47
+    },
+    textInputContainer: {
+        width: '100%',
+        backgroundColor: 'transparent',
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+    },
+    textInput: {
+        height: 40,
+        borderColor: '#ddd',
+        borderWidth: 1,
+        borderRightWidth: 0,
+        borderRadius: 5,
+        borderTopRightRadius: 0,
+        borderBottomRightRadius: 0,
+        paddingHorizontal: 10,
+        fontSize: 16,
+        flex: 1,
     }
 });
 
 export const AddAddress = ({ navigation }) => {
-    const { authData, setSelectedAddress } = useContext(AppContext);
+    const { authData, setSelectedAddress, getSelectedAddress } = useContext(AppContext);
     const [addresses, setAddresses] = useState([]);
     const [address, setAddress] = useState();
-    const [showBS, setShowBS] = useState(false);
     const [CurrentAddress, setCurrentAddress] = useState(null);
+
+    const isInFocus = useIsFocused();
 
     const currentLocationPng = require("../assets/images/current_location.png");
     const chevronRight = require("../assets/images/chevron_right.png");
@@ -113,36 +185,39 @@ export const AddAddress = ({ navigation }) => {
         getPermissions();
     }
 
-    // Handle user state changes
-    function onAuthStateChanged(user) {
-        getAddresses(user.phoneNumber.replace("+", " ")).then(res => {
+    useEffect(() => {
+        getCurrentLocation();
+    }, []);
+    
+    useEffect(() => {
+        getAddresses(authData.phone_number.replace("+", " "), -1).then(res => {
             setAddresses(res?.data);
-            if (res?.data.length > 0) {
-                console.log(res.data[0])
-                setSelectedAddress(res.data[0]);
+        });
+    }, [isInFocus]);
+
+    const navigateToUpdateAddress = (selectedAddress) => {
+        let routeParams = {};
+        if (selectedAddress)
+            routeParams = {
+                address: selectedAddress
             }
+        navigation.navigate("UpdateAddress", {
+            address: selectedAddress
         });
     }
 
-    useEffect(() => {
-        const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-        getCurrentLocation();
-        
-        return subscriber; // unsubscribe on unmount
-    }, []);
-
-
+    const selectedAddress = getSelectedAddress();
     return <View style={styles.mainContainer}>
         <View style={styles.searchBarContainer}>
             <GooglePlacesAutocomplete
-                placeholder='Search address'
+                placeholder='Shastri colony, Mughalsarai'
                 debounce={250}
                 minLength={2}
                 enablePoweredByContainer={false}
                 disableScroll={false}
                 onPress={(data, details = null) => {
-                    setAddress(`${data.description}`);
-                    setShowBS(true);
+                    console.log(data.description);
+                    navigateToUpdateAddress( {full_address: data.description });
                 }}
                 query={{
                     key: 'AIzaSyAfAmY_6_d1v52LpV4xEY6eJ8eRCKcDHvc',
@@ -162,57 +237,95 @@ export const AddAddress = ({ navigation }) => {
 
                     </View>
                 }}
+                renderRightButton={() => (
+                    <View style={styles.placesSearchContainer}>
+                        <Image style={{ width: 22, height: 22, alignSelf: "center" }} source={require("../assets/images/search.png")} />
+                    </View>
+                )}
                 styles={autoCompleteStyles}
             />
 
         </View>
         <View style={styles.contentContainer}>
-            <TouchableOpacity
-                onPress={() => {
-                    setAddress(CurrentAddress);
-                    setShowBS(true);
-                }}
-                style={[styles.cardBackground, styles.currentAddressContainer]}>
-                <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
-                    <Image style={{ alignSelf: "baseline", width: 24, height: 24 }} source={currentLocationPng} />
-                    <View style={{ minWidth: 0, flexShrink: 1 }}>
-                        <Text style={{ fontWeight: "bold" }}>Current Location</Text>
-                        <Text style={{ minWidth: 0 }}>{CurrentAddress}</Text>
+            <View style={styles.cardBackground}>
+                <TouchableOpacity
+                    onPress={() => {
+                        setAddress(CurrentAddress);
+                        navigateToUpdateAddress({
+                            full_address: CurrentAddress
+                        });
+                    }}
+                >
+                    <View style={[styles.currentAddressContainer, styles.cardBottomShadow]}>
+                        <Image style={styles.currentLocationIcon} source={currentLocationPng} />
+                        <View style={{ minWidth: 0, flexShrink: 1 }}>
+                            <Text style={styles.currentLocationText}>Current Location</Text>
+                            <Text style={{ minWidth: 0, color: "#777" }}>{CurrentAddress}</Text>
+                        </View>
+                        <Image source={chevronRight} style={styles.chevronRight} />
                     </View>
-                    <Image source={chevronRight} style={styles.chevronRight} />
-                </View>
-            </TouchableOpacity>
+                </TouchableOpacity>
+                <Pressable onPress={() => navigateToUpdateAddress()}>
+                    <Text style={styles.addAddressBtn}>      &#x2b;   Add address</Text>
+                </Pressable>
+            </View>
 
-            <ScrollView style={styles.container}>
-                <Text style={styles.savedAddrTitle}>Saved Addresses</Text>
-                {addresses.length > 0 ? (
-                    addresses.map(addr => {
+            {addresses.length > 0 ? (
+                <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+                    <Text style={styles.savedAddrTitle}>Saved Addresses</Text>
+                    {addresses.map((addr, index) => {
+                        const isAddressSelected = selectedAddress && selectedAddress.idaddress == addr.idaddress;
                         return (
                             <TouchableOpacity key={addr.idaddress} onPress={() => {
                                 setSelectedAddress(addr);
                                 navigation.goBack();
                             }}>
-                                <View style={[styles.cardBackground, styles.rowDir]}>
+                                <View style={[styles.cardBackground, styles.rowDir, isAddressSelected ? styles.selectedAddress : ""]}>
                                     <View style={styles.addressDetail}>
-                                        <Text style={styles.addressType}>{addr.type}</Text>
+                                        <View style={styles.addressHeaderItems}>
+                                            <Text style={styles.addressType}>{addr.type}</Text>
+                                            <View style={{ flexDirection: "row", gap: 12 }}>
+                                                <RoundedIconButton 
+                                                    onPress={() => {
+                                                        navigation.navigate("UpdateAddress", {
+                                                            address: addr,
+                                                            editAddress: true
+                                                        });
+                                                    }}
+                                                    buttonColor="#ddd"
+                                                    source={require("../assets/images/pen.png")}
+                                                />
+                                                <RoundedIconButton
+                                                    onPress={() => {
+                                                        deleteRecord("address", addr.idaddress, "idaddress");
+                                                        Toast.show('Address deleted successfully', {
+                                                            duration: Toast.durations.LONG
+                                                        });
+                                                        let clonedAddresses = Array.from(addresses);
+                                                        clonedAddresses.splice(index, 1);
+                                                        setAddresses(clonedAddresses);
+                                                        if (isAddressSelected)
+                                                            setSelectedAddress(null);
+                                                    }}
+                                                    buttonColor="#ddd"
+                                                    source={require("../assets/images/delete.png")}
+                                                />
+                                            </View>
+                                        </View>
                                         <Text>{addr.name} | {addr.phone_number}</Text>
-                                        <Text>{addr.street_locality}, {addr.address_line_2}</Text>
+                                        <Text style={{ color: "#777" }}>{addr.full_address}</Text>
                                     </View>
                                 </View>
                             </TouchableOpacity>
                         );
-                    })
-                ) : (
-                    <View>
-                        <Text>No data available</Text>
-                    </View>
-                )}
+                    })}
 
-                <TouchableOpacity onPress={() => setShowBS(true)}>
-                    <Text style={styles.addNewAddressBtn}>Add new address</Text>
-                </TouchableOpacity>
-            </ScrollView>
+                </ScrollView>
+            ) : (
+                <View>
+                    <Text>No data available</Text>
+                </View>
+            )}
         </View>
-        {showBS ? <BottomSheet setStatus={setShowBS} address={address} /> : null}
     </View>
 }

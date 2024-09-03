@@ -3,12 +3,15 @@ import { View, Text, StyleSheet, Image, Pressable } from "react-native"
 import { RadioButton } from "react-native-paper"
 import { AppContext } from "../Services/AppContextProvider"
 import { useRoute } from "@react-navigation/native"
+import { submitOrder } from "../Services/FetchData"
+import { submitOrderUtil } from "../Services/Utils"
 
 export const OrderSummary = ({ navigation }) => {
-    const { authData, getCart, getSelectedAddress } = useContext(AppContext);
+    const { authData, clearCart } = useContext(AppContext);
+   
     const route = useRoute();
     const {items, itemValue, address, date, timeslot} = route.params;
-    console.log(items, itemValue, address, date, timeslot);
+
     return (<View style={styles.container}>
         <View style={{ flex: 1 }}>
             <View>
@@ -27,7 +30,16 @@ export const OrderSummary = ({ navigation }) => {
             </View>
         </View>
         <View>
-            <Pressable onPress={() => navigation.navigate("OrderConfirmation")}>
+            <Pressable onPress={() => {
+                submitOrderUtil(authData.phone_number.replace("+", " "), items, itemValue, address, date, timeslot).then(response => {
+                    clearCart();
+                    navigation.navigate("OrderConfirmation", {
+                        orderId: response.data.insertedOrderId
+                    });
+                }).catch(() => {
+                    console.log("Failed while submitting order");
+                });  
+            }}>
                 <Text style={styles.orderNow}>Order now</Text>
             </Pressable>
         </View>

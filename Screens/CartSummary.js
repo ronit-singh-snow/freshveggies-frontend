@@ -1,14 +1,15 @@
 import { useContext, useEffect, useState } from "react"
 import { AppContext } from "../Services/AppContextProvider";
-import { FlatList, Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import AddQuantity from "../Components/AddQuantity";
 import { cartItemsAndValue, getDeliveryDates, handleOnQuantityChange, isTimeSlotDisabled } from "../Services/Utils";
 import { PriceValue } from "../Components/PriceValue";
 import { DELIVERY_FEE, PLATFORM_FEE } from "../Constants";
-import { findUser, getAddresses } from "../Services/FetchData";
+import { findUser } from "../Services/FetchData";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function CartSummary({ navigation }) {
-    const { authData, getCart, addToCart, removeFromCart, getSelectedAddress, setSelectedAddress } = useContext(AppContext);
+    const { authData, getCart, addToCart, removeFromCart, getSelectedAddress } = useContext(AppContext);
     const cartItems = getCart();
     let cartItemsValue = cartItemsAndValue(cartItems);
     const selectedAddress = getSelectedAddress();
@@ -16,16 +17,8 @@ export default function CartSummary({ navigation }) {
     const [selectedDeliveryDateIndex, setSelectedDeliveryDateIndex] = useState(0);
     const [selectedTimeSlot, setSelectedTimeSlot] = useState(1);
     const [userData, setUserData] = useState();
-
+    
     useEffect(() => {
-        if (authData.selected_address) {
-            let addr = JSON.parse(authData.selected_address);
-            getAddresses(authData.phone_number.replace("+", " "), addr.idaddress).then(res => {
-                setSelectedAddress(res?.data[0])
-                selectedAddress = res?.data[0];
-            });
-        }
-
         findUser(authData.phone_number.replace("+", " ")).then((response) => {
             if (response.data && response.data.length > 0) {
                 setUserData(response.data[0]);
@@ -36,7 +29,8 @@ export default function CartSummary({ navigation }) {
     const getAddress = () => {
         if (!selectedAddress)
             return <View>
-                <Text> Deliver to: {userData?.username} {userData?.phone_number ? " | " + userData.phone_number : ""} </Text>
+                <Text style={{fontWeight: 500}}>Deliver to: </Text>
+                <Text style={{color: "#777"}}>{userData?.username} {userData?.phone_number ? " | " + userData.phone_number : ""} </Text>
                 <TouchableOpacity onPress={() => navigation.navigate("AddAddress")} style={styles.selectAddress}>
                     <Image source={require("../assets/images/location_pin.png")} style={styles.locationPin} />
                     <Text style={styles.changeAddress}>Select a delivery address</Text>
@@ -52,8 +46,8 @@ export default function CartSummary({ navigation }) {
                     </TouchableOpacity>
                 </View>
 
-                <Text>{selectedAddress.name} | {selectedAddress.phone_number}</Text>
-                <Text>{selectedAddress.street_locality}, {selectedAddress.pincode}</Text>
+                <Text style={{color: "#777"}}>{userData?.username} {userData?.phone_number ? " | " + userData.phone_number : ""} </Text>
+                <Text style={{color: "#777"}}>{selectedAddress.full_address}</Text>
             </>
         );
     }
@@ -61,6 +55,8 @@ export default function CartSummary({ navigation }) {
     const slot1Disabled = isTimeSlotDisabled(deliveryDates[selectedDeliveryDateIndex].dateObj, 9);
     const slot2Disabled = isTimeSlotDisabled(deliveryDates[selectedDeliveryDateIndex].dateObj, 20);
 
+    if (slot1Disabled && !slot2Disabled && selectedTimeSlot == 1)
+        setSelectedTimeSlot(2);
     const slot1BgColor = slot1Disabled ? "#e5e5e5bd" : selectedTimeSlot == 1 ? "#75da7c" : "#e5e5e5";
     const slot2BgColor = slot2Disabled ? "#e5e5e5bd" : selectedTimeSlot == 2 ? "#75da7c" : "#e5e5e5";
 
@@ -134,15 +130,19 @@ export default function CartSummary({ navigation }) {
                     </View>
                 </ScrollView>
                 <View style={styles.footer}>
-                    <Pressable style={{ width: "100%" }} onPress={() => {
-                        navigation.navigate("OrderSummary", {
-                            items: cartItems,
-                            itemValue: cartItemsValue,
-                            address: selectedAddress.idaddress,
-                            date: deliveryDates[selectedDeliveryDateIndex].dateObj.getTime(),
-                            timeslot: selectedTimeSlot
-                        })
-                    }}>
+                    <Pressable 
+                        style={[ styles.payBtn, (slot1Disabled && slot2Disabled) || !selectedAddress ? styles.payBtnDisabled : "" ]} 
+                        disabled={(slot1Disabled && slot2Disabled) || !selectedAddress}
+                        onPress={() => {
+                            navigation.navigate("OrderSummary", {
+                                items: cartItems,
+                                itemValue: cartItemsValue,
+                                address: selectedAddress.idaddress,
+                                date: deliveryDates[selectedDeliveryDateIndex].dateObj.getTime(),
+                                timeslot: selectedTimeSlot
+                            })
+                        }}
+                    >
                         <Text style={styles.btn}>Pay</Text>
                     </Pressable>
                 </View>
@@ -271,10 +271,18 @@ const styles = StyleSheet.create({
     },
     selectAddress: {
         flexDirection: "row",
-        alignItems: "center"
+        alignItems: "center",
+        marginTop: 10,
+        gap: 10
     },
     locationPin: {
         width: 18,
         height: 18
+    },
+    payBtn: {
+        width: "100%"
+    },
+    payBtnDisabled: {
+        opacity: .4
     }
 });

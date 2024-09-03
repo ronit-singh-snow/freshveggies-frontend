@@ -30,7 +30,7 @@ export const getProductsList = (searchText) => {
 }
 
 export const getAddresses = (phoneNo, id) => {
-    return axios.get(`${HOST_URL}/getuseraddresses/${phoneNo}/${id}`);
+    return axios.get(`${HOST_URL}/getuseraddresses?phone_number=${phoneNo}&id=${id}`);
 }
 
 export const insertUser = (emailId, name, phoneNumber) => {
@@ -51,4 +51,8 @@ export const submitOrder = (orderDetails) => {
 
 export const listOrders = (phoneNumber) => {
     return axios.get(`${HOST_URL}/listorders?phone_number=${phoneNumber}`);
+}
+
+export const deleteRecord = (table, id, columnName) => {
+    return axios.delete(`${HOST_URL}/delete_resource/${table}/${id}/${columnName}`);
 }

@@ -4,14 +4,16 @@ import { PaperProvider } from 'react-native-paper';
 import Router from './Navigations/Router.js';
 import { AppContextProvider } from './Services/AppContextProvider.js';
 
-
+import { RootSiblingParent } from 'react-native-root-siblings';
 
 export default function App() {
 
     return (
         <PaperProvider>
             <AppContextProvider>
-                <Router />
+                <RootSiblingParent>
+                    <Router />
+                </RootSiblingParent>
             </AppContextProvider>
         </PaperProvider>
     )

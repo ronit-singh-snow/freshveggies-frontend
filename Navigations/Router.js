@@ -6,7 +6,6 @@ import { appContext } from "../Services/AppContextProvider";
 
 const Router = () => {
     const {authData, loading} = appContext();
-    console.log("router: " + JSON.stringify(authData));
     return (
         <NavigationContainer>
             { authData?.user_token ? <AppStack /> :  <AuthStack /> }

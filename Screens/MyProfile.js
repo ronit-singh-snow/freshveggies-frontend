@@ -93,7 +93,7 @@ export const MyProfile = ({navigation}) => {
                     <Image style={styles.imageContainer} source={require("../assets/images/chevron_right.png")} />
                 </View>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("AddAddress")}>
                 <View style={styles.btns}>
                     <Text style={styles.btnText}>Address book</Text>
                     <Image style={styles.imageContainer} source={require("../assets/images/chevron_right.png")} />

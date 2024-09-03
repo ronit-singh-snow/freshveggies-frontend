@@ -14,17 +14,8 @@ export default function Header() {
     const { authData, getSelectedAddress } = useContext(AppContext);
     const [userData, setUserData] = useState({});
 
-    function onAuthStateChanged(user) {
-        findUser(user.phoneNumber.replace("+", " ")).then((response) => {
-            if (response.data && response.data.length > 0){
-                setUserData(response.data[0]);
-            }
-        })
-    }
-
     useEffect(() => {
         findUser(authData.phone_number.replace("+", " ")).then((response) => {
-            console.log(response)
             if (response.data && response.data.length > 0) {
                 setUserData(response.data[0]);
             }
@@ -32,7 +23,6 @@ export default function Header() {
     }, [])
 
     let selectedAddress = getSelectedAddress();
-    selectedAddress = JSON.parse(selectedAddress);
 
     return (
         <View style={styles.main}>
@@ -46,7 +36,7 @@ export default function Header() {
                             transition={1000}
                         />
                         {selectedAddress
-                            ? <Text style={styles.location} numberOfLines={1}>{selectedAddress.street_locality}</Text>
+                            ? <Text style={styles.location} numberOfLines={1}>{selectedAddress.full_address}</Text>
                             : <Text>Select an address</Text>
                         }
                     </View>

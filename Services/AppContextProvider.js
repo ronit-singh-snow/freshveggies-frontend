@@ -99,11 +99,9 @@ export const AppContextProvider = ({children}) => {
         let cart = [...cartData];
         let findItem = cart.find((cartItem) => cartItem.item.id === item.id);
         if (findItem) {
-            console.log("Found item");
             findItem.quantity = quantity;
             setCartData(cart);
         } else {
-            console.log("Did not find item");
             cart.push({
                 item, quantity
             });

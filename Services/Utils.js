@@ -1,5 +1,6 @@
 // import * as SecureStore from "expo-secure-store";
 import { HOST_URL } from "../Constants.js";
+import { submitOrder } from "./FetchData.js";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export const getResourceURL = (resource) => {
@@ -74,4 +75,21 @@ export const isTimeSlotDisabled = (deliveryDate, hour) => {
     slotEndTime.setMilliseconds(0);
 
     return slotEndTime.getTime() < currentTime.getTime();
+}
+
+export const submitOrderUtil = (phoneNumber, items, itemValue, address, date, timeslot) => {
+    let orderData = {
+        phone_number: phoneNumber,
+        order_date: date + '',
+        status: "placed",
+        total_price: itemValue.totalPrice,
+        order_create_at: new Date().getTime() + '',
+        timeslot: timeslot,
+        address: address
+    };
+
+    return submitOrder({
+        orderData,
+        orderItems: items
+    });
 }

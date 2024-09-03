@@ -20,7 +20,7 @@ export default function Home({ navigation }) {
                 item
             })
         }} />;
-    }  
+    }
 
     useEffect(() => {
         homepageDetails().then(response => {
@@ -43,12 +43,12 @@ export default function Home({ navigation }) {
 
     return (
         <SafeAreaView style={styles.container}>
-            <ScrollView style={{flex: 1}}>
+            <ScrollView style={{ flex: 1 }}>
                 <StatusBar style="auto" />
                 <Header />
-                
+
                 {/* Banner */}
-                <Carousel 
+                <Carousel
                     data={banners}
                     loop={false}
                     renderItem={(item) => {
@@ -61,21 +61,21 @@ export default function Home({ navigation }) {
                         }} key={`product_${item.id}`} />
                     }}
                 />
-                
+
                 {downSections ? downSections.map((section, index) => {
                     return (<View key={`${section.title.replaceAll(" ", "")}_${index}`}>
-                                <View style={styles.sectionHeader}>
-                                    <Text style={styles.header}>{section.title}</Text>
-                                    <Text onPress={() => navigation.navigate("ListItems", {
-                                        dataItems: section.data,
-                                        title: section.title,
-                                        query: section.query
-                                    })} style={styles.textLink} >See all</Text>
-                                </View>
-                                <Carousel data={formatFruits(section.data)} renderItem={renderItem} loop={false} />
-                            </View>);
+                        <View style={styles.sectionHeader}>
+                            <Text style={styles.header}>{section.title}</Text>
+                            <Text onPress={() => navigation.navigate("ListItems", {
+                                dataItems: section.data,
+                                title: section.title,
+                                query: section.query
+                            })} style={styles.textLink} >See all</Text>
+                        </View>
+                        <Carousel data={formatFruits(section.data)} renderItem={renderItem} loop={false} />
+                    </View>);
                 }) : null}
-                
+
             </ScrollView>
             <Footer />
         </SafeAreaView>
