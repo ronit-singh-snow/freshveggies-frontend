@@ -32,7 +32,6 @@ export const UpdateAddress = ({navigation}) => {
             disabled = true;
         else 
             disabled = false;
-    
         setButtonDisabled(disabled);
     }
 

@@ -15,7 +15,7 @@ const firebaseConfig = {
   projectId: "carbide-haven-418116",
   storageBucket: "carbide-haven-418116.appspot.com",
   messagingSenderId: "515481729094",
-  appId: "1:515481729094:web:695cf7e4c85ce364993247",
+  appId: "1:515481729094:android:593b43c18a3ca116993247",
   measurementId: "G-31YGV7BBEP"
 };
 
@@ -28,6 +28,3 @@ export const FIREBASE_AUTH = initializeAuth(FIREBASE_APP, {
 export const updateUserProfile = (user, data) => {
   updateProfile(user, data);
 }
-
-const auth = getAuth();
-console.log(auth);

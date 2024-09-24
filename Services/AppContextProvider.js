@@ -1,9 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react"
-import { FIREBASE_AUTH } from "./Firebase";
-import {  createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+// import { FIREBASE_AUTH } from "./Firebase";
+// import {  createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { insertUser } from "./FetchData";
+// import { insertUser } from "./FetchData";
+import { deleteSession } from "./AppWriteServices";
 
 export const AppContext = createContext({});
 
@@ -13,19 +14,19 @@ export const AppContextProvider = ({children}) => {
     const [authData, setAuthData] = useState();
     const [selectedAddress, setUserSelectedAddress] = useState();
 
-    const setToken = async (user, phoneNumber, loginType) => {
-        const number = user?.phoneNumber || phoneNumber;
+    console.log("Context provider called");
+
+    const setToken = async (userId, phoneNumber, loginType) => {
         const storeData = [];
-        user.uid ? storeData.push(["user_token", user.uid]) : null;
-        user.email ? storeData.push(["email", user.email]) : null;
-        number ? storeData.push(["phone_number", number]) : null;
+        userId ? storeData.push(["user_token", userId]) : null;
+        phoneNumber ? storeData.push(["phone_number", phoneNumber]) : null;
         loginType ? storeData.push(["login_type", loginType]) : null;
 
         return await AsyncStorage.multiSet(storeData);
     }
 
     const getToken = async () => {
-        const val = await AsyncStorage.multiGet(["user_token", "email", "phone_number", "selected_address"]);
+        const val = await AsyncStorage.multiGet(["user_token", "phone_number", "selected_address"]);
         const serialiseAsyncData = val.reduce((acc, item) => {
             acc[item[0]] = item[1];
             return acc;
@@ -52,14 +53,12 @@ export const AppContextProvider = ({children}) => {
         getToken();
     }, [])
 
-    const signIn = async (userCredential, phoneNumber, loginType) => { 
-        const user = userCredential.user;
-        setToken(user, phoneNumber, loginType);
+    const signIn = async (userId, phoneNumber, loginType) => { 
+        setToken(userId, phoneNumber, loginType);
         const _authData = {
-            user_token: user.uid,
-            email: user?.email,
+            user_token: userId,
             loginType,
-            phoneNumber
+            phone_number: phoneNumber
         }
         setAuthData(_authData);
     };
@@ -69,30 +68,31 @@ export const AppContextProvider = ({children}) => {
         //and send the user to the AuthStack
         setAuthData(undefined);
         removeToken();
+        deleteSession()
     };
 
     const signUp = (email, password, name, mobile) => {
-        createUserWithEmailAndPassword(FIREBASE_AUTH, email, password)
-        .then((userCredential) => {
-            // Signed up 
-            const user = userCredential.user;
-            setToken(user);
-            const _authData = {
-                user_token: user.refreshToken,
-                email: user.email
-            }
-            setAuthData(_authData);
-            updateProfile(user, {
-                displayName: name,
-                phoneNumber: mobile,
-                email: email
-            });
+        // createUserWithEmailAndPassword(FIREBASE_AUTH, email, password)
+        // .then((userCredential) => {
+        //     // Signed up 
+        //     const user = userCredential.user;
+        //     setToken(user);
+        //     const _authData = {
+        //         user_token: user.refreshToken,
+        //         email: user.email
+        //     }
+        //     setAuthData(_authData);
+        //     updateProfile(user, {
+        //         displayName: name,
+        //         phoneNumber: mobile,
+        //         email: email
+        //     });
 
-            insertUser(email, name, mobile);
-        })
-        .catch((error) => {
-            console.log("Creation failed " + error);
-        });
+        //     insertUser(email, name, mobile);
+        // })
+        // .catch((error) => {
+        //     console.log("Creation failed " + error);
+        // });
     }
 
     const addToCart = (item, quantity) => {

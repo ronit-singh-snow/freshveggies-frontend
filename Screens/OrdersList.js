@@ -4,7 +4,7 @@ import AddQuantity from '../Components/AddQuantity';
 import { Footer } from '../Components/Footer';
 import { AppContext } from '../Services/AppContextProvider';
 import { useContext, useEffect, useState } from 'react';
-import { findAddedCartItem } from '../Services/Utils';
+import { findAddedCartItem, formatDateToLocaleDateTime } from '../Services/Utils';
 import { PriceValue } from '../Components/PriceValue';
 import { listOrders } from '../Services/FetchData';
 const styles = StyleSheet.create({
@@ -25,8 +25,7 @@ const styles = StyleSheet.create({
     },
     cardBackground: {
         backgroundColor: "#FFF",
-        borderRadius: 10,
-        borderWidth: 1
+        borderRadius: 10
     },
     unitPrice: {
         fontWeight: "bold"
@@ -67,7 +66,7 @@ export default function OrdersList({ navigation }) {
                 renderItem={({ item }) => {
                     return <Pressable style={[styles.row, styles.cardBackground]} >
                         <Text style={styles.title}>Order ID: {item.idorder}</Text>
-                        {item.order_date ? <Text style={styles.unit}>{item.order_date}</Text> : null}
+                        {item.order_date ? <Text style={styles.unit}>Ordered at: {formatDateToLocaleDateTime(item.order_date)}</Text> : null}
                         <View style={styles.price}>
                             <Text>Total value: </Text>
                             <PriceValue price={item.total_price} />

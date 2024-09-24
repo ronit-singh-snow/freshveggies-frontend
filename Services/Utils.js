@@ -93,3 +93,11 @@ export const submitOrderUtil = (phoneNumber, items, itemValue, address, date, ti
         orderItems: items
     });
 }
+
+export const formatDateToLocaleDateTime = (milliseconds) => {
+    if (typeof milliseconds === "string")
+        milliseconds = parseInt(milliseconds);
+    console.log(milliseconds);
+    const date = new Date(milliseconds);
+    return date.toLocaleString();
+}

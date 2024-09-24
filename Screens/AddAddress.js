@@ -161,7 +161,6 @@ export const AddAddress = ({ navigation }) => {
     const [addresses, setAddresses] = useState([]);
     const [address, setAddress] = useState();
     const [CurrentAddress, setCurrentAddress] = useState(null);
-
     const isInFocus = useIsFocused();
 
     const currentLocationPng = require("../assets/images/current_location.png");
@@ -216,7 +215,6 @@ export const AddAddress = ({ navigation }) => {
                 enablePoweredByContainer={false}
                 disableScroll={false}
                 onPress={(data, details = null) => {
-                    console.log(data.description);
                     navigateToUpdateAddress( {full_address: data.description });
                 }}
                 query={{

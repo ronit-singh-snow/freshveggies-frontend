@@ -53,7 +53,6 @@ export default function Home({ navigation }) {
                     loop={false}
                     renderItem={(item) => {
                         return <Card item={item} clickHandler={(item) => {
-                            console.log(item);
                             navigation.navigate("ListItems", {
                                 title: item.title,
                                 query: item.query
