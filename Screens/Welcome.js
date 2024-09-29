@@ -1,5 +1,6 @@
 import { StatusBar } from "expo-status-bar"
 import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { colors } from "../Styles";
 
 const styles = StyleSheet.create({
     container: {
@@ -7,19 +8,20 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "flex-end",
         paddingHorizontal: 35,
-        paddingVertical: 100
+        paddingVertical: 150
     },
     welcomeText: {
-        fontSize: 20,
+        fontSize: 24,
         fontWeight: "bold",
-        paddingBottom: 25
+        paddingBottom: 15,
+        color: colors.darkGreen
     },
     signUpButton: {
         paddingHorizontal: 65,
         paddingVertical: 10,
         fontWeight: "bold",
         fontSize: 18,
-        backgroundColor: "#345f22",
+        backgroundColor: colors.darkGreen,
         color: "#FFF",
         borderRadius: 10,
         marginTop: 40,
@@ -29,10 +31,12 @@ const styles = StyleSheet.create({
     moto: {
         alignSelf: "flex-start",
         flexDirection: "row",
-        paddingVertical: 5
+        paddingVertical: 5,
+        paddingHorizontal: 10
     },
     appMoto: {
-        textAlign: "justify"
+        textAlign: "justify",
+        color: "#FFF"
     },
     textLink: {
         color: "#0000FF"
@@ -46,37 +50,39 @@ const styles = StyleSheet.create({
         width: "100%",
         alignItems: "center",
         justifyContent: "center"
+    },
+    starIcon: {
+        color: "#FFF",
+        paddingRight: 10,
+        fontSize: 18
     }
 })
 export const Welcome = ({ navigation }) => {
     const bgImage = require("../assets/images/background.png");
-    return (<ImageBackground source={bgImage} style={{flex: 1}}>
+    return (<ImageBackground source={bgImage} imageStyle={{
+        resizeMode: "cover",
+        alignSelf: "flex-end"
+      }} style={{flex: 1, width: null, height: "100%"}}>
         <View style={styles.container}>
             <StatusBar />
-            <Text style={styles.welcomeText}>Welcome to FreshVeggies!!</Text>
+            <Text style={[styles.welcomeText]}>Welcome to Orange Cart!!</Text>
             
             <View style={styles.moto}>
-                <Text>{`\u29BF  `}</Text>
+                <Text style={styles.starIcon}>{`\u2605`}</Text>
                 <Text style={styles.appMoto}>We are offering home delivery service of fresh fruits and vegetables to your doorstep.</Text>
             </View>
             <View style={styles.moto}>
-                <Text>{`\u29BF  `}</Text>
+                <Text style={styles.starIcon}>{`\u2605`}</Text>
                 <Text style={styles.appMoto}>We are ensuring accurate weight specified on the product is very much crucial for us.</Text>
             </View>
             <View style={styles.moto}>
-                <Text>{`\u29BF  `}</Text>
+                <Text style={styles.starIcon}>{`\u2605`}</Text>
                 <Text style={styles.appMoto}>We always ensure that quality of fruits and vegetables is never compromised.</Text>
             </View>
             
             <TouchableOpacity style={styles.signUpButtonContainer} onPress={() => navigation.navigate("Login")}>
-                <Text style={styles.signUpButton}>Login</Text>
+                <Text style={[styles.signUpButton]}>Login</Text>
             </TouchableOpacity>
-            {/* <View style={styles.login}>
-                <Text>Already have an account? </Text>
-                <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-                    <Text style={styles.textLink}>Login</Text>
-                </TouchableOpacity>
-            </View> */}
         </View>
     </ImageBackground>)
 }

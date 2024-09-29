@@ -7,6 +7,7 @@ import { insertUser } from '../Services/FetchData';
 import Loader from '../Components/Loader';
 import { CustomButton } from '../Components/CustomButton';
 import { sendOTP } from '../Services/AppWriteServices';
+import { colors } from '../Styles';
 
 export default function LoginPage({ navigation }) {
     const [phoneNumber, setPhoneNumber] = useState();
@@ -84,21 +85,24 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         paddingHorizontal: 10,
         width: "100%",
-        marginTop: 20
+        marginTop: 20,
+        borderColor: colors.darkGreen
     },
     textLink: {
-        color: "#0000FF"
+        color: colors.textLink
     },
     countryCode: {
         padding: 8,
-        borderRightWidth: 1
+        borderRightWidth: 1,
+        borderColor: colors.darkGreen
     },
     signInInput: {
         borderRadius: 20,
-        paddingHorizontal: 15
+        paddingHorizontal: 15,
+        borderColor: colors.darkGreen
     },
     signInButton: {
-        backgroundColor: "#345f22",
+        backgroundColor: colors.darkGreen,
         marginTop: 30,
         paddingVertical: 9,
         borderRadius: 10,
@@ -116,7 +120,6 @@ const styles = StyleSheet.create({
         height: 32
     },
     otpInput: {
-        // backgroundColor: '#c6e5c7',
         padding: 10,
         borderRadius: 5,
         textAlign: 'center',
@@ -132,7 +135,8 @@ const styles = StyleSheet.create({
     },
     enterNumberText: {
         fontWeight: "400",
-        fontSize: 22
+        fontSize: 22,
+        color: colors.darkGreen
     },
     loginContainer: {
         textAlign: "center",

@@ -3,6 +3,7 @@ import { AppContext } from "../Services/AppContextProvider";
 import { useContext, useEffect, useState } from "react";
 import { findUser } from "../Services/FetchData";
 import Avatar from "../Components/Avatar";
+import { colors } from "../Styles";
 
 const styles = StyleSheet.create({
     container: {
@@ -10,7 +11,7 @@ const styles = StyleSheet.create({
         padding: 20
     },
     signOutButton: {
-        backgroundColor: "#345f22",
+        backgroundColor: colors.darkGreen,
         marginTop: 30,
         paddingHorizontal: 15,
         paddingVertical: 10,
@@ -42,13 +43,13 @@ const styles = StyleSheet.create({
     profileTextHeader: {
         fontSize: 18,
         overflow: "hidden",
-        color: "#345f22"
+        color: colors.darkGreen
     },
     btns: {
         fontSize: 18,
         borderBottomWidth: 1,
         padding: 10,
-        borderBottomColor: "#000000",
+        borderBottomColor: colors.lightGrey,
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center"

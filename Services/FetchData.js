@@ -56,3 +56,7 @@ export const listOrders = (phoneNumber) => {
 export const deleteRecord = (table, id, columnName) => {
     return axios.delete(`${HOST_URL}/delete_resource/${table}/${id}/${columnName}`);
 }
+
+export const getOrderItems = (orderId) => {
+    return axios.get(`${HOST_URL}/order_items?order_id=${orderId}`);
+}

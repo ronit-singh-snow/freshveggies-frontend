@@ -4,13 +4,14 @@ import { AppContext } from "../Services/AppContextProvider";
 import { useContext } from "react";
 
 import { cartItemsAndValue } from "../Services/Utils";
+import { colors } from "../Styles";
 
 const styles = StyleSheet.create({
     footer: {
         justifyContent: "center",
         paddingHorizontal: 12,
         paddingVertical: 8,
-        backgroundColor: "#345f22"
+        backgroundColor: colors.darkGreen
     },
     displayRow: {
         flexDirection: "row",

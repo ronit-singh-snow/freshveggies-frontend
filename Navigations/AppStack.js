@@ -10,6 +10,7 @@ import { OrderSummary } from "../Screens/OrderSummary.js";
 import { OrderConfirmation } from "../Screens/OrderConfirmation.js";
 import OrdersList from "../Screens/OrdersList.js";
 import { UpdateAddress } from "../Screens/UpdateAddress.js";
+import { OrderItems } from "../Screens/OrderItems.js";
 
 const Stack = createNativeStackNavigator();
 
@@ -68,6 +69,11 @@ export default function AppStack() {
                 name="UpdateAddress"
                 component={UpdateAddress}
                 options={{title: "Enter complete address"}}
+            />
+            <Stack.Screen
+                name="OrderItems"
+                component={OrderItems}
+                options={{title: "Selected order items"}}
             />
         </Stack.Navigator>
     );

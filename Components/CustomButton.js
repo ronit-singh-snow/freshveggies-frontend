@@ -1,9 +1,13 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native"
+import { colors } from "../Styles";
 
 export const CustomButton = ({title, loading, extraStyles, onPress, disabled=false}) => {
+    extraStyles = extraStyles ? extraStyles : {};
+    const {buttonStyle, titleStyle} = extraStyles;
+
     return <Pressable onPress={onPress} style={{width: "100%"}} disabled={disabled}>
-        <View style={[styles.button, disabled ? styles.disabledButton : ""]}>
-            <Text style={styles.title}>{title}</Text>
+        <View style={[styles.button, buttonStyle ? buttonStyle : {}, disabled ? styles.disabledButton : {}]}>
+            <Text style={[styles.title, titleStyle ? titleStyle : {}]}>{title}</Text>
             {loading ? <ActivityIndicator /> : null}
         </View>
     </Pressable>
@@ -12,11 +16,12 @@ export const CustomButton = ({title, loading, extraStyles, onPress, disabled=fal
 const styles = StyleSheet.create({
     title: {
         fontSize: 18,
-        color: "#FFF"
-    }, 
+        color: "#FFF",
+        fontWeight: "bold"
+    },
     button: {
-        backgroundColor: "#345f22",
-        marginTop: 30,
+        backgroundColor: colors.darkGreen,
+        marginTop: 10,
         paddingVertical: 9,
         borderRadius: 10,
         width: "100%",

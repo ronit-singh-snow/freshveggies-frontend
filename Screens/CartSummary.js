@@ -6,7 +6,7 @@ import { cartItemsAndValue, getDeliveryDates, handleOnQuantityChange, isTimeSlot
 import { PriceValue } from "../Components/PriceValue";
 import { DELIVERY_FEE, PLATFORM_FEE } from "../Constants";
 import { findUser } from "../Services/FetchData";
-import { useIsFocused } from "@react-navigation/native";
+import { colors } from "../Styles";
 
 export default function CartSummary({ navigation }) {
     const { authData, getCart, addToCart, removeFromCart, getSelectedAddress } = useContext(AppContext);
@@ -17,7 +17,8 @@ export default function CartSummary({ navigation }) {
     const [selectedDeliveryDateIndex, setSelectedDeliveryDateIndex] = useState(0);
     const [selectedTimeSlot, setSelectedTimeSlot] = useState(1);
     const [userData, setUserData] = useState();
-    
+
+
     useEffect(() => {
         findUser(authData.phone_number.replace("+", " ")).then((response) => {
             if (response.data && response.data.length > 0) {
@@ -59,6 +60,8 @@ export default function CartSummary({ navigation }) {
         setSelectedTimeSlot(2);
     const slot1BgColor = slot1Disabled ? "#e5e5e5bd" : selectedTimeSlot == 1 ? "#75da7c" : "#e5e5e5";
     const slot2BgColor = slot2Disabled ? "#e5e5e5bd" : selectedTimeSlot == 2 ? "#75da7c" : "#e5e5e5";
+
+    console.log((slot1Disabled && slot2Disabled) || !selectedAddress || cartItemsValue.totalPrice < 150)
 
     if (cartItemsValue.count > 0) {
         return (
@@ -129,10 +132,13 @@ export default function CartSummary({ navigation }) {
                         </View>
                     </View>
                 </ScrollView>
+                {cartItemsValue.totalPrice < 150 ? (<Text style={styles.warningMessage}>
+                    Add items worth {150 - cartItemsValue.totalPrice} to place the order.
+                </Text>) : null}
                 <View style={styles.footer}>
                     <Pressable 
-                        style={[ styles.payBtn, (slot1Disabled && slot2Disabled) || !selectedAddress ? styles.payBtnDisabled : "" ]} 
-                        disabled={(slot1Disabled && slot2Disabled) || !selectedAddress}
+                        style={[ styles.payBtn, (slot1Disabled && slot2Disabled) || !selectedAddress || cartItemsValue.totalPrice < 150 ? styles.payBtnDisabled : "" ]} 
+                        disabled={(slot1Disabled && slot2Disabled) || !selectedAddress || cartItemsValue.totalPrice < 150}
                         onPress={() => {
                             navigation.navigate("OrderSummary", {
                                 items: cartItems,
@@ -284,5 +290,11 @@ const styles = StyleSheet.create({
     },
     payBtnDisabled: {
         opacity: .4
+    },
+    warningMessage: {
+        color: colors.warningMessage,
+        paddingHorizontal: 20,
+        paddingBottom: 5,
+        fontWeight: "bold"
     }
 });

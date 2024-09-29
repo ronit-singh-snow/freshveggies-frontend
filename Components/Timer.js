@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { colors } from '../Styles';
 
 const Timer = ({ duration = 60 }) => {
 	const [timeLeft, setTimeLeft] = useState(duration); // Start with 60 seconds
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
 	},
 	timerText: {	
 		fontWeight: "bold",
-		color: "#345f22"
+		color: colors.darkGreen
 	},
 });
 

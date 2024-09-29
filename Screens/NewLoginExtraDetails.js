@@ -5,6 +5,7 @@ import { AppContext } from '../Services/AppContextProvider';
 import { insertUser } from '../Services/FetchData';
 import { CustomButton } from '../Components/CustomButton';
 import { useRoute } from '@react-navigation/native';
+import { colors } from '../Styles';
 
 export const NewLoginExtraDetails = () => {
     const route = useRoute();
@@ -75,7 +76,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15
     },
     signInButton: {
-        backgroundColor: "#345f22",
+        backgroundColor: colors.darkGreen,
         marginTop: 30,
         paddingVertical: 9,
         borderRadius: 10,

@@ -5,6 +5,7 @@ import auth from "@react-native-firebase/auth";
 import { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../Services/AppContextProvider';
 import { findUser } from '../Services/FetchData';
+import { colors } from '../Styles';
 
 const locationImage = require('../assets/images/location_pin.png');
 const avatarImage = require('../assets/images/avatar.png');
@@ -67,7 +68,7 @@ const styles = StyleSheet.create({
         
     },
     location: {
-        color: "#345f22",
+        color: colors.darkGreen,
         flexWrap: "wrap",
         width: "80%",
         fontWeight: "bold"
@@ -93,12 +94,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         fontWeight: "bold",
         fontSize: 18,
-        color: "#345f22"
+        color: colors.darkGreen
     },
     description: {
         paddingHorizontal: 15,
         // opacity: 0.9,
-        color: "#345f22"
+        color: colors.darkGreen
     },
     searchInput: {
         height: 40,

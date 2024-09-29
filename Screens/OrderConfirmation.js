@@ -1,7 +1,4 @@
-import { useContext, useEffect, useState } from "react"
 import { Image, Pressable, StyleSheet, Text, View } from "react-native"
-import { AppContext } from "../Services/AppContextProvider"
-import { submitOrder } from "../Services/FetchData";
 import { useRoute } from "@react-navigation/native";
 
 export const OrderConfirmation = ({navigation}) => {

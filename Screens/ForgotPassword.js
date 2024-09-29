@@ -1,4 +1,5 @@
 import { Button, Pressable, StyleSheet, Text, TextInput, View } from "react-native"
+import { colors } from "../Styles"
 
 export const ForgotPassword = ({navigation}) => {
     return <View style={styles.container}>
@@ -26,7 +27,7 @@ const styles = StyleSheet.create({
         width: "100%"
     },
     signInButton: {
-        backgroundColor: "#345f22",
+        backgroundColor: colors.darkGreen,
         marginTop: 30,
         padding: 15,
         borderRadius: 10,

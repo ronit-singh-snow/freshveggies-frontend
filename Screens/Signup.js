@@ -1,6 +1,7 @@
 import { StyleSheet, TextInput, Text, Button, View, ImageBackground, TouchableOpacity } from 'react-native';
 import { useContext, useState } from 'react';
 import { AppContext } from '../Services/AppContextProvider';
+import { colors } from '../Styles';
 
 export const Signup = () => {
     const [email, setEmail] = useState();
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
         paddingVertical: 8
     },
     signUpButton: {
-        backgroundColor: "#345f22",
+        backgroundColor: colors.darkGreen,
         marginTop: 30,
         padding: 15,
         borderRadius: 10,
