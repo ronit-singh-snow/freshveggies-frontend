@@ -1,9 +1,8 @@
 import { Image } from 'expo-image';
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { StyleSheet, Text, View, Dimensions, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import AddQuantity from './AddQuantity';
-import { findAddedCartItem } from '../Services/Utils';
+import { findAddedCartItem, getFontSize } from '../Services/Utils';
 import { AppContext } from '../Services/AppContextProvider';
 import { PriceValue } from './PriceValue';
 
@@ -26,20 +25,23 @@ const getCardContent = (item, addToCart, cartItems, removeFromCart) => {
     return (
         <View style={{alignItems: "center"}}>
             {img ? <Image style={styles.image} source={img} contentFit="cover" transition={1000} /> : null}
-            <Text style={{ color: "#000", fontWeight: "bold" }}> {title}</Text>
-            <Text style={styles.smMargin}>{unit}</Text>
-            <View style={{...styles.smMargin, marginBottom: 10}}>
-                <PriceValue price={unitPrice} />
+            <View style={{justifyContent: "space-between", alignItems: "center", flexGrow: 2}}>
+                <Text style={{ color: "#000", fontWeight: "bold", fontSize: getFontSize(15) }}> {title}</Text>
+                <View style={{...styles.smMargin, marginBottom: 10, flexDirection: "row", alignItems: "center"}}>
+                    <Text>{unit} / </Text>
+                    <PriceValue price={unitPrice} />
+                </View>
+            
+                <AddQuantity stock={5} initialQuantity={initialQuantity} onQuantityChange={(quantity) => {
+                    quantity === 0 ? removeFromCart(item.id) : addToCart(item, quantity);
+                }} />
             </View>
-            <AddQuantity stock={5} initialQuantity={initialQuantity} onQuantityChange={(quantity) => {
-                quantity === 0 ? removeFromCart(item.id) : addToCart(item, quantity);
-            }} />
+            
         </View>
     )
 }
 
 export default function Card({ item, clickHandler }) {
-    const navigation = useNavigation();
     const {addToCart, getCart, removeFromCart} = useContext(AppContext);
     const {cardWidthRatio, bgColorCode} = item;
     const width = cardWidthRatio ? (screenWidth/cardWidthRatio - 24) : (screenWidth -24);

@@ -1,9 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react"
-// import { FIREBASE_AUTH } from "./Firebase";
-// import {  createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-// import { insertUser } from "./FetchData";
 import { deleteSession } from "./AppWriteServices";
 
 export const AppContext = createContext({});
@@ -13,8 +10,6 @@ export const AppContextProvider = ({children}) => {
     const [loading, setLoading] = useState(true);
     const [authData, setAuthData] = useState();
     const [selectedAddress, setUserSelectedAddress] = useState();
-
-    console.log("Context provider called");
 
     const setToken = async (userId, phoneNumber, loginType) => {
         const storeData = [];
@@ -39,6 +34,7 @@ export const AppContextProvider = ({children}) => {
         })
 
         setAuthData(serialiseAsyncData);
+        setLoading(false);
     }
 
     const setAddressToAsyncStorage = async (addr) => {
@@ -72,27 +68,6 @@ export const AppContextProvider = ({children}) => {
     };
 
     const signUp = (email, password, name, mobile) => {
-        // createUserWithEmailAndPassword(FIREBASE_AUTH, email, password)
-        // .then((userCredential) => {
-        //     // Signed up 
-        //     const user = userCredential.user;
-        //     setToken(user);
-        //     const _authData = {
-        //         user_token: user.refreshToken,
-        //         email: user.email
-        //     }
-        //     setAuthData(_authData);
-        //     updateProfile(user, {
-        //         displayName: name,
-        //         phoneNumber: mobile,
-        //         email: email
-        //     });
-
-        //     insertUser(email, name, mobile);
-        // })
-        // .catch((error) => {
-        //     console.log("Creation failed " + error);
-        // });
     }
 
     const addToCart = (item, quantity) => {

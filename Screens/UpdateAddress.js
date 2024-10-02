@@ -5,6 +5,7 @@ import { Checkbox } from "react-native-paper";
 import { findUser, submitAddress } from "../Services/FetchData";
 import { AppContext } from "../Services/AppContextProvider";
 import { useRoute } from "@react-navigation/native";
+import { CustomButton } from "../Components/CustomButton";
 
 
 export const UpdateAddress = ({navigation}) => {
@@ -14,6 +15,7 @@ export const UpdateAddress = ({navigation}) => {
     const isEdit = route.params?.editAddress || false;
 
     const [buttonDisabled, setButtonDisabled] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [userDetails, setUserDetails] = useState({
         ...address,
         isEdit,
@@ -37,13 +39,14 @@ export const UpdateAddress = ({navigation}) => {
 
 
     useEffect(() => {
+        setLoading(true);
         findUser(authData.phone_number.replace("+", " ")).then((response) => {
             if (response.data && response.data.length > 0) {
                 const {username, phone_number} = response.data[0];
                 setUserDetails({ ...userDetails, username, phone_number });
                 disableSubmitButton(false, username, phone_number, userDetails.full_address);
             }
-        });
+        }).finally(() => setLoading(false));
         
     }, [])
     return (
@@ -111,14 +114,20 @@ export const UpdateAddress = ({navigation}) => {
                         }}/>
                     <Text>Make this your default address</Text>
                 </View>
-                <Pressable style={[styles.button, buttonDisabled ? styles.buttonDisabled: ""]} disabled = {buttonDisabled} onPress={() => {
-                    submitAddress(userDetails).then((res) => {
-                        setSelectedAddress({ full_address: userDetails.full_address, idaddress: res?.data.insertId })
-                        navigation.goBack();
-                    })
-                }}>
-                    <Text style={[styles.btnText]}>Update address</Text>
-                </Pressable>
+                <CustomButton
+                    title={"Update address"}
+                    loading={loading}
+                    disabled={loading || buttonDisabled}
+                    onPress={() => {
+                        setLoading(true);
+                        submitAddress(userDetails).then((res) => {
+                            setSelectedAddress({ full_address: userDetails.full_address, idaddress: res?.data.insertId })
+                            navigation.goBack();
+                        }).finally(() => {
+                            setLoading(false);
+                        })
+                    }}
+                />
             </ScrollView>
         </KeyboardAvoidingView>
     );

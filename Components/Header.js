@@ -1,7 +1,6 @@
 import { Image } from 'expo-image';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import auth from "@react-native-firebase/auth";
 import { useContext, useEffect, useState } from 'react';
 import { AppContext } from '../Services/AppContextProvider';
 import { findUser } from '../Services/FetchData';

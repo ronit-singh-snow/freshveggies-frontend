@@ -1,16 +1,15 @@
-import { StyleSheet, TextInput, View, ImageBackground, TouchableOpacity, Text, Pressable } from 'react-native';
-import auth from "@react-native-firebase/auth";
-import { useContext, useRef, useState } from 'react';
-import { AppContext } from '../Services/AppContextProvider';
+import { StyleSheet, TextInput, View, ImageBackground, Text } from 'react-native';
+import { useState } from 'react';
 import { Image } from 'expo-image';
-import { insertUser } from '../Services/FetchData';
-import Loader from '../Components/Loader';
 import { CustomButton } from '../Components/CustomButton';
-import { sendOTP } from '../Services/AppWriteServices';
 import { colors } from '../Styles';
+import { getFontSize } from '../Services/Utils';
+import { sendOTP } from '../Services/AppWriteServices';
+import Toast from 'react-native-root-toast';
 
 export default function LoginPage({ navigation }) {
     const [phoneNumber, setPhoneNumber] = useState();
+    const [loading, setLoading] = useState(false);
     const bgImage = require("../assets/images/background.png");
     const countryImage = require("../assets/images/india.png");
     
@@ -40,10 +39,18 @@ export default function LoginPage({ navigation }) {
                     </View>
                     <CustomButton
                         title={"Send"}
+                        loading={loading}
                         onPress={() => {
-                            navigation.navigate("OtpVerification", {
-                                phoneNumber: phoneNumber
-                            });
+                            setLoading(true)
+                            sendOTP(phoneNumber).then(res => {
+                                setLoading(false);
+                                navigation.navigate("OtpVerification", {
+                                    phoneNumber: phoneNumber,
+                                    userId: res.userId
+                                });
+                            }).catch(err => {
+                                Toast.show("Error while sending OTP", Toast.durations.SHORT);
+                            })
                         }}
                     />
                 </View>
@@ -59,13 +66,9 @@ const styles = StyleSheet.create({
         padding: 40,
         marginTop: 150
     },
-    welcome: {
-        textAlign: "center",
-        fontSize: 20,
-        marginBottom: 20
-    },
     textLightColor: {
-        color: "#3e4740b8"
+        color: "#3e4740b8",
+        fontSize: getFontSize(14)
     },
     headerDescription: {
         textAlign: "center",
@@ -99,7 +102,8 @@ const styles = StyleSheet.create({
     signInInput: {
         borderRadius: 20,
         paddingHorizontal: 15,
-        borderColor: colors.darkGreen
+        borderColor: colors.darkGreen,
+        fontWeight: "bold"
     },
     signInButton: {
         backgroundColor: colors.darkGreen,
@@ -108,7 +112,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         color: "#FFF",
         textAlign: "center",
-        fontSize: 18,
+        fontSize: getFontSize(18),
         width: "100%"
     },
     forgotPassword: {
@@ -123,7 +127,7 @@ const styles = StyleSheet.create({
         padding: 10,
         borderRadius: 5,
         textAlign: 'center',
-        fontSize: 16,
+        fontSize: getFontSize(16),
         borderColor: "#2b582c",
         borderWidth: 1
     },
@@ -135,7 +139,7 @@ const styles = StyleSheet.create({
     },
     enterNumberText: {
         fontWeight: "400",
-        fontSize: 22,
+        fontSize: getFontSize(22),
         color: colors.darkGreen
     },
     loginContainer: {

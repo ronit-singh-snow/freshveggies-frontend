@@ -7,6 +7,8 @@ import { useRoute } from '@react-navigation/native';
 import Timer from '../Components/Timer';
 import { findUser } from "../Services/FetchData";
 import { sendOTP, confirmOTPAndCreateSession } from '../Services/AppWriteServices';
+import Toast from 'react-native-root-toast';
+import { getFontSize } from '../Services/Utils';
 
 export default function OtpVerification({ navigation }) {
     const route = useRoute();
@@ -18,7 +20,7 @@ export default function OtpVerification({ navigation }) {
     const [fetchingOtp, setFetchingOtp] = useState(true);
     const [otp, setOtp] = useState([]);
     const [timerActive, setTimerActive] = useState(true);
-    const [userId, setUserId] = useState();
+    const [userId, setUserId] = useState(route.params?.userId);
     const [loading, setLoading] = useState();
 
     const bgImage = require("../assets/images/background.png");
@@ -78,7 +80,7 @@ export default function OtpVerification({ navigation }) {
     };
 
     useEffect(() => {
-        signInWithPhone();
+        // signInWithPhone();
         setTimeout(() => {
             setTimerActive(false);
         }, 15*60*1000);
@@ -96,16 +98,14 @@ export default function OtpVerification({ navigation }) {
                     
                     <CustomButton 
                         title={"Verify"}
-                        disabled={fetchingOtp || otp.length != 6 || loading}
+                        disabled={otp.length != 6 || loading}
                         loading={loading}
                         onPress={async () => {
-                            // const userCred = await confirmationResult.confirm(otp);
                             setLoading(true);
                             confirmOTPAndCreateSession(userId, otp).then(sessionResponse => {
                                 console.log(sessionResponse);
                                 findUser(phoneNumber.replace("+", " ")).then((response) => {
                                     if (response.data && response.data.length > 0) {
-                                        // const {username, phone_number} = response.data[0];
                                         signIn(sessionResponse.userId, phoneNumber, "phone");
                                     } else {
                                         navigation.navigate("NewLoginExtraDetails", {
@@ -116,14 +116,9 @@ export default function OtpVerification({ navigation }) {
                                     
                                     setLoading(false);
                                 });
+                            }).catch(err => {
+                                Toast.show("Error while creating a session", Toast.durations.SHORT);
                             })
-                            // if (userCred.additionalUserInfo.isNewUser) {
-                            //     navigation.navigate("NewLoginExtraDetails", {
-                            //         phoneNumber: phoneNumber
-                            //     });
-                            // } else {
-                            //     signIn(userCred.user, phoneNumber, "phone");
-                            // }
                         }}
                     />
                     
@@ -152,27 +147,22 @@ export default function OtpVerification({ navigation }) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: "center",
+        justifyContent: "flex-end",
         padding: 40,
-        marginTop: 150
+        marginTop: 70
     },
     textLightColor: {
         color: "#3e4740b8"
     },
     headerDescription: {
         textAlign: "center",
-        width: "90%"
-    },
-    image: {
-        width: 32,
-        height: 32
+        width: "100%"
     },
     otpInput: {
-        // backgroundColor: '#c6e5c7',
         padding: 10,
         borderRadius: 5,
         textAlign: 'center',
-        fontSize: 16,
+        fontSize: getFontSize(16),
         borderColor: "#2b582c",
         borderWidth: 1
     },
@@ -184,7 +174,7 @@ const styles = StyleSheet.create({
     },
     enterNumberText: {
         fontWeight: "400",
-        fontSize: 22
+        fontSize: getFontSize(22)
     },
     loginContainer: {
         textAlign: "center",

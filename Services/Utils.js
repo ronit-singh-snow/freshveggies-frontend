@@ -1,4 +1,5 @@
 // import * as SecureStore from "expo-secure-store";
+import { PixelRatio } from "react-native";
 import { HOST_URL } from "../Constants.js";
 import { submitOrder } from "./FetchData.js";
 
@@ -100,4 +101,8 @@ export const formatDateToLocaleDateTime = (milliseconds) => {
     console.log(milliseconds);
     const date = new Date(milliseconds);
     return date.toLocaleString();
+}
+
+export const getFontSize = (size) => {
+    return Math.ceil(size/PixelRatio.getFontScale());
 }

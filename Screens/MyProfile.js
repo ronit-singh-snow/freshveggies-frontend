@@ -100,7 +100,7 @@ export const MyProfile = ({navigation}) => {
                     <Image style={styles.imageContainer} source={require("../assets/images/chevron_right.png")} />
                 </View>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("AboutUs")}>
                 <View style={styles.btns}>
                     <Text style={styles.btnText}>About us</Text>
                     <Image style={styles.imageContainer} source={require("../assets/images/chevron_right.png")} />

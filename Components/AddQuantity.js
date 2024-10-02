@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { getFontSize } from '../Services/Utils';
 
 const AddQuantity = ({ initialQuantity, onQuantityChange, stock }) => {
     const [quantity, setQuantity] = useState(initialQuantity);
@@ -53,12 +54,12 @@ const styles = StyleSheet.create({
     },
     quantityText: {
         marginHorizontal: 15,
-        fontSize: 18,
+        fontSize: getFontSize(18),
     },
     quantityButtons: {
         paddingHorizontal: 10,
         paddingVertical: 5,
-        fontSize: 16,
+        fontSize: getFontSize(16),
         fontWeight: "bold",
         color: "#FFF",
         backgroundColor: "#24ca4f",
@@ -66,7 +67,7 @@ const styles = StyleSheet.create({
     },
     addButton: {
         fontWeight: "bold",
-        fontSize: 16,
+        fontSize: getFontSize(16),
         backgroundColor: "#24ca4f",
         borderRadius: 10,
         textAlign: "center",

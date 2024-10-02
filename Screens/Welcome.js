@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar"
-import { ImageBackground, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { ImageBackground, StyleSheet, Text, TouchableOpacity, View, PixelRatio } from "react-native"
 import { colors } from "../Styles";
+import { getFontSize } from "../Services/Utils";
 
 const styles = StyleSheet.create({
     container: {
@@ -8,10 +9,10 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "flex-end",
         paddingHorizontal: 35,
-        paddingVertical: 150
+        paddingVertical: 50
     },
     welcomeText: {
-        fontSize: 24,
+        fontSize: getFontSize(24),
         fontWeight: "bold",
         paddingBottom: 15,
         color: colors.darkGreen
@@ -20,7 +21,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 65,
         paddingVertical: 10,
         fontWeight: "bold",
-        fontSize: 18,
+        fontSize: getFontSize(18),
         backgroundColor: colors.darkGreen,
         color: "#FFF",
         borderRadius: 10,
@@ -36,7 +37,7 @@ const styles = StyleSheet.create({
     },
     appMoto: {
         textAlign: "justify",
-        color: "#FFF"
+        color: "#02A64E"
     },
     textLink: {
         color: "#0000FF"
@@ -52,13 +53,14 @@ const styles = StyleSheet.create({
         justifyContent: "center"
     },
     starIcon: {
-        color: "#FFF",
+        color: "#02A64E",
         paddingRight: 10,
-        fontSize: 18
+        fontSize: getFontSize(18)
     }
 })
 export const Welcome = ({ navigation }) => {
     const bgImage = require("../assets/images/background.png");
+    
     return (<ImageBackground source={bgImage} imageStyle={{
         resizeMode: "cover",
         alignSelf: "flex-end"
@@ -77,7 +79,7 @@ export const Welcome = ({ navigation }) => {
             </View>
             <View style={styles.moto}>
                 <Text style={styles.starIcon}>{`\u2605`}</Text>
-                <Text style={styles.appMoto}>We always ensure that quality of fruits and vegetables is never compromised.</Text>
+                <Text style={styles.appMoto}>We always ensure that quality of fruits and vegetables are never compromised.</Text>
             </View>
             
             <TouchableOpacity style={styles.signUpButtonContainer} onPress={() => navigation.navigate("Login")}>

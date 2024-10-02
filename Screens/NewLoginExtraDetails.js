@@ -1,5 +1,4 @@
 import { StyleSheet, TextInput, View, ImageBackground, Text } from 'react-native';
-// import auth from "@react-native-firebase/auth";
 import { useContext, useEffect,  useState } from 'react';
 import { AppContext } from '../Services/AppContextProvider';
 import { insertUser } from '../Services/FetchData';

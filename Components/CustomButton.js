@@ -1,5 +1,6 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native"
 import { colors } from "../Styles";
+import { getFontSize } from "../Services/Utils";
 
 export const CustomButton = ({title, loading, extraStyles, onPress, disabled=false}) => {
     extraStyles = extraStyles ? extraStyles : {};
@@ -15,7 +16,7 @@ export const CustomButton = ({title, loading, extraStyles, onPress, disabled=fal
 
 const styles = StyleSheet.create({
     title: {
-        fontSize: 18,
+        fontSize: getFontSize(18),
         color: "#FFF",
         fontWeight: "bold"
     },

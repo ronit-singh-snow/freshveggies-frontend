@@ -170,14 +170,13 @@ export const AddAddress = ({ navigation }) => {
         const getPermissions = async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
-                console.log("please grant location access");
+                Toast.show("please grant location access", Toast.durations.SHORT);
                 return;
             }
 
             let { coords: { latitude, longitude } } = await Location.getCurrentPositionAsync({});
             const response = await Location.reverseGeocodeAsync({ latitude, longitude });
             if (response.length > 0) {
-                // let address = `${item.name} ${item.city} ${item.postalCode}`
                 setCurrentAddress(response[0].formattedAddress)
             }
         }
@@ -209,7 +208,7 @@ export const AddAddress = ({ navigation }) => {
     return <View style={styles.mainContainer}>
         <View style={styles.searchBarContainer}>
             <GooglePlacesAutocomplete
-                placeholder='Shastri colony, Mughalsarai'
+                placeholder='Sunderpur, Varanasi'
                 debounce={250}
                 minLength={2}
                 enablePoweredByContainer={false}
