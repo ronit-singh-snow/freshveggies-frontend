@@ -1,5 +1,5 @@
 import axios from "axios";
-import { HOST_URL } from "../Constants";
+import { GOOGLE_API_KEY, HOST_URL } from "../Constants";
 
 export const getBannerImage = (imageName) => {
     const resourceId = "banner_images";
@@ -59,4 +59,18 @@ export const deleteRecord = (table, id, columnName) => {
 
 export const getOrderItems = (orderId) => {
     return axios.get(`${HOST_URL}/order_items?order_id=${orderId}`);
+}
+
+export const searchNearbyPlaces = (location, radius = 5000, searchText) => {
+    let url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=${GOOGLE_API_KEY}&location=${location.latitude},${location.longitude}&radius=${radius}&keyword=${searchText}`
+    // console.log(url);
+    const response =  fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=${GOOGLE_API_KEY}&location=${location.latitude},${location.longitude}&radius=5000&keyword=${searchText}`).then(res => {
+        console.log(response)
+        response.json().then(data => {
+            console.log(data.results)
+        });
+    });
+    
+   
+    return axios.get(url);
 }

@@ -32,7 +32,7 @@ export const AppContextProvider = ({children}) => {
                 setUserSelectedAddress(JSON.parse(storageItem[1]));
             }
         })
-
+        
         setAuthData(serialiseAsyncData);
         setLoading(false);
     }

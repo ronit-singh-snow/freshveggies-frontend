@@ -8,6 +8,7 @@ import { AppContext } from "../Services/AppContextProvider"
 import { deleteRecord, getAddresses } from "../Services/FetchData"
 import RoundedIconButton from "../Components/RoundedIconButton";
 import { useIsFocused } from "@react-navigation/native";
+import CustomPlacesSearch from "../Components/CustomPlacesSearch";
 
 const styles = StyleSheet.create({
     mainContainer: {
@@ -159,7 +160,7 @@ const autoCompleteStyles = StyleSheet.create({
 export const AddAddress = ({ navigation }) => {
     const { authData, setSelectedAddress, getSelectedAddress } = useContext(AppContext);
     const [addresses, setAddresses] = useState([]);
-    const [address, setAddress] = useState();
+    const [latLong, setLatLong] = useState({});
     const [CurrentAddress, setCurrentAddress] = useState(null);
     const isInFocus = useIsFocused();
 
@@ -175,7 +176,12 @@ export const AddAddress = ({ navigation }) => {
             }
 
             let { coords: { latitude, longitude } } = await Location.getCurrentPositionAsync({});
+            setLatLong({
+                latitude,
+                longitude
+            })
             const response = await Location.reverseGeocodeAsync({ latitude, longitude });
+            // console.log(response);
             if (response.length > 0) {
                 setCurrentAddress(response[0].formattedAddress)
             }
@@ -205,21 +211,25 @@ export const AddAddress = ({ navigation }) => {
     }
 
     const selectedAddress = getSelectedAddress();
+    console.log(latLong);
     return <View style={styles.mainContainer}>
         <View style={styles.searchBarContainer}>
-            <GooglePlacesAutocomplete
+            {/* <GooglePlacesAutocomplete
                 placeholder='Sunderpur, Varanasi'
                 debounce={250}
                 minLength={2}
                 enablePoweredByContainer={false}
+                nearbyPlacesApiKey="AIzaSyAfAmY_6_d1v52LpV4xEY6eJ8eRCKcDHvc"
                 disableScroll={false}
                 onPress={(data, details = null) => {
                     navigateToUpdateAddress( {full_address: data.description });
                 }}
                 query={{
-                    key: 'AIzaSyAfAmY_6_d1v52LpV4xEY6eJ8eRCKcDHvc',
                     language: 'en',
-                    components: "country:IN"
+                    components: "country:IN",
+                    rankby: 'distance', 
+                    locationBias: `CIRCLE:5000:${latLong.latitude},${latLong.longitude}`,
+                    location: `${latLong.latitude},${latLong.longitude}`
                 }}
                 renderRow={(data, index) => {
                     return <View style={{ width: "100%", maxWidth: "100%", overflow: "hidden", flexWrap: "wrap" }}>
@@ -240,14 +250,15 @@ export const AddAddress = ({ navigation }) => {
                     </View>
                 )}
                 styles={autoCompleteStyles}
-            />
+            /> */}
+
+            <CustomPlacesSearch />
 
         </View>
         <View style={styles.contentContainer}>
             <View style={styles.cardBackground}>
                 <TouchableOpacity
                     onPress={() => {
-                        setAddress(CurrentAddress);
                         navigateToUpdateAddress({
                             full_address: CurrentAddress
                         });

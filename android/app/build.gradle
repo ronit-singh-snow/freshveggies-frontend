@@ -114,8 +114,8 @@ android {
         applicationId 'com.ronit.singh.snow.FreshVeggies'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0.1"
+        versionCode 8
+        versionName "1.0.8"
     }
     signingConfigs {
         debug {

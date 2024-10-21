@@ -7,7 +7,7 @@ const createClient = () => {
         .setProject('66efac960005a73d7247');
 }
 
-const getAccount = () => {
+export const getAccount = () => {
     return new Account(createClient());
 }
 
@@ -29,5 +29,19 @@ export const confirmOTPAndCreateSession = (userId, otp) => {
 
 export const deleteSession = () => {
     const account = getAccount();
-    account.deleteSession("current");
+    return account.deleteSession("current");
+}
+
+export const deleteExistingSession = () => {
+    const account = getAccount();
+    return new Promise((resolve, reject) => {
+        account.get().then(async res => {
+            await account.deleteSessions();
+            resolve();
+        }).catch(err => {
+            console.log("No account session exist yet");
+            resolve();
+        })
+    });
+    
 }

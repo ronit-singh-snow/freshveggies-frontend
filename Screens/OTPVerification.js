@@ -18,7 +18,7 @@ export default function OtpVerification({ navigation }) {
     const { signIn } = useContext(AppContext);
 
     const [fetchingOtp, setFetchingOtp] = useState(true);
-    const [otp, setOtp] = useState([]);
+    const [otp, setOtp] = useState(new Array(6));
     const [timerActive, setTimerActive] = useState(true);
     const [userId, setUserId] = useState(route.params?.userId);
     const [loading, setLoading] = useState();
@@ -34,7 +34,6 @@ export default function OtpVerification({ navigation }) {
     ]
 
     const signInWithPhone = async () => {
-        console.log("SigninWith Phone called");
         setFetchingOtp(true);
         sendOTP(phoneNumber).then(res => {
             setUserId(res.userId);
@@ -53,7 +52,8 @@ export default function OtpVerification({ navigation }) {
                     maxLength={1}
                     ref={itemRefs[i]}
                     onChangeText={(text) => {
-                        const newOtp = otp.slice(0, i) + text + otp.slice(i + 1);
+                        const newOtp = [...otp];
+                        newOtp[i] = text;
                         setOtp(newOtp);
                         if (text !== '') {
                             const nextInput = itemRefs[i + 1];
@@ -63,6 +63,7 @@ export default function OtpVerification({ navigation }) {
                         }
                     }}
                     onKeyPress={(event) => {
+                        
                         if (event.nativeEvent.key === 'Backspace' && otp.length === 0) {
                             return false;
                         } else if (event.nativeEvent.key === 'Backspace') {
@@ -70,6 +71,14 @@ export default function OtpVerification({ navigation }) {
                             if (previousInput && previousInput.current) {
                                 previousInput.current.focus();
                             }
+                        } else {
+                            if(otp[i]) {
+                                const nextInput = itemRefs[i + 1];
+                                if (nextInput && nextInput.current) {
+                                    nextInput.current.focus();
+                                }
+                            }
+                                console.log(event.nativeEvent.key)
                         }
                     }}
                     value={otp[i] || ''}
@@ -80,7 +89,6 @@ export default function OtpVerification({ navigation }) {
     };
 
     useEffect(() => {
-        // signInWithPhone();
         setTimeout(() => {
             setTimerActive(false);
         }, 15*60*1000);
@@ -95,15 +103,14 @@ export default function OtpVerification({ navigation }) {
                     <View style={styles.otpContainer}>
                         {renderInputs()}
                     </View>
-                    
+                   
                     <CustomButton 
                         title={"Verify"}
                         disabled={otp.length != 6 || loading}
                         loading={loading}
                         onPress={async () => {
                             setLoading(true);
-                            confirmOTPAndCreateSession(userId, otp).then(sessionResponse => {
-                                console.log(sessionResponse);
+                            confirmOTPAndCreateSession(userId, otp.join("")).then(sessionResponse => {
                                 findUser(phoneNumber.replace("+", " ")).then((response) => {
                                     if (response.data && response.data.length > 0) {
                                         signIn(sessionResponse.userId, phoneNumber, "phone");
@@ -113,12 +120,17 @@ export default function OtpVerification({ navigation }) {
                                             userId: sessionResponse.userId
                                         });
                                     }
-                                    
-                                    setLoading(false);
-                                });
+                                }).catch((err) => {
+                                    Toast.show("Error while fetching the current user", Toast.durations.SHORT);
+                                }).finally(() => setLoading(false));
+                                
                             }).catch(err => {
-                                Toast.show("Error while creating a session", Toast.durations.SHORT);
-                            })
+                                console.log(err)
+                                if (err.type === "user_invalid_token")
+                                    Toast.show("You have entered incorrect OTP", Toast.durations.LONG);
+                                else
+                                    Toast.show(err.toString(), Toast.durations.LONG);
+                            }).finally(() => setLoading(false));
                         }}
                     />
                     

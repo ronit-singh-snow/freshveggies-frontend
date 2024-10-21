@@ -2,6 +2,7 @@
 import { PixelRatio } from "react-native";
 import { HOST_URL } from "../Constants.js";
 import { submitOrder } from "./FetchData.js";
+import * as Location from "expo-location";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 export const getResourceURL = (resource) => {
@@ -105,4 +106,32 @@ export const formatDateToLocaleDateTime = (milliseconds) => {
 
 export const getFontSize = (size) => {
     return Math.ceil(size/PixelRatio.getFontScale());
+}
+
+export const getCurrentLocation = () => {
+    return new Promise((resolve, reject) => {
+        const getPermissions = async () => {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                // Toast.show("please grant location access", Toast.durations.SHORT);
+                reject("Please grant location access");
+                return;
+            }
+    
+            let { coords: { latitude, longitude } } = await Location.getCurrentPositionAsync({});
+            
+            let result = {};
+            result.latitude = latitude;
+            result.longitude = longitude;
+    
+            const response = await Location.reverseGeocodeAsync({ latitude, longitude });
+
+            if (response.length > 0) {
+                result.formattedAddress = response[0].formattedAddress;
+            }
+    
+            resolve(result);
+        }
+        getPermissions();
+    });
 }

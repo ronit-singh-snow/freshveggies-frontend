@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { CustomButton } from '../Components/CustomButton';
 import { colors } from '../Styles';
 import { getFontSize } from '../Services/Utils';
-import { sendOTP } from '../Services/AppWriteServices';
+import { deleteExistingSession, sendOTP } from '../Services/AppWriteServices';
 import Toast from 'react-native-root-toast';
 
 export default function LoginPage({ navigation }) {
@@ -31,6 +31,7 @@ export default function LoginPage({ navigation }) {
                         <TextInput
                             style={styles.signInInput}
                             keyboardType="phone-pad"
+                            maxLength={10}
                             placeholder='Enter phone number'
                             onChangeText={(val) => {
                                 setPhoneNumber(`+91${val}`)
@@ -40,17 +41,19 @@ export default function LoginPage({ navigation }) {
                     <CustomButton
                         title={"Send"}
                         loading={loading}
-                        onPress={() => {
-                            setLoading(true)
+                        onPress={async () => {
+                            setLoading(true);
+                            await deleteExistingSession();
                             sendOTP(phoneNumber).then(res => {
-                                setLoading(false);
                                 navigation.navigate("OtpVerification", {
                                     phoneNumber: phoneNumber,
                                     userId: res.userId
                                 });
                             }).catch(err => {
                                 Toast.show("Error while sending OTP", Toast.durations.SHORT);
-                            })
+                            }).finally(() => {
+                                setLoading(false);
+                            });
                         }}
                     />
                 </View>
@@ -103,7 +106,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         paddingHorizontal: 15,
         borderColor: colors.darkGreen,
-        fontWeight: "bold"
+        // fontWeight: "bold"
     },
     signInButton: {
         backgroundColor: colors.darkGreen,
