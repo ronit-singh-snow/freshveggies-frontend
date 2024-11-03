@@ -12,17 +12,6 @@ const avatarImage = require('../assets/images/avatar.png');
 export default function Header() {
     const navigation = useNavigation();
     const { authData, getSelectedAddress } = useContext(AppContext);
-    const [userData, setUserData] = useState({});
-    
-    useEffect(() => {
-        if (authData.phone_number) {
-            findUser(authData.phone_number.replace("+", " ")).then((response) => {
-                if (response.data && response.data.length > 0) {
-                    setUserData(response.data[0]);
-                }
-            })
-        }
-    }, [])
 
     let selectedAddress = getSelectedAddress();
 
@@ -52,7 +41,7 @@ export default function Header() {
                     />
                 </Pressable>
             </View>
-            <Text style={styles.userName}>Hi, {userData?.username}</Text>
+            <Text style={styles.userName}>Hi, {authData?.name}</Text>
             <Text style={styles.description}>Get fresh fruits and vegetables delivered to your door step.</Text>
             <TextInput style={styles.searchInput} placeholderTextColor={"#C0C0C0"} onFocus={() => navigation.navigate("SearchItem")} placeholder="Search Fruits and Vegetables" />
         </View>

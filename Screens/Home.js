@@ -9,11 +9,13 @@ import Carousel from '../Components/Carousel.js';
 import { Footer } from '../Components/Footer.js';
 import { formatFruits, getResourceURL } from '../Services/Utils.js';
 import { homepageDetails } from '../Services/FetchData.js';
+import { getHomepageData, getProducts } from '../Services/AppWriteServices.js';
+import { DatabaseService } from '../Services/Appwrite/DatabaseService.js';
 
 export default function Home({ navigation }) {
     const [banners, setBanners] = useState([]);
     const [downSections, setDownsections] = useState([]);
-
+    const [products, setProducts] = useState([]);
     const renderItem = (item) => {
         return <Card item={item} key={`product_${item.id}`} clickHandler={() => {
             navigation.navigate("FruitDetails", {
@@ -23,23 +25,47 @@ export default function Home({ navigation }) {
     }
 
     useEffect(() => {
-        homepageDetails().then(response => {
-            let bannersData = response?.data.banners.map((banner, index) => {
+        getHomepageData((homepageData) => {
+            let bannerData = homepageData.filter(data => data.type == "banner");
+            bannerData.forEach((banner, index) => {
                 banner.id = `banner_${index}`;
-                banner.type = "banner";
                 banner.img = {
-                    uri: getResourceURL(banner.imageSource)
+                    uri: banner.banner_image
                 };
-                cardWidthRatio = 1;
-
-                return banner;
             });
 
-            setBanners(bannersData);
+            setBanners(bannerData);
+        });
 
-            setDownsections(response?.data.downSections);
+        let dbService = new DatabaseService();
+        dbService.getProducts("category=Fruit").then(result => {
+            console.log( result);
         })
+
+        // getProducts().then(productData => {
+        //     setProducts(productData);
+        // }).catch(err => console.error("Error:", err));
+
+
+        // homepageDetails().then(response => {
+        //     let bannersData = response?.data.banners.map((banner, index) => {
+        //         banner.id = `banner_${index}`;
+        //         banner.type = "banner";
+        //         banner.img = {
+        //             uri: getResourceURL(banner.imageSource)
+        //         };
+        //         // cardWidthRatio = 1;
+
+        //         return banner;
+        //     });
+
+        //     // setBanners(bannersData);
+
+        //     setDownsections(response?.data.downSections);
+        // })
     }, []);
+
+    
 
     return (
         <SafeAreaView style={styles.container}>
@@ -60,6 +86,8 @@ export default function Home({ navigation }) {
                         }} key={`product_${item.id}`} />
                     }}
                 />
+
+              
 
                 {downSections ? downSections.map((section, index) => {
                     return (<View key={`${section.title.replaceAll(" ", "")}_${index}`}>

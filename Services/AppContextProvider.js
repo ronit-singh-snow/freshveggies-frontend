@@ -11,17 +11,18 @@ export const AppContextProvider = ({children}) => {
     const [authData, setAuthData] = useState();
     const [selectedAddress, setUserSelectedAddress] = useState();
 
-    const setToken = async (userId, phoneNumber, loginType) => {
+    const setToken = async (userId, phoneNumber, loginType, name) => {
         const storeData = [];
         userId ? storeData.push(["user_token", userId]) : null;
         phoneNumber ? storeData.push(["phone_number", phoneNumber]) : null;
         loginType ? storeData.push(["login_type", loginType]) : null;
+        name ? storeData.push(["name", name]) : null;
 
         return await AsyncStorage.multiSet(storeData);
     }
 
     const getToken = async () => {
-        const val = await AsyncStorage.multiGet(["user_token", "phone_number", "selected_address"]);
+        const val = await AsyncStorage.multiGet(["user_token", "phone_number", "selected_address", "name"]);
         const serialiseAsyncData = val.reduce((acc, item) => {
             acc[item[0]] = item[1];
             return acc;
@@ -49,12 +50,13 @@ export const AppContextProvider = ({children}) => {
         getToken();
     }, [])
 
-    const signIn = async (userId, phoneNumber, loginType) => { 
-        setToken(userId, phoneNumber, loginType);
+    const signIn = async (userId, phoneNumber, loginType, name) => { 
+        setToken(userId, phoneNumber, loginType, name);
         const _authData = {
             user_token: userId,
             loginType,
-            phone_number: phoneNumber
+            phone_number: phoneNumber,
+            name: name
         }
         setAuthData(_authData);
     };

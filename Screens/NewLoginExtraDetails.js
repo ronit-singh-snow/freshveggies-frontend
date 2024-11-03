@@ -5,6 +5,8 @@ import { insertUser } from '../Services/FetchData';
 import { CustomButton } from '../Components/CustomButton';
 import { useRoute } from '@react-navigation/native';
 import { colors } from '../Styles';
+import { AuthService } from '../Services/Appwrite/AuthService';
+import { getFontSize } from '../Services/Utils';
 
 export const NewLoginExtraDetails = () => {
     const route = useRoute();
@@ -12,21 +14,13 @@ export const NewLoginExtraDetails = () => {
     const { signIn } = useContext(AppContext);
 
     const [name, setName] = useState();
-    const [email, setEmail] = useState();
-    const [user, setUser] = useState();
     const[loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        // auth().onAuthStateChanged(setUser);
-        // auth().onAuthStateChanged((user) => {
-        //     setUser(user);
-        // });
-    }, []);
-
 
 
     return <ImageBackground source={bgImage} style={{ flex: 1 }}>
         <View style={styles.container}>
+            <Text style={styles.enterNumberText}>Enter your name</Text>
+            <Text style={[styles.textLightColor, styles.headerDescription]}>Provide your name for further communication</Text>
             <Text style={styles.inputLabel}>Name*</Text>
             <TextInput
                 style={styles.textinput}
@@ -34,22 +28,19 @@ export const NewLoginExtraDetails = () => {
                 onChangeText={setName}
             />
 
-            <Text style={styles.inputLabel}>Email</Text>
-            <TextInput
-                style={styles.textinput}
-                placeholder='Enter your email address'
-                onChangeText={setEmail}
-            />
             <CustomButton
                 title={"Submit"}
                 disabled={!name}
                 loading={loading}
                 onPress={() => {
                     setLoading(true);
-                    insertUser(email, name, route.params?.phoneNumber).then((response) => {
+                    const authService = new AuthService();
+                    authService.updateName(name).then(result => {
                         setLoading(false);
-                        signIn(route.params?.userId, route.params?.phoneNumber, "phone", email);
-                    })
+                        console.log(route.params?.userId, route.params?.phoneNumber);
+                        signIn(route.params?.userId, route.params?.phoneNumber, "phone");
+                    });
+                    
                 }}
             />
         </View>
@@ -130,5 +121,18 @@ const styles = StyleSheet.create({
     },
     inputLabel: {
         color: "#041e49b3"
+    },
+    textLightColor: {
+        color: "#3e4740b8"
+    },
+    headerDescription: {
+        textAlign: "center",
+        width: "100%",
+        marginBottom: 20
+    },
+    enterNumberText: {
+        fontWeight: "400",
+        fontSize: getFontSize(22),
+        textAlign: "center"
     }
 });

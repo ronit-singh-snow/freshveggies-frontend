@@ -6,6 +6,7 @@ import { colors } from '../Styles';
 import { getFontSize } from '../Services/Utils';
 import { deleteExistingSession, sendOTP } from '../Services/AppWriteServices';
 import Toast from 'react-native-root-toast';
+import { AuthService } from '../Services/Appwrite/AuthService';
 
 export default function LoginPage({ navigation }) {
     const [phoneNumber, setPhoneNumber] = useState();
@@ -41,19 +42,20 @@ export default function LoginPage({ navigation }) {
                     <CustomButton
                         title={"Send"}
                         loading={loading}
+                        disabled={!phoneNumber}
                         onPress={async () => {
                             setLoading(true);
-                            await deleteExistingSession();
-                            sendOTP(phoneNumber).then(res => {
+                            
+                            const auth = new AuthService();
+                            await auth.deleteSessions();
+                            auth.sendPhoneToken(phoneNumber).then(userId => {
                                 navigation.navigate("OtpVerification", {
                                     phoneNumber: phoneNumber,
-                                    userId: res.userId
+                                    userId: userId
                                 });
-                            }).catch(err => {
-                                Toast.show("Error while sending OTP", Toast.durations.SHORT);
-                            }).finally(() => {
-                                setLoading(false);
                             });
+                            
+                            setLoading(false);
                         }}
                     />
                 </View>

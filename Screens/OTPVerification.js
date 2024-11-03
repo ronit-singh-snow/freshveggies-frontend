@@ -5,10 +5,9 @@ import { AppContext } from '../Services/AppContextProvider';
 import { CustomButton } from '../Components/CustomButton';
 import { useRoute } from '@react-navigation/native';
 import Timer from '../Components/Timer';
-import { findUser } from "../Services/FetchData";
-import { sendOTP, confirmOTPAndCreateSession } from '../Services/AppWriteServices';
-import Toast from 'react-native-root-toast';
+import { sendOTP } from '../Services/AppWriteServices';
 import { getFontSize } from '../Services/Utils';
+import { AuthService } from '../Services/Appwrite/AuthService';
 
 export default function OtpVerification({ navigation }) {
     const route = useRoute();
@@ -78,7 +77,6 @@ export default function OtpVerification({ navigation }) {
                                     nextInput.current.focus();
                                 }
                             }
-                                console.log(event.nativeEvent.key)
                         }
                     }}
                     value={otp[i] || ''}
@@ -108,28 +106,21 @@ export default function OtpVerification({ navigation }) {
                         title={"Verify"}
                         disabled={otp.length != 6 || loading}
                         loading={loading}
-                        onPress={async () => {
+                        onPress={() => {
                             setLoading(true);
-                            confirmOTPAndCreateSession(userId, otp.join("")).then(sessionResponse => {
-                                findUser(phoneNumber.replace("+", " ")).then((response) => {
-                                    if (response.data && response.data.length > 0) {
-                                        signIn(sessionResponse.userId, phoneNumber, "phone");
-                                    } else {
-                                        navigation.navigate("NewLoginExtraDetails", {
-                                            phoneNumber: phoneNumber,
-                                            userId: sessionResponse.userId
-                                        });
-                                    }
-                                }).catch((err) => {
-                                    Toast.show("Error while fetching the current user", Toast.durations.SHORT);
-                                }).finally(() => setLoading(false));
+                            const authService = new AuthService();
+                            authService.confirmOTPAndCreateSession(userId, otp.join("")).then(userData => {
                                 
+                                if(userData?.name) {
+                                    signIn(userId, phoneNumber, "phone", userData.name);
+                                } else {
+                                    navigation.navigate("NewLoginExtraDetails", {
+                                        phoneNumber: phoneNumber,
+                                        userId: userId
+                                    });
+                                }    
                             }).catch(err => {
-                                console.log(err)
-                                if (err.type === "user_invalid_token")
-                                    Toast.show("You have entered incorrect OTP", Toast.durations.LONG);
-                                else
-                                    Toast.show(err.toString(), Toast.durations.LONG);
+                                console.log(err);
                             }).finally(() => setLoading(false));
                         }}
                     />
