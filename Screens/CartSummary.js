@@ -78,7 +78,7 @@ export default function CartSummary({ navigation }) {
                             </View>
                             <View style={styles.listActions}>
                                 <AddQuantity stock={5} initialQuantity={item.quantity} onQuantityChange={quantity => {
-                                    quantity === 0 ? removeFromCart(item.item.id) : addToCart(item.item, quantity);
+                                    quantity === 0 ? removeFromCart(item.item.$id) : addToCart(item.item, quantity);
                                 }} />
                                 <PriceValue price={item.item.unitPrice * item.quantity} />
                             </View>

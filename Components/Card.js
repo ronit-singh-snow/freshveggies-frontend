@@ -20,7 +20,7 @@ const getBannerContent = (item) => {
 
 const getCardContent = (item, addToCart, cartItems, removeFromCart) => {
     const {title, img, unitPrice, unit} = item;
-    let initialQuantity = findAddedCartItem(cartItems, item.id);
+    let initialQuantity = findAddedCartItem(cartItems, item.$id);
 
     return (
         <View style={{alignItems: "center"}}>
@@ -33,7 +33,7 @@ const getCardContent = (item, addToCart, cartItems, removeFromCart) => {
                 </View>
             
                 <AddQuantity stock={5} initialQuantity={initialQuantity} onQuantityChange={(quantity) => {
-                    quantity === 0 ? removeFromCart(item.id) : addToCart(item, quantity);
+                    quantity === 0 ? removeFromCart(item.$id) : addToCart(item, quantity);
                 }} />
             </View>
             

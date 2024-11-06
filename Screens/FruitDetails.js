@@ -33,8 +33,8 @@ const FruitDetails = ({ navigation }) => {
                             <Text style={styles.unitValue}>{item.unit}</Text>
                             <Text style={styles.unitPrice}>Rs. {item.unitPrice}</Text>
                         </View>
-                        <AddQuantity stock={5} initialQuantity={findAddedCartItem(cartItems, item.id)} onQuantityChange={(quantity) => {
-                            quantity === 0 ? removeFromCart(item.id) : addToCart(item, quantity);
+                        <AddQuantity stock={5} initialQuantity={findAddedCartItem(cartItems, item.$id)} onQuantityChange={(quantity) => {
+                            quantity === 0 ? removeFromCart(item.$id) : addToCart(item, quantity);
                         }} />
                     </View>
 

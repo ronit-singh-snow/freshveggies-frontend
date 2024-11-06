@@ -23,7 +23,7 @@ const Carousel = ({ data, renderItem, loop = true }) => {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.$id.toString()}
         renderItem={renderSlide}
         // scrollEventThrottle={16}
         onScroll={Animated.event(

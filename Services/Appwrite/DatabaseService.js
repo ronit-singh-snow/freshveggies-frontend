@@ -50,7 +50,6 @@ export class DatabaseService {
       }
 
     async getProducts(query) {
-        console.log(DB_NAME);
         try {
             let parsedQuery = this.parseExpression(query);
             let results = {};

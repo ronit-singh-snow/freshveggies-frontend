@@ -74,7 +74,7 @@ export const AppContextProvider = ({children}) => {
 
     const addToCart = (item, quantity) => {
         let cart = [...cartData];
-        let findItem = cart.find((cartItem) => cartItem.item.id === item.id);
+        let findItem = cart.find((cartItem) => cartItem.item.$id === item.$id);
         if (findItem) {
             findItem.quantity = quantity;
             setCartData(cart);
@@ -93,7 +93,7 @@ export const AppContextProvider = ({children}) => {
 
     const removeFromCart = (itemId) => {
         let cart = [...cartData];
-        let itemIndex = cart.findIndex((cartItem) => cartItem.item.id === itemId);
+        let itemIndex = cart.findIndex((cartItem) => cartItem.item.$id === itemId);
         if (itemIndex > -1) {
             cart.splice(itemIndex, 1);
         }

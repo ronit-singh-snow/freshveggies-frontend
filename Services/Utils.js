@@ -15,14 +15,14 @@ export const formatFruits = (data) => {
         d.unitPrice = parseInt(d.unit_price);
         d.unitValue = 1000;
         d.cardWidthRatio = 2;
-        d.img = { uri: getResourceURL(d.image_path) };
+        d.img = { uri: d.image_path };
         d.bgColorCode = d.color_hex_code;
         return d;
     })
 }
 
 export const findAddedCartItem = (cartItems, id) => {
-    const itemIndex = cartItems.findIndex((item) => item.item.id == id);
+    const itemIndex = cartItems.findIndex((item) => item.item.$id == id);
     if (itemIndex >= 0) {
         return cartItems[itemIndex].quantity
     }

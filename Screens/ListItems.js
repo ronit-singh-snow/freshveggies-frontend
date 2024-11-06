@@ -7,6 +7,7 @@ import { useContext, useEffect, useState } from 'react';
 import { findAddedCartItem, formatFruits } from '../Services/Utils';
 import { PriceValue } from '../Components/PriceValue';
 import { getProducts } from '../Services/FetchData';
+import { DatabaseService } from '../Services/Appwrite/DatabaseService';
 
 const styles = StyleSheet.create({
     container: {
@@ -55,9 +56,13 @@ export default function ListItems({ navigation }) {
             title: title
         });
         
-        getProducts(query.category, query.subcategory, query.extraConditions, query.limit).then(response => {
-            setListData(formatFruits(response.data));
-        });
+        // getProducts(query.category, query.subcategory, query.extraConditions, query.limit).then(response => {
+        //     setListData(formatFruits(response.data));
+        // });
+        let dbService = new DatabaseService();
+        dbService.getProducts(query).then(result => {
+            setListData(formatFruits(result));
+        })
     }, [navigation, title])
 
     return (
@@ -75,8 +80,8 @@ export default function ListItems({ navigation }) {
                             <PriceValue price={item.unitPrice} />
                         </View>
                         <View style={styles.listActions}>
-                            <AddQuantity stock={5} initialQuantity={findAddedCartItem(cartItems, item.id)} onQuantityChange={(quantity) => {
-                                quantity === 0 ? removeFromCart(item.id) : addToCart(item, quantity);
+                            <AddQuantity stock={5} initialQuantity={findAddedCartItem(cartItems, item.$id)} onQuantityChange={(quantity) => {
+                                quantity === 0 ? removeFromCart(item.$id) : addToCart(item, quantity);
                             }} />
                         </View>
                     </Pressable>

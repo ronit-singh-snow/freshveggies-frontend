@@ -15,57 +15,51 @@ import { DatabaseService } from '../Services/Appwrite/DatabaseService.js';
 export default function Home({ navigation }) {
     const [banners, setBanners] = useState([]);
     const [downSections, setDownsections] = useState([]);
-    const [products, setProducts] = useState([]);
+
     const renderItem = (item) => {
-        return <Card item={item} key={`product_${item.id}`} clickHandler={() => {
-            navigation.navigate("FruitDetails", {
-                item
-            })
-        }} />;
+        console.log(item.$id);
+        return <Card item={item} key={`product_${item.$id}`} clickHandler={() => {
+
+                navigation.navigate("FruitDetails", {
+                    item
+                })
+            }} 
+        />;
+        
     }
 
     useEffect(() => {
         getHomepageData((homepageData) => {
             let bannerData = homepageData.filter(data => data.type == "banner");
             bannerData.forEach((banner, index) => {
-                banner.id = `banner_${index}`;
+                banner.$id = `banner_${index}`;
                 banner.img = {
                     uri: banner.banner_image
                 };
             });
 
             setBanners(bannerData);
+
+            let sectionsData = homepageData.filter(data => data.type == "section");
+
+            Promise.all(sectionsData.map(section => {
+                let dbService = new DatabaseService();
+                return dbService.getProducts(section.query)
+            })).then(values => {
+                
+                let downSectionsData = values.map((result, index) => {
+                    let sectionData = {};
+                    sectionData.data = result;
+                    sectionData.title = sectionsData[index].title;
+                    sectionData.query = sectionsData[index].query;
+
+                    return sectionData;
+                })
+                setDownsections(downSectionsData);
+            });
         });
-
-        let dbService = new DatabaseService();
-        dbService.getProducts("category=Fruit").then(result => {
-            console.log( result);
-        })
-
-        // getProducts().then(productData => {
-        //     setProducts(productData);
-        // }).catch(err => console.error("Error:", err));
-
-
-        // homepageDetails().then(response => {
-        //     let bannersData = response?.data.banners.map((banner, index) => {
-        //         banner.id = `banner_${index}`;
-        //         banner.type = "banner";
-        //         banner.img = {
-        //             uri: getResourceURL(banner.imageSource)
-        //         };
-        //         // cardWidthRatio = 1;
-
-        //         return banner;
-        //     });
-
-        //     // setBanners(bannersData);
-
-        //     setDownsections(response?.data.downSections);
-        // })
     }, []);
 
-    
 
     return (
         <SafeAreaView style={styles.container}>
@@ -83,7 +77,7 @@ export default function Home({ navigation }) {
                                 title: item.title,
                                 query: item.query
                             });
-                        }} key={`product_${item.id}`} />
+                        }} key={`product_${item.$id}`} />
                     }}
                 />
 

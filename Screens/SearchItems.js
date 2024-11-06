@@ -88,8 +88,8 @@ export const SearchItem = () => {
                         <PriceValue price={item.unitPrice} />
                     </View>
                     <View style={styles.listActions}>
-                        <AddQuantity stock={5} initialQuantity={findAddedCartItem(cartItems, item.id)} onQuantityChange={(quantity) => {
-                            quantity === 0 ? removeFromCart(item.id) : addToCart(item, quantity);
+                        <AddQuantity stock={5} initialQuantity={findAddedCartItem(cartItems, item.$id)} onQuantityChange={(quantity) => {
+                            quantity === 0 ? removeFromCart(item.$id) : addToCart(item, quantity);
                         }} />
                     </View>
                 </Pressable>
