@@ -42,6 +42,7 @@ export default function CartSummary({ navigation }) {
                 <View style={styles.deliveryHeader}>
                     <Text>Deliver to address: </Text>
                     <Text style={styles.addressType}>{selectedAddress.type}</Text>
+
                     <TouchableOpacity onPress={() => navigation.navigate("AddAddress")} style={styles.changeAddr}>
                         <Text style={styles.changeAddress}>Change</Text>
                     </TouchableOpacity>
@@ -99,7 +100,6 @@ export default function CartSummary({ navigation }) {
                                 )
                             })}
                         </View>
-
                         <Text>Select delivery time slot</Text>
                         <View style={styles.slotBtnContainer}>
                             <Pressable onPress={() => setSelectedTimeSlot(1)} disabled={slot1Disabled}>

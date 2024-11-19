@@ -3,12 +3,12 @@ import { Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View 
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import * as Location from "expo-location";
 import Toast from 'react-native-root-toast';
-
 import { AppContext } from "../Services/AppContextProvider"
-import { deleteRecord, getAddresses } from "../Services/FetchData"
+// import { deleteRecord, getAddresses } from "../Services/FetchData"
 import RoundedIconButton from "../Components/RoundedIconButton";
 import { useIsFocused } from "@react-navigation/native";
 import CustomPlacesSearch from "../Components/CustomPlacesSearch";
+import { DatabaseService } from "../Services/Appwrite/DatabaseService";
 
 const styles = StyleSheet.create({
     mainContainer: {
@@ -158,12 +158,12 @@ const autoCompleteStyles = StyleSheet.create({
 });
 
 export const AddAddress = ({ navigation }) => {
-    const { authData, setSelectedAddress, getSelectedAddress } = useContext(AppContext);
+    const { authData, setSelectedAddress, getSelectedAddress, setUserDetails, userDetails } = useContext(AppContext);
     const [addresses, setAddresses] = useState([]);
     const [latLong, setLatLong] = useState({});
     const [CurrentAddress, setCurrentAddress] = useState(null);
     const isInFocus = useIsFocused();
-
+    console.log("fetch userDetails in addaddress: ",userDetails);
     const currentLocationPng = require("../assets/images/current_location.png");
     const chevronRight = require("../assets/images/chevron_right.png");
 
@@ -181,7 +181,7 @@ export const AddAddress = ({ navigation }) => {
                 longitude
             })
             const response = await Location.reverseGeocodeAsync({ latitude, longitude });
-            // console.log(response);
+            console.log("address response",response);
             if (response.length > 0) {
                 setCurrentAddress(response[0].formattedAddress)
             }
@@ -192,12 +192,28 @@ export const AddAddress = ({ navigation }) => {
     useEffect(() => {
         getCurrentLocation();
     }, []);
+//   console.log("authdata console",authData);
+    const addressData = {
+        name: userDetails?.username,
+        type: userDetails?.type, 
+        locality: userDetails?.locality,
+        fullAddress: userDetails?.full_address,
+        apartmentName: "",
+        email: authData.email
+    };
+    
     
     useEffect(() => {
-        getAddresses(authData.phone_number.replace("+", " "), -1).then(res => {
-            setAddresses(res?.data);
+        const databaseService = new DatabaseService();
+        databaseService.getAddresses(authData.user_token,addressData).then(res => {
+            console.log(res);
+            const fetchedData = res || [];  
+            setAddresses(fetchedData);           
+        }).catch(error => {
+            console.error("Error fetching addresses:", error);
         });
     }, [isInFocus]);
+    
 
     const navigateToUpdateAddress = (selectedAddress) => {
         let routeParams = {};

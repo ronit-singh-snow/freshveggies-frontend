@@ -4,16 +4,33 @@ import { Image } from 'expo-image';
 import { CustomButton } from '../Components/CustomButton';
 import { colors } from '../Styles';
 import { getFontSize } from '../Services/Utils';
-import { deleteExistingSession, sendOTP } from '../Services/AppWriteServices';
 import Toast from 'react-native-root-toast';
 import { AuthService } from '../Services/Appwrite/AuthService';
 
 export default function LoginPage({ navigation }) {
-    const [phoneNumber, setPhoneNumber] = useState();
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [loading, setLoading] = useState(false);
     const bgImage = require("../assets/images/background.png");
     const countryImage = require("../assets/images/india.png");
-    
+
+    const handleSendOTP = async () => {
+        setLoading(true);
+        try {
+            const auth = new AuthService();
+            await auth.deleteSessions();
+            const userId = await auth.sendPhoneToken(phoneNumber);
+            navigation.navigate("OtpVerification", {
+                phoneNumber: phoneNumber,
+                userId: userId
+            });
+        } catch (error) {
+            console.error("Error sending OTP:", error);
+            Toast.show("Failed to send OTP. Try again.", { duration: Toast.durations.LONG });
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <ImageBackground source={bgImage} style={{ flex: 1 }}>
             <View style={styles.container}>
@@ -34,34 +51,19 @@ export default function LoginPage({ navigation }) {
                             keyboardType="phone-pad"
                             maxLength={10}
                             placeholder='Enter phone number'
-                            onChangeText={(val) => {
-                                setPhoneNumber(`+91${val}`)
-                            }}
+                            onChangeText={(val) => setPhoneNumber(`+91${val}`)}
                         />
                     </View>
                     <CustomButton
                         title={"Send"}
                         loading={loading}
-                        disabled={!phoneNumber}
-                        onPress={async () => {
-                            setLoading(true);
-                            
-                            const auth = new AuthService();
-                            await auth.deleteSessions();
-                            auth.sendPhoneToken(phoneNumber).then(userId => {
-                                navigation.navigate("OtpVerification", {
-                                    phoneNumber: phoneNumber,
-                                    userId: userId
-                                });
-                            });
-                            
-                            setLoading(false);
-                        }}
+                        disabled={!phoneNumber || loading}
+                        onPress={handleSendOTP}
                     />
                 </View>
             </View>
         </ImageBackground>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -105,10 +107,11 @@ const styles = StyleSheet.create({
         borderColor: colors.darkGreen
     },
     signInInput: {
-        borderRadius: 20,
+        flex: 1,
         paddingHorizontal: 15,
         borderColor: colors.darkGreen,
-        // fontWeight: "bold"
+        borderWidth: 1,
+        borderRadius: 10,
     },
     signInButton: {
         backgroundColor: colors.darkGreen,

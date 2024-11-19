@@ -119,10 +119,13 @@ export const UpdateAddress = ({navigation}) => {
                     loading={loading}
                     disabled={loading || buttonDisabled}
                     onPress={() => {
+                        console.log("user details: ",userDetails );
                         setLoading(true);
                         submitAddress(userDetails).then((res) => {
                             setSelectedAddress({ full_address: userDetails.full_address, idaddress: res?.data.insertId })
                             navigation.goBack();
+                            navigation.navigate("AddAddress", { userDetails });
+
                         }).finally(() => {
                             setLoading(false);
                         })

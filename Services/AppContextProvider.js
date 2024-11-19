@@ -10,6 +10,7 @@ export const AppContextProvider = ({children}) => {
     const [loading, setLoading] = useState(true);
     const [authData, setAuthData] = useState();
     const [selectedAddress, setUserSelectedAddress] = useState();
+    const [userDetails, setUserDetails] = useState(null);
 
     const setToken = async (userId, phoneNumber, loginType, name) => {
         const storeData = [];
@@ -17,12 +18,13 @@ export const AppContextProvider = ({children}) => {
         phoneNumber ? storeData.push(["phone_number", phoneNumber]) : null;
         loginType ? storeData.push(["login_type", loginType]) : null;
         name ? storeData.push(["name", name]) : null;
+        if (userDetails) storeData.push(["user_details", JSON.stringify(userDetails)]);
 
         return await AsyncStorage.multiSet(storeData);
     }
 
     const getToken = async () => {
-        const val = await AsyncStorage.multiGet(["user_token", "phone_number", "selected_address", "name"]);
+        const val = await AsyncStorage.multiGet(["user_token", "phone_number", "selected_address", "name","user_details"]);
         const serialiseAsyncData = val.reduce((acc, item) => {
             acc[item[0]] = item[1];
             return acc;
@@ -50,8 +52,8 @@ export const AppContextProvider = ({children}) => {
         getToken();
     }, [])
 
-    const signIn = async (userId, phoneNumber, loginType, name) => { 
-        setToken(userId, phoneNumber, loginType, name);
+    const signIn = async (userId, phoneNumber, loginType, name, userDetails) => { 
+        setToken(userId, phoneNumber, loginType, name, userDetails);
         const _authData = {
             user_token: userId,
             loginType,
@@ -59,12 +61,14 @@ export const AppContextProvider = ({children}) => {
             name: name
         }
         setAuthData(_authData);
+        setUserDetails(userDetails);
     };
 
     const signOut = async () => {
         //Remove data from context, so the App can be notified
         //and send the user to the AuthStack
         setAuthData(undefined);
+        setUserDetails(null);
         removeToken();
         deleteSession()
     };
@@ -113,10 +117,11 @@ export const AppContextProvider = ({children}) => {
         setAddressToAsyncStorage(addr);
     }
 
+    console.log("userDetails in context: ", userDetails);
     return (
         //This component will be used to encapsulate the whole App,
         //so all components will have access to the Context
-        <AppContext.Provider value={{authData, loading, signIn, signOut, signUp, getToken, cartData, addToCart, clearCart, removeFromCart, getCart, getSelectedAddress, setSelectedAddress}}>
+        <AppContext.Provider value={{authData, loading, signIn, signOut, signUp, getToken, cartData, addToCart, clearCart, removeFromCart, getCart, getSelectedAddress, setSelectedAddress, setUserDetails, userDetails}}>
             {children}
         </AppContext.Provider>
     );
