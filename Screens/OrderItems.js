@@ -3,20 +3,23 @@ import { PriceValue } from "../Components/PriceValue";
 import AddQuantity from "../Components/AddQuantity";
 import { useEffect, useState } from "react";
 import { useRoute } from "@react-navigation/native";
-import { getOrderItems } from "../Services/FetchData";
+// import { getOrderItems } from "../Services/FetchData";
 import { formatFruits } from "../Services/Utils";
+import { DatabaseService } from "../Services/Appwrite/DatabaseService"
 
 export const OrderItems = () => {
     const route = useRoute();
     const [orderItems, setOrderItems] = useState([])
     useEffect(() => {
-        getOrderItems(route.params?.orderId).then(response => {
-            setOrderItems(formatFruits(response.data));
+        const databaseService = new DatabaseService();
+        databaseService.getOrderItems(route.params?.orderId).then(response => {
+            setOrderItems(formatFruits(response));
         })
-    }, []);
+    }, [route.params?.orderId]);
 
     return <ScrollView>
         {orderItems.map((item, index) => {
+            // console.log("items",item);
             return <View style={[styles.container, styles.cardBackground]} key={index}>
                 <Image style={styles.image} source={item.img} contentFit="cover" transition={1000} />
                 <View>

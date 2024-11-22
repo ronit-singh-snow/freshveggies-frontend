@@ -101,4 +101,14 @@ export const getProducts = () => {
         });
 };
 
+export const findUser = async (userId) => {
+    const account = getAccount();
 
+    try {
+        const user = await account.get();
+        return { data: [user] };  
+    } catch (error) {
+        console.error('Error fetching user data: ', error);
+        throw error;
+    }
+};

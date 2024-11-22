@@ -18,48 +18,43 @@ export default function Home({ navigation }) {
 
     const renderItem = (item) => {
         console.log(item.$id);
-        return <Card item={item} key={`product_${item.$id}`} clickHandler={() => {
-
-                navigation.navigate("FruitDetails", {
-                    item
-                })
-            }} 
-        />;
-        
+        return (
+            <Card 
+                item={item} 
+                key={`product_${item.$id}`} 
+                clickHandler={() => {
+                    navigation.navigate("FruitDetails", { item });
+                }} 
+            />
+        );
     }
 
     useEffect(() => {
         getHomepageData((homepageData) => {
-            let bannerData = homepageData.filter(data => data.type == "banner");
+            let bannerData = homepageData.filter(data => data.type === "banner");
             bannerData.forEach((banner, index) => {
                 banner.$id = `banner_${index}`;
-                banner.img = {
-                    uri: banner.banner_image
-                };
+                banner.img = { uri: banner.banner_image };
             });
-
             setBanners(bannerData);
 
-            let sectionsData = homepageData.filter(data => data.type == "section");
+            let sectionsData = homepageData.filter(data => data.type === "section");
 
             Promise.all(sectionsData.map(section => {
                 let dbService = new DatabaseService();
-                return dbService.getProducts(section.query)
+                return dbService.getProducts(section.query);
             })).then(values => {
-                
                 let downSectionsData = values.map((result, index) => {
-                    let sectionData = {};
-                    sectionData.data = result;
-                    sectionData.title = sectionsData[index].title;
-                    sectionData.query = sectionsData[index].query;
-
-                    return sectionData;
-                })
+                    return {
+                        data: result,
+                        title: sectionsData[index].title,
+                        query: sectionsData[index].query
+                    };
+                });
                 setDownsections(downSectionsData);
             });
         });
     }, []);
-
 
     return (
         <SafeAreaView style={styles.container}>
@@ -71,32 +66,38 @@ export default function Home({ navigation }) {
                 <Carousel
                     data={banners}
                     loop={false}
-                    renderItem={(item) => {
-                        return <Card item={item} clickHandler={(item) => {
-                            navigation.navigate("ListItems", {
-                                title: item.title,
-                                query: item.query
-                            });
-                        }} key={`product_${item.$id}`} />
-                    }}
+                    renderItem={(item) => (
+                        <Card 
+                            item={item} 
+                            clickHandler={() => {
+                                navigation.navigate("ListItems", {
+                                    title: item.title,
+                                    query: item.query
+                                });
+                            }} 
+                            key={`product_${item.$id}`} 
+                        />
+                    )}
                 />
 
-              
-
-                {downSections ? downSections.map((section, index) => {
-                    return (<View key={`${section.title.replaceAll(" ", "")}_${index}`}>
+                {downSections ? downSections.map((section, index) => (
+                    <View key={`${section.title.replaceAll(" ", "")}_${index}`}>
                         <View style={styles.sectionHeader}>
                             <Text style={styles.header}>{section.title}</Text>
-                            <Text onPress={() => navigation.navigate("ListItems", {
-                                dataItems: section.data,
-                                title: section.title,
-                                query: section.query
-                            })} style={styles.textLink} >See all</Text>
+                            <Text 
+                                onPress={() => navigation.navigate("ListItems", {
+                                    dataItems: section.data,
+                                    title: section.title,
+                                    query: section.query
+                                })} 
+                                style={styles.textLink}
+                            >
+                                See all
+                            </Text>
                         </View>
                         <Carousel data={formatFruits(section.data)} renderItem={renderItem} loop={false} />
-                    </View>);
-                }) : null}
-
+                    </View>
+                )) : null}
             </ScrollView>
             <Footer />
         </SafeAreaView>

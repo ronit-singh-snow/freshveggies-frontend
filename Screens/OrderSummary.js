@@ -3,14 +3,30 @@ import { View, Text, StyleSheet, Image, Pressable } from "react-native"
 import { RadioButton } from "react-native-paper"
 import { AppContext } from "../Services/AppContextProvider"
 import { useRoute } from "@react-navigation/native"
-import { submitOrder } from "../Services/FetchData"
-import { submitOrderUtil } from "../Services/Utils"
+// import { submitOrder } from "../Services/FetchData"
+// import { submitOrderUtil } from "../Services/Utils"
+import {DatabaseService} from "../Services/Appwrite/DatabaseService"
+import { ID } from "react-native-appwrite"
 
 export const OrderSummary = ({ navigation }) => {
     const { authData, clearCart } = useContext(AppContext);
    
     const route = useRoute();
     const {items, itemValue, address, date, timeslot} = route.params;
+    const orderData = {
+        date: date + '',
+        status: "pending",
+        orderCreate:  new Date().getTime() + '',
+        timeslot: timeslot,
+        address: address,
+        totalPrice: itemValue.totalPrice,
+        items: items.map((item) => ({  
+            productId: item.item.$id,
+            quantity: item.quantity,
+        }))
+    };
+
+    
 
     return (<View style={styles.container}>
         <View style={{ flex: 1 }}>
@@ -31,13 +47,14 @@ export const OrderSummary = ({ navigation }) => {
         </View>
         <View>
             <Pressable onPress={() => {
-                submitOrderUtil(authData.phone_number.replace("+", " "), items, itemValue, address, date, timeslot).then(response => {
-                    clearCart();
+               const databaseService = new DatabaseService();
+               databaseService.submitOrder(authData.user_token, orderData).then(response => {
+                clearCart();
                     navigation.navigate("OrderConfirmation", {
-                        orderId: response.data.insertedOrderId
+                        orderId: response.$id
                     });
-                }).catch(() => {
-                    console.log("Failed while submitting order");
+                }).catch((error) => {
+                    console.log("Failed while submitting order",error);
                 });  
             }}>
                 <Text style={styles.orderNow}>Order now</Text>
