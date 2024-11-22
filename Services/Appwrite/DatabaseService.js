@@ -128,7 +128,7 @@ export class DatabaseService {
     }
   }
 
-  async getAddresses(userId, addressData) {
+  async insertAddresses(userId, addressData) {
     try {
         return await this.database.createDocument(
             DB_NAME,
@@ -139,9 +139,11 @@ export class DatabaseService {
                 name: addressData.name,
                 type:addressData.type,
                 locality: addressData.locality,
-                full_address:addressData.fullAddress ,
+                full_address:addressData.full_address ,
                 apartment_name: addressData.apartmentName,
                 email: addressData.email,
+                zip_code: addressData.zip_code,
+                phone_number: addressData.phone_number,
             }
         );
     } catch (error) {
@@ -167,8 +169,8 @@ async updateOrder(orderId, updatedData) {
 async getOrderById(orderId) {
   try {
     const response = await this.database.getDocument(
-      DB_NAME,               
-      COLLECTIONS.ORDER,    
+      DB_NAME,
+      COLLECTIONS.ORDER,
       orderId
     );
     return response;
@@ -177,5 +179,47 @@ async getOrderById(orderId) {
     throw error;
   }
 }
+
+async fetchAddresses() {
+  try {
+      const response = await this.database.listDocuments(
+          DB_NAME,                
+          COLLECTIONS.ADDRESS     
+      );
+      return response.documents; 
+  } catch (error) {
+      console.error("Error fetching addresses:", error);
+      return []; 
+  }
+}
+
+async deleteAddress(documentId) {
+  try {
+    await this.database.deleteDocument(
+      DB_NAME, 
+      COLLECTIONS.ADDRESS, 
+      documentId); 
+    console.log(`Document ${documentId} deleted successfully.`);
+  } catch (error) {
+    console.error("Error deleting document:", error);
+    throw error;
+  }
+}
+
+async updateAddress(addressId, updatedData) {
+  try {
+    const response = await this.database.updateDocument(
+      DB_NAME,                 
+      COLLECTIONS.ADDRESS,     
+      addressId,               
+      updatedData              
+    );
+    return response;
+  } catch (error) {
+    console.error("Error updating address:", error);
+    throw error;
+  }
+}
+
 
 }
