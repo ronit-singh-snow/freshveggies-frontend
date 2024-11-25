@@ -15,16 +15,17 @@ export const OrderSummary = ({ navigation }) => {
     const {items, itemValue, address, date, timeslot} = route.params;
     const orderData = {
         date: date + '',
-        status: "pending",
+        status: "placed",
         orderCreate:  new Date().getTime() + '',
         timeslot: timeslot,
         address: address,
-        totalPrice: itemValue.totalPrice,
+        totalPrice: itemValue.grandTotalPrice,
         items: items.map((item) => ({  
             productId: item.item.$id,
             quantity: item.quantity,
         }))
     };
+    console.log("items price: ",itemValue)
 
     
 

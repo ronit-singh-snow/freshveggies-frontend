@@ -11,6 +11,7 @@ export const AppContextProvider = ({children}) => {
     const [authData, setAuthData] = useState();
     const [selectedAddress, setUserSelectedAddress] = useState();
     const [userDetails, setUserDetails] = useState(null);
+    const [addresses, setAddresses] = useState([]);
 
     const setToken = async (userId, phoneNumber, loginType, name) => {
         const storeData = [];
@@ -111,6 +112,7 @@ export const AppContextProvider = ({children}) => {
     const getSelectedAddress = () => {
         return selectedAddress;
     }
+    
 
     const setSelectedAddress = (addr) => {
         setUserSelectedAddress(addr);

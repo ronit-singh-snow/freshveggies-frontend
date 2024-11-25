@@ -220,6 +220,51 @@ async updateAddress(addressId, updatedData) {
     throw error;
   }
 }
+async getAllCoupons() {
+  try {
+    const response = await this.database.listDocuments(
+      DB_NAME,         
+      COLLECTIONS.COUPON 
+    );
+
+    return response.documents; 
+  } catch (error) {
+    console.error("Error fetching coupons:", error);
+    throw error; 
+  }
+}
+
+
+
+ async validateCoupon(couponCode){
+  try {
+    const response = await this.database.listDocuments(
+      DB_NAME,                 
+      COLLECTIONS.COUPON,         
+      [
+        Query.equal('code', couponCode) 
+      ]
+    );
+
+    if (response.documents.length > 0) {
+      const coupon = response.documents[0];
+      const discount = coupon.discount;
+
+      if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) {
+        alert("Coupon expired.");
+        return null;
+      }
+
+      return discount;  
+    } else {
+      alert("Invalid coupon code.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error validating coupon:", error);
+    alert("Error validating coupon. Try again.");
+  }
+};
 
 
 }

@@ -1,7 +1,8 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { AppContext } from "../Services/AppContextProvider";
 import { useContext, useEffect, useState } from "react";
-import { findUser } from "../Services/FetchData";
+// import { findUser } from "../Services/FetchData";
+import { findUser } from "../Services/AppWriteServices";
 import Avatar from "../Components/Avatar";
 import { colors } from "../Styles";
 
@@ -66,18 +67,23 @@ const styles = StyleSheet.create({
 export const MyProfile = ({navigation}) => {
     const {authData, signOut} = useContext(AppContext);
     const [profileData, setProfileData] = useState({});
-    
     useEffect(() => {
         findUser(authData.phone_number).then(res => {
             if (res && res.data.length > 0) {
                 const data = res.data[0];
                 setProfileData({
-                    userName: data.username,
-                    phoneNumber: data.phone_number,
+                    
+                    userName: authData.name,
+                    phoneNumber: authData.phone_number,
                     email: data.email
                 })
             }
-        })
+            else {
+                console.log("No user data found.");
+            }
+        }).catch(err => {
+            console.error("Error fetching user data:", err);
+        });
     }, [])
 
     return <View style={styles.container}>

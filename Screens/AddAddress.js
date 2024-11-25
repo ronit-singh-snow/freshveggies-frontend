@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import {Image,Pressable,ScrollView,StyleSheet,Text,TouchableOpacity,View,} from "react-native";
+import {Image, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View, } from "react-native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import * as Location from "expo-location";
 import Toast from "react-native-root-toast";
@@ -190,7 +190,6 @@ export const AddAddress = ({ navigation }) => {
         latitude,
         longitude,
       });
-      console.log("address response", response);
       if (response.length > 0) {
         setCurrentAddress(response[0].formattedAddress);
       }
@@ -217,6 +216,19 @@ export const AddAddress = ({ navigation }) => {
       };
     navigation.navigate("UpdateAddress", {
       address: selectedAddress,
+      onSave: (updatedAddress) => {
+        setAddresses((prevAddresses) => {
+          const index = prevAddresses.findIndex(
+            (addr) => addr.$id === updatedAddress.$id
+          );
+          if (index !== -1) {
+            prevAddresses[index] = updatedAddress;
+          } else {
+            prevAddresses.push(updatedAddress);
+          }
+          return [...prevAddresses];
+        });
+      },
     });
   };
 
@@ -301,63 +313,60 @@ export const AddAddress = ({ navigation }) => {
             showsVerticalScrollIndicator={false}
           >
             <Text style={styles.savedAddrTitle}>Saved Addresses</Text>
-            {addresses.map((addr, index) => {
-                console.log("address: ",addr);
-              const isAddressSelected =
-                selectedAddress && selectedAddress.idaddress == addr.idaddress;
-              return (
-                <TouchableOpacity
-                  key={addr.$id}
-                  onPress={() => {
-                    setSelectedAddress(addr);
-                    navigation.goBack();
-                  }}
-                >
-                  <View
-                    style={[
-                      styles.cardBackground,
-                      styles.rowDir,
-                      isAddressSelected ? styles.selectedAddress : "",
-                    ]}
+            {addresses
+              .filter((addr) => addr.phone_number === authData?.phone_number)
+              .map((addr, index) => {
+                const isAddressSelected =
+                  selectedAddress &&
+                  selectedAddress.idaddress == addr.idaddress;
+                return (
+                  <TouchableOpacity
+                    key={addr.$id}
+                    onPress={() => {
+                      setSelectedAddress(addr);
+                      navigation.goBack();
+                    }}
                   >
-                    <View style={styles.addressDetail}>
-                      <View style={styles.addressHeaderItems}>
-                        <Text style={styles.addressType}>{addr.type}</Text>
-                        <View style={{ flexDirection: "row", gap: 12 }}>
-                          <RoundedIconButton
-                            onPress={() => {
-                              navigation.navigate("UpdateAddress", {
-                                address: addr,
-                                editAddress: true,
-                              });
-                            }}
-                            buttonColor="#ddd"
-                            source={require("../assets/images/pen.png")}
-                          />
-                          <RoundedIconButton
-                            // onPress={() => {
-                            //     deleteRecord("address", addr.idaddress, "idaddress");
-                            //     Toast.show('Address deleted successfully', {
-                            //         duration: Toast.durations.LONG
-                            //     });
-                            //     let clonedAddresses = Array.from(addresses);
-                            //     clonedAddresses.splice(index, 1);
-                            //     setAddresses(clonedAddresses);
-                            //     if (isAddressSelected)
-                            //         setSelectedAddress(null);
-                            // }}
-                           
-                            onPress={() => {
+                    <View
+                      style={[
+                        styles.cardBackground,
+                        styles.rowDir,
+                        isAddressSelected ? styles.selectedAddress : "",
+                      ]}
+                    >
+                      <View style={styles.addressDetail}>
+                        <View style={styles.addressHeaderItems}>
+                          <Text style={styles.addressType}>{addr.type}</Text>
+                          <View style={{ flexDirection: "row", gap: 12 }}>
+                            <RoundedIconButton
+                              onPress={() => {
+                                navigation.navigate("UpdateAddress", {
+                                  address: addr,
+                                  editAddress: true,
+                                });
+                              }}
+                              buttonColor="#ddd"
+                              source={require("../assets/images/pen.png")}
+                            />
+                            <RoundedIconButton
+                              onPress={() => {
                                 const databaseService = new DatabaseService();
-                                databaseService.deleteAddress(addr.$id).then(() => {
+                                databaseService
+                                  .deleteAddress(addr.$id)
+                                  .then(() => {
                                     Toast.show("Address deleted successfully", {
                                       duration: Toast.durations.LONG,
                                     });
                                     setAddresses((prevAddresses) =>
-                                      prevAddresses.filter((address) => address.$id !== addr.$id)
+                                      prevAddresses.filter(
+                                        (address) => address.$id !== addr.$id
+                                      )
                                     );
-                            
-                                    if (selectedAddress && selectedAddress.$id === addr.$id) {
+
+                                    if (
+                                      selectedAddress &&
+                                      selectedAddress.$id === addr.$id
+                                    ) {
                                       setSelectedAddress(null);
                                     }
                                   })
@@ -367,20 +376,22 @@ export const AddAddress = ({ navigation }) => {
                                     })
                                   );
                               }}
-                            buttonColor="#ddd"
-                            source={require("../assets/images/delete.png")}
-                          />
+                              buttonColor="#ddd"
+                              source={require("../assets/images/delete.png")}
+                            />
+                          </View>
                         </View>
+                        <Text>
+                          {addr.name} | {addr.phone_number}
+                        </Text>
+                        <Text style={{ color: "#777" }}>
+                          {addr.full_address}
+                        </Text>
                       </View>
-                      <Text>
-                        {addr.name} | {addr.phone_number}
-                      </Text>
-                      <Text style={{ color: "#777" }}>{addr.full_address}</Text>
                     </View>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
+                  </TouchableOpacity>
+                );
+              })}
           </ScrollView>
         ) : (
           <View>
