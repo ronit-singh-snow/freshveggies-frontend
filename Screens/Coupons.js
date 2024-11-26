@@ -1,29 +1,21 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  FlatList,
-  StyleSheet,
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { View, Text, TouchableOpacity, FlatList, StyleSheet } from "react-native";
+import { useRoute, useNavigation } from "@react-navigation/native";
 import { DatabaseService } from "../Services/Appwrite/DatabaseService";
 
 const Coupons = () => {
   const [coupons, setCoupons] = useState([]);
-  const [selectedCoupon, setSelectedCoupon] = useState(null);
-
+  const route = useRoute();
   const navigation = useNavigation();
   const databaseService = new DatabaseService();
 
-  // Fetch all available coupons on component mount
+  const appliedCouponCode = route.params?.couponCode || null;
   useEffect(() => {
     const fetchCoupons = async () => {
       try {
         const allCoupons = await databaseService.getAllCoupons();
         setCoupons(allCoupons);
       } catch (error) {
-        console.log("Error", "Failed to fetch coupons. Please try again.");
         console.error("Error fetching coupons:", error);
       }
     };
@@ -31,29 +23,8 @@ const Coupons = () => {
     fetchCoupons();
   }, []);
 
-  const handleApplyCoupon = async () => {
-    if (!selectedCoupon) {
-      console.log("Error", "Please select a coupon.");
-      return;
-    }
-
-    try {
-      const discount = await databaseService.validateCoupon(selectedCoupon.code);
-
-      if (discount) {
-        console.log(`Coupon Applied: ${selectedCoupon.code}\nDiscount: ₹${discount}`);
-        console.log(`Coupon Details: ${JSON.stringify(selectedCoupon, null, 2)}`);
-        navigation.navigate("CartSummary", { selectedCoupon });
-      }
-    } catch (error) {
-      console.error("Error validating coupon:", error);
-      console.log("Error", "Failed to validate coupon. Please try again.");
-    }
-  };
-
-  const handleCouponSelect = (coupon) => {
-    setSelectedCoupon(coupon);
-    console.log(`Selected coupon: ${coupon.code} - Discount: ${coupon.discount}%`);
+  const handleCouponSelect = () => {
+    navigation.goBack(); 
   };
 
   return (
@@ -61,32 +32,39 @@ const Coupons = () => {
       <Text style={styles.sectionTitle}>Available Coupons</Text>
       <FlatList
         data={coupons}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[
-              styles.couponContainer,
-              selectedCoupon?.$id === item.$id && styles.selectedCoupon,
-            ]}
-            onPress={() => handleCouponSelect(item)}
-          >
-            <Text style={styles.couponTitle}>{item.title}</Text>
-            <Text style={styles.couponSubtitle}>{item.subtitle}</Text>
-            <Text style={styles.couponCode}>{item.code}</Text>
-          </TouchableOpacity>
-        )}
-        keyExtractor={(item) => item.$id}
-      />
+        renderItem={({ item }) => {
+          const validDate = item.expiryDate.split("T")[0];
 
-      <TouchableOpacity
-        style={[
-          styles.applyButton,
-          !selectedCoupon && { backgroundColor: "#ccc" },
-        ]}
-        onPress={handleApplyCoupon}
-        disabled={!selectedCoupon}
-      >
-        <Text style={styles.applyButtonText}>APPLY COUPON</Text>
-      </TouchableOpacity>
+          return (
+            <TouchableOpacity onPress={() => handleCouponSelect(item)}>
+              <View
+                style={[
+                  styles.couponContainer,
+                  item.code === appliedCouponCode && styles.highlightedCoupon,
+                ]}
+              >
+                <Text style={styles.couponDiscount}>Get {item.discount}% off</Text>
+                <Text style={styles.couponCode}>Use code {item.code}</Text>
+
+                <View style={styles.separator}></View>
+
+                <Text style={styles.offerDetails}>
+                  This offer is eligible for orders above 
+                  <Text style={styles.highlight}> ₹{item.OrderValue}</Text>.  
+                  Offer expires on <Text style={styles.expiry}>{validDate}</Text>. Hurry up!
+                </Text>
+
+                {item.code === appliedCouponCode && (
+                  <Text style={styles.appliedText}>Applied</Text>
+                )}
+              </View>
+            </TouchableOpacity>
+          );
+        }}
+        keyExtractor={(item) => {
+          return item.$id;
+        }}
+      />
     </View>
   );
 };
@@ -108,32 +86,44 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     borderRadius: 8,
     marginBottom: 12,
+    backgroundColor: "#F9F9F9",
   },
-  selectedCoupon: {
+  highlightedCoupon: {
     borderColor: "#007AFF",
+    backgroundColor: "#E0F7FA",
   },
-  couponTitle: {
-    fontWeight: "bold",
+  couponDiscount: {
     fontSize: 14,
-  },
-  couponSubtitle: {
-    fontSize: 12,
+    fontWeight: "bold", 
     color: "#666",
     marginVertical: 4,
   },
   couponCode: {
-    fontSize: 12,
+    fontSize: 14,
+    fontWeight: "bold",
     color: "#007AFF",
   },
-  applyButton: {
-    backgroundColor: "#007AFF",
-    padding: 10,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 20,
+  separator: {
+    height: 1,
+    backgroundColor: "#ddd",
+    marginVertical: 8,
   },
-  applyButtonText: {
-    color: "#fff",
+  offerDetails: {
+    fontSize: 12,
+    color: "#333",
+  },
+  highlight: {
+    fontWeight: "bold",
+    color: "#007AFF", 
+  },
+  expiry: {
+    fontStyle: "italic",
+    color: "#FF0000", 
+  },
+  appliedText: {
+    marginTop: 8,
+    fontSize: 12,
+    color: "#28A745",
     fontWeight: "bold",
   },
 });

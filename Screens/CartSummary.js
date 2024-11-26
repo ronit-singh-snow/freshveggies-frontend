@@ -23,9 +23,36 @@ export default function CartSummary({ navigation,route }) {
   const [discountValue, setDiscountValue] = useState(0);
   const { selectedCoupon } = route.params || {};
   const cartTotal = cartItemsValue.totalPrice;
+  const [nextThresholdMessage, setNextThresholdMessage] = useState("");
 
+  useEffect(() => {
+    const totalPrice = cartItemsValue.totalPrice;
+  
+    let nextCouponThreshold = null;
+    let nextDiscountValue = null;
+    let nextCouponCode = null;
+  
+    if (totalPrice > 150 && totalPrice < 200) {
+      nextCouponThreshold = 200;
+      nextDiscountValue = 15;
+      nextCouponCode = "SUMMERSALE15";
+    } else if (totalPrice >= 200 && totalPrice < 300) {
+      nextCouponThreshold = 300;
+      nextDiscountValue = 25;
+      nextCouponCode = "NEWYEAR25";
+    }
+  
+    if (nextCouponThreshold) {
+      const amountToNextThreshold = nextCouponThreshold - totalPrice;
+      setNextThresholdMessage(
+       ` Add items worth ₹${amountToNextThreshold} more to save ₹${nextDiscountValue} using ${nextCouponCode} `    );
+    } else {
+      setNextThresholdMessage(""); 
+    }
+  }, [cartItemsValue.totalPrice]);
+  
+  
 
- 
   useEffect(() => {
     if (selectedCoupon) {
       setCouponCode(selectedCoupon.code);
@@ -41,7 +68,23 @@ export default function CartSummary({ navigation,route }) {
     });
   }, []);
 
-
+  useEffect(() => {
+    const totalPrice = cartItemsValue.totalPrice; 
+    
+    if (totalPrice >= 300) {
+      setCouponCode("NEWYEAR25");
+      setDiscountValue(25); 
+    } else if (totalPrice >= 200) {
+      setCouponCode("SUMMERSALE15");
+      setDiscountValue(15); 
+    } else if (totalPrice >= 150) {
+      setCouponCode("WELCOME10");
+      setDiscountValue(10); 
+    } else {
+      setCouponCode("");
+      setDiscountValue(0); 
+    }
+  }, [cartItemsValue.totalPrice]);
  
   const totalAmount = cartItemsValue.totalPrice + DELIVERY_FEE + PLATFORM_FEE;
   const discountAmount = (cartItemsValue.totalPrice * discountValue) / 100;
@@ -218,70 +261,18 @@ export default function CartSummary({ navigation,route }) {
             </View>
           </View>
 
-          {/* < style={styles.cardBackground}> */}
-          {/* <Text style={{ fontWeight: "bold" }}>Apply a Coupon</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your coupon code here"
-              value={couponCode}
-              onChangeText={setCouponCode}
-            /> */}
-          {/* <Pressable style={styles.applyBtn} onPress={handleApplyCoupon}>
-              <Text style={{ color: "#FFF" }}>Apply Coupon</Text>
-            </Pressable>
-            {discountValue > 0 && (
-              <Text style={{ color: "#28a745" }}>
-                You have received a {discountValue}% discount!
-              </Text>
-            )} */}
-          {/* {discountValue > 0 && (
-    <View style={styles.summaryKeyMap}>
-      <Text>Discount</Text>
-      <PriceValue price={discountAmount} />
+          <View style={styles.cardBackground}>
+          <View style={styles.card}>
+      <View style={styles.details}>
+        <Text style={styles.title}>Flat ₹{discountAmount} Unlocked</Text>
+        <Text style={styles.subtitle}>Apply code {couponCode}</Text>
+      </View>
+
+      <TouchableOpacity onPress={() => navigation.navigate("Coupons", { couponCode })}>
+        <Text style={styles.seeAll}>See all coupons ></Text>
+      </TouchableOpacity>
     </View>
-  )} */}
-          {/* <View style={styles.cardBackground}>
-            <View style={styles.couponSection}>
-              <Text style={styles.couponText}>Save ₹120 with 'YUMNEW'</Text>
-              <Pressable onPress={() => navigation.navigate("Coupons")}>
-                <Text style={styles.viewCouponsText}>View all coupons</Text>
-              </Pressable>
-            </View>
-          </View> */}
-
-<View style={styles.cardBackground}>
-  <View style={styles.couponSection}>
-    {couponCode && discountValue > 0 ? (
-      <>
-        <Text style={styles.couponText}>
-          {`Discount Applied:\n ${selectedCoupon.code} - Discount: ${selectedCoupon.discount}%`}
-        </Text>
-        <Pressable
-  onPress={() => 
-    navigation.navigate("Coupons", { 
-      setSelectedCoupon: (coupon) => {
-        setCouponCode(coupon.code); 
-        setDiscountValue(coupon.discount); 
-      }
-    })
-  }
->
-          <Text style={styles.viewCouponsText}>Remove Coupon</Text>
-        </Pressable>
-      </>
-    ) : (
-      <>
-        <Text style={styles.couponText}>
-          {"No coupon applied yet"}
-        </Text>
-        <Pressable onPress={() => navigation.navigate("Coupons")}>
-          <Text style={styles.viewCouponsText}>View all coupons</Text>
-        </Pressable>
-      </>
-    )}
-  </View>
-</View>
-
+          </View>
 
           <View style={styles.cardBackground}>
             {getAddress(selectedAddress, navigation, userData)}
@@ -318,6 +309,10 @@ export default function CartSummary({ navigation,route }) {
             order.
           </Text>
         ) : null}
+        {nextThresholdMessage ? (
+  <Text style={styles.nextThresholdMessage}>{nextThresholdMessage}</Text>
+) : null}
+
         <View style={styles.footer}>
           <Pressable
             style={[
@@ -495,6 +490,12 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
     fontWeight: "bold",
   },
+  nextThresholdMessage:{
+    color: colors.warningMessage,
+    paddingHorizontal: 20,
+    paddingBottom: 5,
+    fontWeight: "bold",
+  },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -524,5 +525,32 @@ viewCouponsText: {
   color: "#007BFF",
   textDecorationLine: "underline",
 },
+ card: {
+    borderRadius: 10,
+  },
+  details: {
+    marginBottom: 10,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#2e7d32",
+  },
+  subtitle: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 5,
+  },
+seeAll: {
+    fontSize: 14,
+  color: "#0288d1",  
+  textAlign: "center",
+  backgroundColor: "#f0f0f0",  
+  paddingVertical: 8,
+  paddingHorizontal: 12,
+  borderRadius: 8,
+  elevation: 2, 
+  },
+  
 
 });

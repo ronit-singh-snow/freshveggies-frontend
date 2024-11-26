@@ -123,7 +123,7 @@ export const AppContextProvider = ({children}) => {
     return (
         //This component will be used to encapsulate the whole App,
         //so all components will have access to the Context
-        <AppContext.Provider value={{authData, loading, signIn, signOut, signUp, getToken, cartData, addToCart, clearCart, removeFromCart, getCart, getSelectedAddress, setSelectedAddress, setUserDetails, userDetails}}>
+        <AppContext.Provider value={{authData, loading, signIn, signOut, signUp, getToken, cartData, addToCart, clearCart, removeFromCart, getCart, getSelectedAddress, setSelectedAddress,addresses, setAddresses, setUserDetails, userDetails}}>
             {children}
         </AppContext.Provider>
     );

@@ -210,10 +210,11 @@ export const AddAddress = ({ navigation }) => {
 
   const navigateToUpdateAddress = (selectedAddress) => {
     let routeParams = {};
-    if (selectedAddress)
+    if (selectedAddress){
       routeParams = {
         address: selectedAddress,
       };
+    }
     navigation.navigate("UpdateAddress", {
       address: selectedAddress,
       onSave: (updatedAddress) => {

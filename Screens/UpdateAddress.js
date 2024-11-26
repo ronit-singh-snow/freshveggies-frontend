@@ -8,7 +8,7 @@ import { AppContext } from "../Services/AppContextProvider";
 import { DatabaseService } from "../Services/Appwrite/DatabaseService";
 
 export const UpdateAddress = ({ navigation }) => {
-    const { authData, setSelectedAddress } = useContext(AppContext);
+    const { authData, setSelectedAddress, addresses, setAddresses } = useContext(AppContext);
     const route = useRoute();
     const address = route.params?.address || {};
     const isEdit = route.params?.editAddress || false;
@@ -69,7 +69,14 @@ export const UpdateAddress = ({ navigation }) => {
         if (isEdit){
             dbService.updateAddress(address.$id, addressData).then((res) => {
                 console.log("Address updated successfully:", res);
-                setSelectedAddress(res); 
+                setSelectedAddress(res);
+                setAddresses((prevAddresses) => {
+                    const index = prevAddresses.findIndex((addr) => addr.$id === res.$id);
+                    if (index !== -1) {
+                        prevAddresses[index] = res; 
+                    }
+                    return [...prevAddresses]; 
+                }); 
                 navigation.goBack();
             })
             .catch((error) => console.error("Error updating address:", error))
@@ -78,6 +85,9 @@ export const UpdateAddress = ({ navigation }) => {
         else{  
         dbService.insertAddresses(authData.user_token, addressData).then((res) => {
                 setSelectedAddress(res); 
+                setAddresses((prevAddresses) => {
+                    return [...prevAddresses, res]; 
+                });
                 navigation.goBack();
             })
             .catch((error) => console.error("Error updating address:", error))
