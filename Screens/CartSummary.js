@@ -9,8 +9,9 @@ import { DELIVERY_FEE, PLATFORM_FEE } from "../Constants";
 import { findUser } from "../Services/FetchData";
 import { colors } from "../Styles";
 import { DatabaseService } from "../Services/Appwrite/DatabaseService";
+import Coupons from "./Coupons";
 export default function CartSummary({ navigation,route }) {
-  const { authData, getCart, addToCart, removeFromCart, getSelectedAddress } =
+  const { authData, getCart, addToCart, removeFromCart, getSelectedAddress,coupons,fetchCoupons  } =
     useContext(AppContext);
   const cartItems = getCart();
   let cartItemsValue = cartItemsAndValue(cartItems);
@@ -20,6 +21,8 @@ export default function CartSummary({ navigation,route }) {
   const [selectedTimeSlot, setSelectedTimeSlot] = useState(1);
   const [userData, setUserData] = useState();
   const [couponCode, setCouponCode] = useState("");
+  const [formattedDates, setFormattedDates] = useState([]);
+
   const [discountValue, setDiscountValue] = useState(0);
   const { selectedCoupon } = route.params || {};
   const cartTotal = cartItemsValue.totalPrice;
@@ -32,15 +35,22 @@ export default function CartSummary({ navigation,route }) {
     let nextDiscountValue = null;
     let nextCouponCode = null;
   
-    if (totalPrice > 150 && totalPrice < 200) {
-      nextCouponThreshold = 200;
-      nextDiscountValue = 15;
-      nextCouponCode = "SUMMERSALE15";
-    } else if (totalPrice >= 200 && totalPrice < 300) {
-      nextCouponThreshold = 300;
-      nextDiscountValue = 25;
-      nextCouponCode = "NEWYEAR25";
-    }
+    if (totalPrice >= 400) {
+        nextCouponThreshold = 400;
+        nextDiscountValue = 25;
+        nextCouponCode = "NEWYEAR25";
+
+      } else if (totalPrice >= 300) {
+        nextCouponThreshold = 400;
+        nextDiscountValue = 25;
+        nextCouponCode = "NEWYEAR25";
+
+      } else if (totalPrice >= 200) {
+        nextCouponThreshold = 300;
+        nextDiscountValue = 15;
+        nextCouponCode = "SUMMERSALE15";
+
+      }
   
     if (nextCouponThreshold) {
       const amountToNextThreshold = nextCouponThreshold - totalPrice;
@@ -51,14 +61,6 @@ export default function CartSummary({ navigation,route }) {
     }
   }, [cartItemsValue.totalPrice]);
   
-  
-
-  useEffect(() => {
-    if (selectedCoupon) {
-      setCouponCode(selectedCoupon.code);
-      setDiscountValue(selectedCoupon.discount);
-    }
-  }, [selectedCoupon]);
 
   useEffect(() => {
     findUser(authData.phone_number.replace("+", " ")).then((response) => {
@@ -67,24 +69,40 @@ export default function CartSummary({ navigation,route }) {
       }
     });
   }, []);
-
   useEffect(() => {
-    const totalPrice = cartItemsValue.totalPrice; 
+    fetchCoupons()
+  }, [])
+
+useEffect(() => {
+    const today = new Date();
+    let appliedCoupon = null;
+
+    coupons.forEach(coupon => {
+      const couponExpiryDate = new Date(coupon.expiryDate);
     
-    if (totalPrice >= 300) {
-      setCouponCode("NEWYEAR25");
-      setDiscountValue(25); 
-    } else if (totalPrice >= 200) {
-      setCouponCode("SUMMERSALE15");
-      setDiscountValue(15); 
-    } else if (totalPrice >= 150) {
-      setCouponCode("WELCOME10");
-      setDiscountValue(10); 
-    } else {
+      if (couponExpiryDate >= today) { 
+        if (cartItemsValue.totalPrice >= 400 && coupon.code === "NEWYEAR25") {
+          setCouponCode("NEWYEAR25");
+          setDiscountValue(25);
+          appliedCoupon = true;
+        } else if (cartItemsValue.totalPrice >= 300 && coupon.code === "SUMMERSALE15") {
+          setCouponCode("SUMMERSALE15");
+          setDiscountValue(15);
+          appliedCoupon = true;
+        } else if (cartItemsValue.totalPrice >= 200 && coupon.code === "WELCOME10") {
+          setCouponCode("WELCOME10");
+          setDiscountValue(10);
+          appliedCoupon = true;
+        }
+      }
+    });
+
+    if (!appliedCoupon) {
       setCouponCode("");
-      setDiscountValue(0); 
+      setDiscountValue(0);
     }
-  }, [cartItemsValue.totalPrice]);
+  }, [cartItemsValue.totalPrice, coupons]);
+ 
  
   const totalAmount = cartItemsValue.totalPrice + DELIVERY_FEE + PLATFORM_FEE;
   const discountAmount = (cartItemsValue.totalPrice * discountValue) / 100;
@@ -554,3 +572,4 @@ seeAll: {
   
 
 });
+

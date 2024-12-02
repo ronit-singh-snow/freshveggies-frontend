@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react"
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { deleteSession } from "./AppWriteServices";
-
+import { DatabaseService } from "./Appwrite/DatabaseService";
 export const AppContext = createContext({});
 
 export const AppContextProvider = ({children}) => {
@@ -12,6 +12,7 @@ export const AppContextProvider = ({children}) => {
     const [selectedAddress, setUserSelectedAddress] = useState();
     const [userDetails, setUserDetails] = useState(null);
     const [addresses, setAddresses] = useState([]);
+    const [coupons, setCoupons] = useState([]);
 
     const setToken = async (userId, phoneNumber, loginType, name) => {
         const storeData = [];
@@ -119,11 +120,27 @@ export const AppContextProvider = ({children}) => {
         setAddressToAsyncStorage(addr);
     }
 
-    console.log("userDetails in context: ", userDetails);
+    const fetchCoupons = async () => {
+        try {
+            const databaseService = new DatabaseService();
+            const fetchedCoupons = await databaseService.getAllCoupons();    
+            if (Array.isArray(fetchedCoupons)) {
+                setCoupons(fetchedCoupons); 
+            } else {
+                console.error("Fetched coupons is not an array.");
+            }
+        } catch (error) {
+            console.error("Error fetching coupons:", error);
+        }
+    };
+    
+    
+    
+    // console.log("userDetails in context: ", userDetails);
     return (
         //This component will be used to encapsulate the whole App,
         //so all components will have access to the Context
-        <AppContext.Provider value={{authData, loading, signIn, signOut, signUp, getToken, cartData, addToCart, clearCart, removeFromCart, getCart, getSelectedAddress, setSelectedAddress,addresses, setAddresses, setUserDetails, userDetails}}>
+        <AppContext.Provider value={{authData, loading,coupons, fetchCoupons, signIn, signOut, signUp, getToken, cartData, addToCart, clearCart, removeFromCart, getCart, getSelectedAddress, setSelectedAddress,addresses, setAddresses, setUserDetails, userDetails}}>
             {children}
         </AppContext.Provider>
     );

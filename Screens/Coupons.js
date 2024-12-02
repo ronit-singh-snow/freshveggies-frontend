@@ -14,14 +14,23 @@ const Coupons = () => {
     const fetchCoupons = async () => {
       try {
         const allCoupons = await databaseService.getAllCoupons();
-        setCoupons(allCoupons);
-      } catch (error) {
+        const currentDate = new Date();
+        const validCoupons = allCoupons.filter((coupon) => {
+          const couponExpiryDate = new Date(coupon.expiryDate);
+          return currentDate <= couponExpiryDate; 
+        });
+  
+        setCoupons(validCoupons);
+
+              } catch (error) {
         console.error("Error fetching coupons:", error);
       }
     };
 
     fetchCoupons();
   }, []);
+
+ 
 
   const handleCouponSelect = () => {
     navigation.goBack(); 
@@ -34,7 +43,6 @@ const Coupons = () => {
         data={coupons}
         renderItem={({ item }) => {
           const validDate = item.expiryDate.split("T")[0];
-
           return (
             <TouchableOpacity onPress={() => handleCouponSelect(item)}>
               <View
