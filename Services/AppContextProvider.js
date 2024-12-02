@@ -126,6 +126,7 @@ export const AppContextProvider = ({children}) => {
             const fetchedCoupons = await databaseService.getAllCoupons();    
             if (Array.isArray(fetchedCoupons)) {
                 setCoupons(fetchedCoupons); 
+                console.log("fetch coupon: ",fetchedCoupons)
             } else {
                 console.error("Fetched coupons is not an array.");
             }

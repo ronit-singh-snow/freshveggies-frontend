@@ -222,9 +222,11 @@ async updateAddress(addressId, updatedData) {
 }
 async getAllCoupons() {
   try {
+    const currentDate = new Date().toISOString();
     const response = await this.database.listDocuments(
       DB_NAME,         
-      COLLECTIONS.COUPON 
+      COLLECTIONS.COUPON ,
+      [Query.greaterThan("expiryDate", currentDate)]
     );
 
     return response.documents; 

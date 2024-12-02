@@ -1,18 +1,39 @@
 import { useContext, useEffect, useState } from "react";
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { AppContext } from "../Services/AppContextProvider";
-import {Image, Pressable, ScrollView, StyleSheet,Text, TouchableOpacity, View, TextInput,} from "react-native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  TextInput,
+} from "react-native";
 import AddQuantity from "../Components/AddQuantity";
-import {cartItemsAndValue,getDeliveryDates,handleOnQuantityChange,isTimeSlotDisabled,} from "../Services/Utils";
+import {
+  cartItemsAndValue,
+  getDeliveryDates,
+  handleOnQuantityChange,
+  isTimeSlotDisabled,
+} from "../Services/Utils";
 import { PriceValue } from "../Components/PriceValue";
 import { DELIVERY_FEE, PLATFORM_FEE } from "../Constants";
 import { findUser } from "../Services/FetchData";
 import { colors } from "../Styles";
 import { DatabaseService } from "../Services/Appwrite/DatabaseService";
 import Coupons from "./Coupons";
-export default function CartSummary({ navigation,route }) {
-  const { authData, getCart, addToCart, removeFromCart, getSelectedAddress,coupons,fetchCoupons  } =
-    useContext(AppContext);
+export default function CartSummary({ navigation, route }) {
+  const {
+    authData,
+    getCart,
+    addToCart,
+    removeFromCart,
+    getSelectedAddress,
+    coupons,
+    fetchCoupons,
+  } = useContext(AppContext);
   const cartItems = getCart();
   let cartItemsValue = cartItemsAndValue(cartItems);
   const selectedAddress = getSelectedAddress();
@@ -30,38 +51,36 @@ export default function CartSummary({ navigation,route }) {
 
   useEffect(() => {
     const totalPrice = cartItemsValue.totalPrice;
-  
+
     let nextCouponThreshold = null;
     let nextDiscountValue = null;
     let nextCouponCode = null;
-  
+
     if (totalPrice >= 400) {
-        nextCouponThreshold = 400;
-        nextDiscountValue = 25;
-        nextCouponCode = "NEWYEAR25";
+      nextCouponThreshold = 400;
+      nextDiscountValue = 60;
+      nextCouponCode = "NEWYEAR25";
+    } else if (totalPrice >= 300) {
+      nextCouponThreshold = 400;
+      nextDiscountValue = 30;
+      nextCouponCode = "NEWYEAR25";
+    } else if (totalPrice >= 200) {
+      nextCouponThreshold = 300;
+      nextDiscountValue = 15;
+      nextCouponCode = "SUMMERSALE15";
+    }
 
-      } else if (totalPrice >= 300) {
-        nextCouponThreshold = 400;
-        nextDiscountValue = 25;
-        nextCouponCode = "NEWYEAR25";
-
-      } else if (totalPrice >= 200) {
-        nextCouponThreshold = 300;
-        nextDiscountValue = 15;
-        nextCouponCode = "SUMMERSALE15";
-
-      }
-  
     if (nextCouponThreshold) {
       const amountToNextThreshold = nextCouponThreshold - totalPrice;
       setNextThresholdMessage(
-       ` Add items worth ₹${amountToNextThreshold} more to save ₹${nextDiscountValue} using ${nextCouponCode} `    );
+        ` Add items worth ₹${amountToNextThreshold} more to save ₹${nextDiscountValue} using ${nextCouponCode} `
+      );
     } else {
-      setNextThresholdMessage(""); 
+      setNextThresholdMessage("");
     }
   }, [cartItemsValue.totalPrice]);
-  
 
+  console.log("coupon discount: ", coupons);
   useEffect(() => {
     findUser(authData.phone_number.replace("+", " ")).then((response) => {
       if (response.data && response.data.length > 0) {
@@ -70,30 +89,32 @@ export default function CartSummary({ navigation,route }) {
     });
   }, []);
   useEffect(() => {
-    fetchCoupons()
-  }, [])
+    fetchCoupons();
+  }, []);
 
-useEffect(() => {
-    const today = new Date();
+  useEffect(() => {
     let appliedCoupon = null;
 
-    coupons.forEach(coupon => {
-      const couponExpiryDate = new Date(coupon.expiryDate);
-    
-      if (couponExpiryDate >= today) { 
-        if (cartItemsValue.totalPrice >= 400 && coupon.code === "NEWYEAR25") {
-          setCouponCode("NEWYEAR25");
-          setDiscountValue(25);
-          appliedCoupon = true;
-        } else if (cartItemsValue.totalPrice >= 300 && coupon.code === "SUMMERSALE15") {
-          setCouponCode("SUMMERSALE15");
-          setDiscountValue(15);
-          appliedCoupon = true;
-        } else if (cartItemsValue.totalPrice >= 200 && coupon.code === "WELCOME10") {
-          setCouponCode("WELCOME10");
-          setDiscountValue(10);
-          appliedCoupon = true;
-        }
+    coupons.forEach((coupon) => {
+      if (cartItemsValue.totalPrice >= 400 && 
+        coupon.code === "NEWYEAR25") {
+        setCouponCode("NEWYEAR25");
+        setDiscountValue(25);
+        appliedCoupon = true;
+      } else if (
+        cartItemsValue.totalPrice >= 300 &&
+        coupon.code === "SUMMERSALE15"
+      ) {
+        setCouponCode("SUMMERSALE15");
+        setDiscountValue(15);
+        appliedCoupon = true;
+      } else if (
+        cartItemsValue.totalPrice >= 200 &&
+        coupon.code === "WELCOME10"
+      ) {
+        setCouponCode("WELCOME10");
+        setDiscountValue(10);
+        appliedCoupon = true;
       }
     });
 
@@ -102,10 +123,15 @@ useEffect(() => {
       setDiscountValue(0);
     }
   }, [cartItemsValue.totalPrice, coupons]);
- 
- 
+
   const totalAmount = cartItemsValue.totalPrice + DELIVERY_FEE + PLATFORM_FEE;
-  const discountAmount = (cartItemsValue.totalPrice * discountValue) / 100;
+  // const discountAmount = (cartItemsValue.totalPrice * discountValue) / 100;
+  const discountAmount = Math.min(
+    (cartItemsValue.totalPrice * discountValue) / 100,
+    coupons.find((coupon) => coupon.code === couponCode)?.maxDiscount ||
+      Infinity
+  );
+
   const finalAmount = totalAmount - discountAmount;
   cartItemsValue.grandTotalPrice = finalAmount;
 
@@ -280,16 +306,20 @@ useEffect(() => {
           </View>
 
           <View style={styles.cardBackground}>
-          <View style={styles.card}>
-      <View style={styles.details}>
-        <Text style={styles.title}>Flat ₹{discountAmount} Unlocked</Text>
-        <Text style={styles.subtitle}>Apply code {couponCode}</Text>
-      </View>
+            <View style={styles.card}>
+              <View style={styles.details}>
+                <Text style={styles.title}>
+                  Flat ₹{discountAmount} Unlocked
+                </Text>
+                <Text style={styles.subtitle}>Apply code {couponCode}</Text>
+              </View>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Coupons", { couponCode })}>
-        <Text style={styles.seeAll}>See all coupons ></Text>
-      </TouchableOpacity>
-    </View>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("Coupons", { couponCode })}
+              >
+                <Text style={styles.seeAll}>See all coupons ></Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           <View style={styles.cardBackground}>
@@ -328,8 +358,10 @@ useEffect(() => {
           </Text>
         ) : null}
         {nextThresholdMessage ? (
-  <Text style={styles.nextThresholdMessage}>{nextThresholdMessage}</Text>
-) : null}
+          <Text style={styles.nextThresholdMessage}>
+            {nextThresholdMessage}
+          </Text>
+        ) : null}
 
         <View style={styles.footer}>
           <Pressable
@@ -508,7 +540,7 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
     fontWeight: "bold",
   },
-  nextThresholdMessage:{
+  nextThresholdMessage: {
     color: colors.warningMessage,
     paddingHorizontal: 20,
     paddingBottom: 5,
@@ -530,20 +562,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   couponSection: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  marginTop: 15,
-},
-couponText: {
-  color: "#333",
-  fontWeight: "bold",
-},
-viewCouponsText: {
-  color: "#007BFF",
-  textDecorationLine: "underline",
-},
- card: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 15,
+  },
+  couponText: {
+    color: "#333",
+    fontWeight: "bold",
+  },
+  viewCouponsText: {
+    color: "#007BFF",
+    textDecorationLine: "underline",
+  },
+  card: {
     borderRadius: 10,
   },
   details: {
@@ -559,17 +591,14 @@ viewCouponsText: {
     color: "#666",
     marginTop: 5,
   },
-seeAll: {
+  seeAll: {
     fontSize: 14,
-  color: "#0288d1",  
-  textAlign: "center",
-  backgroundColor: "#f0f0f0",  
-  paddingVertical: 8,
-  paddingHorizontal: 12,
-  borderRadius: 8,
-  elevation: 2, 
+    color: "#0288d1",
+    textAlign: "center",
+    backgroundColor: "#f0f0f0",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    elevation: 2,
   },
-  
-
 });
-

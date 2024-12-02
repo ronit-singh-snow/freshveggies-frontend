@@ -10,25 +10,20 @@ const Coupons = () => {
   const databaseService = new DatabaseService();
 
   const appliedCouponCode = route.params?.couponCode || null;
+ 
   useEffect(() => {
     const fetchCoupons = async () => {
       try {
-        const allCoupons = await databaseService.getAllCoupons();
-        const currentDate = new Date();
-        const validCoupons = allCoupons.filter((coupon) => {
-          const couponExpiryDate = new Date(coupon.expiryDate);
-          return currentDate <= couponExpiryDate; 
-        });
-  
-        setCoupons(validCoupons);
-
-              } catch (error) {
+        const validCoupons = await databaseService.getAllCoupons();
+        setCoupons(validCoupons); 
+      } catch (error) {
         console.error("Error fetching coupons:", error);
       }
     };
-
+  
     fetchCoupons();
   }, []);
+  
 
  
 
@@ -58,7 +53,7 @@ const Coupons = () => {
 
                 <Text style={styles.offerDetails}>
                   This offer is eligible for orders above 
-                  <Text style={styles.highlight}> ₹{item.OrderValue}</Text>.  
+                  <Text style={styles.highlight}> ₹{item.minOrderValue}</Text>.  
                   Offer expires on <Text style={styles.expiry}>{validDate}</Text>. Hurry up!
                 </Text>
 
