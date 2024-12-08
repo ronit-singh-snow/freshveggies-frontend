@@ -79,56 +79,81 @@ export default function CartSummary({ navigation, route }) {
       setNextThresholdMessage("");
     }
   }, [cartItemsValue.totalPrice]);
-
-  console.log("coupon discount: ", coupons);
+console.log("authdata in cartsummary: ", authData);
   useEffect(() => {
-    findUser(authData.phone_number.replace("+", " ")).then((response) => {
-      if (response.data && response.data.length > 0) {
-        setUserData(response.data[0]);
+    if (authData) {
+      if (authData.phone_number) {
+        findUser(authData.phone_number.replace("+", " ")).then((response) => {
+          if (response.data && response.data.length > 0) {
+            setUserData(response.data[0]);
+          }
+        });
+      } else if (authData.email) {
+        findUser(authData.email).then((response) => {
+          if (response.data && response.data.length > 0) {
+            setUserData(response.data[0]);
+          }
+        });
+      } else {
+        console.warn("Both phone_number and email are undefined in authData");
       }
-    });
+    } else {
+      console.warn("authData is undefined");
+    }
   }, []);
+  
+
   useEffect(() => {
     fetchCoupons();
   }, []);
 
+  // useEffect(() => {
+  //   let appliedCoupon = null;
+
+  //   coupons.forEach((coupon) => {
+  //     if (cartItemsValue.totalPrice >= 400 && 
+  //       coupon.code === "NEWYEAR25") {
+  //       setCouponCode("NEWYEAR25");
+  //       setDiscountValue(25);
+  //       appliedCoupon = true;
+  //     } else if (
+  //       cartItemsValue.totalPrice >= 300 &&
+  //       coupon.code === "SUMMERSALE15"
+  //     ) {
+  //       setCouponCode("SUMMERSALE15");
+  //       setDiscountValue(15);
+  //       appliedCoupon = true;
+  //     } else if (
+  //       cartItemsValue.totalPrice >= 200 &&
+  //       coupon.code === "WELCOME10"
+  //     ) {
+  //       setCouponCode("WELCOME10");
+  //       setDiscountValue(10);
+  //       appliedCoupon = true;
+  //     }
+  //   });
+
+  //   if (!appliedCoupon) {
+  //     setCouponCode("");
+  //     setDiscountValue(0);
+  //   }
+  // }, [cartItemsValue.totalPrice, coupons]);
+
   useEffect(() => {
-    let appliedCoupon = null;
-
-    coupons.forEach((coupon) => {
-      if (cartItemsValue.totalPrice >= 400 && 
-        coupon.code === "NEWYEAR25") {
-        setCouponCode("NEWYEAR25");
-        setDiscountValue(25);
-        appliedCoupon = true;
-      } else if (
-        cartItemsValue.totalPrice >= 300 &&
-        coupon.code === "SUMMERSALE15"
-      ) {
-        setCouponCode("SUMMERSALE15");
-        setDiscountValue(15);
-        appliedCoupon = true;
-      } else if (
-        cartItemsValue.totalPrice >= 200 &&
-        coupon.code === "WELCOME10"
-      ) {
-        setCouponCode("WELCOME10");
-        setDiscountValue(10);
-        appliedCoupon = true;
-      }
-    });
-
-    if (!appliedCoupon) {
+    if (selectedCoupon) {
+      setCouponCode(selectedCoupon.code);
+      setDiscountValue(selectedCoupon.discount);
+    } else {
       setCouponCode("");
       setDiscountValue(0);
     }
-  }, [cartItemsValue.totalPrice, coupons]);
+  }, [selectedCoupon]);
 
   const totalAmount = cartItemsValue.totalPrice + DELIVERY_FEE + PLATFORM_FEE;
   // const discountAmount = (cartItemsValue.totalPrice * discountValue) / 100;
   const discountAmount = Math.min(
     (cartItemsValue.totalPrice * discountValue) / 100,
-    coupons.find((coupon) => coupon.code === couponCode)?.maxDiscount ||
+    coupons.find((coupon) => coupon.code === couponCode)?.max_discount_amount ||
       Infinity
   );
 
@@ -315,7 +340,7 @@ export default function CartSummary({ navigation, route }) {
               </View>
 
               <TouchableOpacity
-                onPress={() => navigation.navigate("Coupons", { couponCode })}
+                onPress={() => navigation.navigate("Coupons", { couponCode,totalPrice: cartItemsValue.totalPrice, discountAmount})}
               >
                 <Text style={styles.seeAll}>See all coupons ></Text>
               </TouchableOpacity>
@@ -380,6 +405,8 @@ export default function CartSummary({ navigation, route }) {
             }
             onPress={() => {
               navigation.navigate("OrderSummary", {
+                couponCode,
+                discountAmount,
                 items: cartItems,
                 itemValue: cartItemsValue,
                 address: selectedAddress.idaddress,
@@ -387,6 +414,7 @@ export default function CartSummary({ navigation, route }) {
                   selectedDeliveryDateIndex
                 ].dateObj.getTime(),
                 timeslot: selectedTimeSlot,
+                
               });
             }}
           >

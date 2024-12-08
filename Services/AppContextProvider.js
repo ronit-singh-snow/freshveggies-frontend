@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from "react"
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { deleteSession } from "./AppWriteServices";
 import { DatabaseService } from "./Appwrite/DatabaseService";
@@ -14,24 +13,26 @@ export const AppContextProvider = ({children}) => {
     const [addresses, setAddresses] = useState([]);
     const [coupons, setCoupons] = useState([]);
 
-    const setToken = async (userId, phoneNumber, loginType, name) => {
+    const setToken = async (userId, phoneNumber, loginType, name, email) => {
         const storeData = [];
         userId ? storeData.push(["user_token", userId]) : null;
         phoneNumber ? storeData.push(["phone_number", phoneNumber]) : null;
         loginType ? storeData.push(["login_type", loginType]) : null;
         name ? storeData.push(["name", name]) : null;
-        if (userDetails) storeData.push(["user_details", JSON.stringify(userDetails)]);
-
+        email ? storeData.push(["email", email]) : null;
+        userDetails ? storeData.push(["user_details", JSON.stringify(userDetails)]) : null;
+        console.log("Setting AsyncStorage data:", storeData);
         return await AsyncStorage.multiSet(storeData);
     }
 
     const getToken = async () => {
-        const val = await AsyncStorage.multiGet(["user_token", "phone_number", "selected_address", "name","user_details"]);
+        const val = await AsyncStorage.multiGet(["user_token", "email", "phone_number", "selected_address", "name","user_details"]);
+       
         const serialiseAsyncData = val.reduce((acc, item) => {
             acc[item[0]] = item[1];
             return acc;
         }, {});
-
+        console.log("Fetched token data:", serialiseAsyncData);
         val.forEach(storageItem => {
             if (storageItem[0] == "selected_address") {
                 setUserSelectedAddress(JSON.parse(storageItem[1]));
@@ -54,14 +55,16 @@ export const AppContextProvider = ({children}) => {
         getToken();
     }, [])
 
-    const signIn = async (userId, phoneNumber, loginType, name, userDetails) => { 
-        setToken(userId, phoneNumber, loginType, name, userDetails);
+    const signIn = async (userId, phoneNumber, loginType, name, userDetails, email) => { 
+        setToken(userId, phoneNumber, loginType, name, userDetails, email);
         const _authData = {
             user_token: userId,
             loginType,
             phone_number: phoneNumber,
-            name: name
+            name,
+            email,
         }
+        console.log("Signing in with data:", _authData);
         setAuthData(_authData);
         setUserDetails(userDetails);
     };

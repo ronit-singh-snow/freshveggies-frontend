@@ -11,9 +11,12 @@ import { AuthService } from '../Services/Appwrite/AuthService';
 
 export default function OtpVerification({ navigation }) {
     const route = useRoute();
-
+    const loginType = route.params?.loginType;
     const phoneNumber = route.params?.phoneNumber;
-
+    const email = route.params?.email;
+    // console.log("logintype in otpver: ",loginType);
+    // console.log("phonenumber in otpver: ",phoneNumber);
+    // console.log("email in otpver: ",email);
     const { signIn } = useContext(AppContext);
 
     const [fetchingOtp, setFetchingOtp] = useState(true);
@@ -39,6 +42,7 @@ export default function OtpVerification({ navigation }) {
         })
         setFetchingOtp(false);
     }
+
 
     const renderInputs = () => {
         const inputs = [];
@@ -86,6 +90,8 @@ export default function OtpVerification({ navigation }) {
         return inputs;
     };
 
+    4928
+
     useEffect(() => {
         setTimeout(() => {
             setTimerActive(false);
@@ -97,7 +103,10 @@ export default function OtpVerification({ navigation }) {
             <View style={styles.container}>
                 <View style={styles.loginContainer}>
                     <Text style={styles.enterNumberText}>Enter verification code</Text>
-                    <Text style={[styles.textLightColor, styles.headerDescription]}>6 digit verification code is sent to your mobile number {phoneNumber}</Text>
+                    <Text style={[styles.textLightColor, styles.headerDescription]}>
+                    {email ? 
+                            `6 digit verification code is sent to your email: ${email}` : 
+                            `6 digit verification code is sent to your mobile number: ${phoneNumber}`}                        </Text>
                     <View style={styles.otpContainer}>
                         {renderInputs()}
                     </View>
@@ -116,7 +125,9 @@ export default function OtpVerification({ navigation }) {
                                 } else {
                                     navigation.navigate("NewLoginExtraDetails", {
                                         phoneNumber: phoneNumber,
-                                        userId: userId
+                                        userId: userId,
+                                        loginType: loginType,
+                                        email: email,
                                     });
                                 }    
                             }).catch(err => {

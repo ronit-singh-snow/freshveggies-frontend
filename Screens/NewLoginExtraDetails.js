@@ -13,15 +13,29 @@ export const NewLoginExtraDetails = () => {
     const { signIn } = useContext(AppContext);
 
     const [name, setName] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState(route.params?.phoneNumber || ''); 
+    const [email, setEmail] = useState(route.params?.email || ''); 
     const [loading, setLoading] = useState(false);
 
+    const loginType = route.params?.loginType;
+    
     const handleNameSubmit = async () => {
         setLoading(true);
         const authService = new AuthService();
         
         try {
             await authService.updateName(name);
-            signIn(route.params?.userId, route.params?.phoneNumber, "phone");
+            const userId = route.params?.userId;
+            const userData = {
+                userId,
+                phoneNumber: phoneNumber || route.params?.phoneNumber || null, 
+                email: email || route.params?.email || null,
+                loginType,
+                name,
+            };
+            signIn(userData.userId, userData.phoneNumber, userData.loginType, userData.name, null, userData.email);
+
+
         } catch (error) {
             console.error("Error updating name:", error);
             // Optionally show an error message to the user here
@@ -33,9 +47,9 @@ export const NewLoginExtraDetails = () => {
     return (
         <ImageBackground source={bgImage} style={{ flex: 1 }}>
             <View style={styles.container}>
-                <Text style={styles.enterNumberText}>Enter your name</Text>
+                <Text style={styles.enterNumberText}>Enter your Details</Text>
                 <Text style={[styles.textLightColor, styles.headerDescription]}>
-                    Provide your name for further communication
+                Fill the required details to proceed
                 </Text>
                 <Text style={styles.inputLabel}>Name*</Text>
                 <TextInput
@@ -43,10 +57,31 @@ export const NewLoginExtraDetails = () => {
                     placeholder="Enter your full name"
                     onChangeText={setName}
                 />
+                {loginType === "email" ? (
+                    <>
+                        <Text style={styles.inputLabel}>Phone Number*</Text>
+                        <TextInput
+                            style={styles.textinput}
+                            placeholder="Enter your phone number"
+                            onChangeText={setPhoneNumber}
+                            keyboardType="phone-pad"
+                        />
+                    </>
+                ) : (
+                    <>
+                    <Text style={styles.inputLabel}>Email*</Text>
+                    <TextInput
+                        style={styles.textinput}
+                        placeholder="Enter your email ID"
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                    />
+                </>
+            )}
 
                 <CustomButton
                     title={"Submit"}
-                    disabled={!name}
+                    disabled={!name || (loginType === "email" ? !phoneNumber : !email)}
                     loading={loading}
                     onPress={handleNameSubmit}
                 />

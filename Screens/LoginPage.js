@@ -1,4 +1,4 @@
-import { StyleSheet, TextInput, View, ImageBackground, Text } from 'react-native';
+import { StyleSheet, TextInput, View, ImageBackground, Text, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
 import { Image } from 'expo-image';
 import { CustomButton } from '../Components/CustomButton';
@@ -9,20 +9,35 @@ import { AuthService } from '../Services/Appwrite/AuthService';
 
 export default function LoginPage({ navigation }) {
     const [phoneNumber, setPhoneNumber] = useState('');
+    const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isPhone, setIsPhone] = useState(true);
     const bgImage = require("../assets/images/background.png");
     const countryImage = require("../assets/images/india.png");
 
     const handleSendOTP = async () => {
         setLoading(true);
+        let userId;
         try {
             const auth = new AuthService();
             await auth.deleteSessions();
-            const userId = await auth.sendPhoneToken(phoneNumber);
+            // console.log("Selected Login Type in login:", isPhone ? "Phone" : "Email");
+            // console.log("Entered Phone Number login:", phoneNumber);
+            // console.log("Entered Email login:", email);
+            if(isPhone){
+                userId = await auth.sendPhoneToken(phoneNumber);
+            }
+            else{
+                userId = await auth.sendEmailToken(email);
+            }
             navigation.navigate("OtpVerification", {
-                phoneNumber: phoneNumber,
-                userId: userId
+                [isPhone ? 'phoneNumber' : 'email']: isPhone ? phoneNumber : email,  
+                userId: userId,
+                loginType: isPhone ? "phone" : "email",
+                phoneNumber,
+                email,
             });
+            
         } catch (error) {
             console.error("Error sending OTP:", error);
             Toast.show("Failed to send OTP. Try again.", { duration: Toast.durations.LONG });
@@ -35,8 +50,11 @@ export default function LoginPage({ navigation }) {
         <ImageBackground source={bgImage} style={{ flex: 1 }}>
             <View style={styles.container}>
                 <View style={styles.loginContainer}>
-                    <Text style={styles.enterNumberText}>Enter your mobile number</Text>
+                    <Text style={styles.enterNumberText}>
+                    {isPhone ? 'Enter your mobile number' : 'Enter your email ID'}
+                    </Text>
                     <Text style={styles.textLightColor}>We will send you a confirmation code</Text>
+                    {isPhone ? ( 
                     <View style={styles.countryInput}>
                         <Image
                             style={styles.image}
@@ -54,10 +72,25 @@ export default function LoginPage({ navigation }) {
                             onChangeText={(val) => setPhoneNumber(`+91${val}`)}
                         />
                     </View>
-                    <CustomButton
+                    ): (
+                        <View style={styles.inputContainer}>
+                        <TextInput
+                            style={styles.signInInput}
+                            keyboardType="email-address"
+                            placeholder="Enter email ID"
+                            onChangeText={(val) => setEmail(val)}
+                        />
+                    </View>
+                )}                  
+                 <TouchableOpacity onPress={() => setIsPhone(!isPhone)} style={styles.switchOptionContainer}>
+                        <Text style={styles.switchOption}>
+                            {isPhone ? 'Use Email-ID' : 'Use Phone Number'}
+                        </Text>
+                    </TouchableOpacity>
+                  <CustomButton
                         title={"Send"}
                         loading={loading}
-                        disabled={!phoneNumber || loading}
+                        disabled={isPhone ? !phoneNumber : !email || loading}
                         onPress={handleSendOTP}
                     />
                 </View>
@@ -67,6 +100,11 @@ export default function LoginPage({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+    inputContainer:{
+        height: 30,
+        width: "100%",
+        marginTop: 20,
+    },
     container: {
         flex: 1,
         justifyContent: "center",
@@ -96,10 +134,19 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         width: "100%",
         marginTop: 20,
-        borderColor: colors.darkGreen
+        borderColor: colors.darkGreen,
     },
     textLink: {
         color: colors.textLink
+    },
+    switchOption: {
+        color: '#007BFF',
+        textAlign: 'right',
+        marginTop: 10,
+    },
+    switchOptionContainer:{
+     width: "90%", 
+    alignItems: "flex-end", 
     },
     countryCode: {
         padding: 8,
@@ -112,17 +159,20 @@ const styles = StyleSheet.create({
         borderColor: colors.darkGreen,
         borderWidth: 1,
         borderRadius: 10,
-    },
-    signInButton: {
-        backgroundColor: colors.darkGreen,
-        marginTop: 30,
-        paddingVertical: 9,
-        borderRadius: 10,
-        color: "#FFF",
-        textAlign: "center",
+        width: "100%",
         fontSize: getFontSize(18),
-        width: "100%"
+
     },
+    // signInButton: {
+    //     backgroundColor: colors.darkGreen,
+    //     marginTop: 30,
+    //     paddingVertical: 9,
+    //     borderRadius: 10,
+    //     color: "#FFF",
+    //     textAlign: "center",
+    //     fontSize: getFontSize(18),
+    //     width: "100%",
+    // },
     forgotPassword: {
         alignSelf: "flex-end",
         color: "#696969"
