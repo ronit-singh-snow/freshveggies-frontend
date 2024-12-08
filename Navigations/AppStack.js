@@ -12,7 +12,8 @@ import OrdersList from "../Screens/OrdersList.js";
 import { UpdateAddress } from "../Screens/UpdateAddress.js";
 import { OrderItems } from "../Screens/OrderItems.js";
 import { AboutUs } from "../Screens/AboutUs.js";
-
+// import CouponSelectionScreen from "../Screens/CouponSelectionScreen.js";
+import Coupons from "../Screens/Coupons.js";
 const Stack = createNativeStackNavigator();
 
 export default function AppStack() {
@@ -26,6 +27,10 @@ export default function AppStack() {
             <Stack.Screen
                 name="FruitDetails"
                 component={FruitDetails}
+            />
+            <Stack.Screen
+                name="Coupons"
+                component={Coupons}
             />
             <Stack.Screen
                 name="ListItems"

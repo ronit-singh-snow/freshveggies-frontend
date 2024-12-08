@@ -12,19 +12,22 @@ export const OrderSummary = ({ navigation }) => {
     const { authData, clearCart } = useContext(AppContext);
    
     const route = useRoute();
-    const {items, itemValue, address, date, timeslot} = route.params;
+    const {items, itemValue, address, date, timeslot, couponCode, discountAmount} = route.params;
     const orderData = {
         date: date + '',
-        status: "pending",
+        status: "placed",
         orderCreate:  new Date().getTime() + '',
         timeslot: timeslot,
         address: address,
-        totalPrice: itemValue.totalPrice,
-        items: items.map((item) => ({  
+        totalPrice: itemValue.grandTotalPrice,
+        coupon: couponCode,
+        discount: discountAmount,
+            items: items.map((item) => ({  
             productId: item.item.$id,
             quantity: item.quantity,
         }))
     };
+    console.log("items price: ",itemValue)
 
     
 

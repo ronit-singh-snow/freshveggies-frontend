@@ -8,7 +8,7 @@ import { AppContext } from "../Services/AppContextProvider";
 import { DatabaseService } from "../Services/Appwrite/DatabaseService";
 
 export const UpdateAddress = ({ navigation }) => {
-    const { authData, setSelectedAddress } = useContext(AppContext);
+    const { authData, setSelectedAddress, addresses, setAddresses } = useContext(AppContext);
     const route = useRoute();
     const address = route.params?.address || {};
     const isEdit = route.params?.editAddress || false;
@@ -16,8 +16,8 @@ export const UpdateAddress = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
     const [buttonDisabled, setButtonDisabled] = useState(false);
     const [userDetails, setUserDetails] = useState({
-        username: address?.name || "",
-        phone_number: address?.phone_number || "",
+        username: authData?.name || "",
+        phone_number: authData?.phone_number || "",
         full_address: address?.full_address || "",
         locality: address?.locality || "",
         pinCode: address?.zip_code || "",
@@ -25,10 +25,10 @@ export const UpdateAddress = ({ navigation }) => {
         isDefaultAddress: address?.isDefaultAddress || false,
         isEdit,
     });
-console.log("pin code: ",address.zip_code);
-    useEffect(() => {
-        console.log("Updated userDetails:", userDetails);
-    }, [userDetails]);
+   
+    // useEffect(() => {
+    //     console.log("Updated userDetails:", userDetails);
+    // }, [userDetails]);
 
     useEffect(() => {
         const currentAddress = userDetails.full_address?.trim() || "";
@@ -69,7 +69,14 @@ console.log("pin code: ",address.zip_code);
         if (isEdit){
             dbService.updateAddress(address.$id, addressData).then((res) => {
                 console.log("Address updated successfully:", res);
-                setSelectedAddress(res); 
+                setSelectedAddress(res);
+                setAddresses((prevAddresses) => {
+                    const index = prevAddresses.findIndex((addr) => addr.$id === res.$id);
+                    if (index !== -1) {
+                        prevAddresses[index] = res; 
+                    }
+                    return [...prevAddresses]; 
+                }); 
                 navigation.goBack();
             })
             .catch((error) => console.error("Error updating address:", error))
@@ -77,8 +84,10 @@ console.log("pin code: ",address.zip_code);
         }
         else{  
         dbService.insertAddresses(authData.user_token, addressData).then((res) => {
-                console.log("Address updated successfully:", res);
                 setSelectedAddress(res); 
+                setAddresses((prevAddresses) => {
+                    return [...prevAddresses, res]; 
+                });
                 navigation.goBack();
             })
             .catch((error) => console.error("Error updating address:", error))
@@ -93,27 +102,24 @@ console.log("pin code: ",address.zip_code);
             behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
             <ScrollView>
-                {/* Receiver Name */}
                 <Text style={styles.inputLabel}>Receiver's Name*</Text>
                 <TextInput
                     placeholder="Enter name"
                     style={styles.input}
                     value={userDetails.username}
-                    editable={!isEdit}
+                    editable={false}
                     onChangeText={(text) => setUserDetails({ ...userDetails, username: text })}
                 />
 
-                {/* Phone Number */}
                 <Text style={styles.inputLabel}>Phone Number*</Text>
                 <TextInput
                     placeholder="Enter phone number"
                     style={styles.input}
                     value={userDetails.phone_number}
-                    editable={!isEdit}
+                    editable={false}
                     onChangeText={(text) => setUserDetails({ ...userDetails, phone_number: text })}
                 />
 
-                {/* Full Address */}
                 <Text style={styles.inputLabel}>Full Address*</Text>
                 <TextInput
                     placeholder="Enter full address"
@@ -125,7 +131,6 @@ console.log("pin code: ",address.zip_code);
                     }
                 />
 
-                {/* Locality */}
                 <Text style={styles.inputLabel}>Locality</Text>
                 <TextInput
                     placeholder="Enter locality"
@@ -136,7 +141,6 @@ console.log("pin code: ",address.zip_code);
                     }
                 />
 
-                {/* Pin Code */}
                 <Text style={styles.inputLabel}>Pin Code*</Text>
                 <TextInput
                     placeholder="Enter pin code"
@@ -147,7 +151,6 @@ console.log("pin code: ",address.zip_code);
                     }
                 />
 
-                {/* Address Type */}
                 <Text style={styles.inputLabel}>Address Type</Text>
                 <View style={{ flexDirection: "row", gap: 15 }}>
                     {["Home", "Office", "Other"].map((type) => (
@@ -159,7 +162,6 @@ console.log("pin code: ",address.zip_code);
                     ))}
                 </View>
 
-                {/* Default Address Checkbox */}
                 <View style={{ marginTop: 10, flexDirection: "row", alignItems: "center" }}>
                     <Checkbox
                         status={userDetails.isDefaultAddress ? "checked" : "unchecked"}
@@ -173,7 +175,6 @@ console.log("pin code: ",address.zip_code);
                     <Text>Make this your default address</Text>
                 </View>
 
-                {/* Submit Button */}
                 <CustomButton
                     title="Update Address"
                     loading={loading}

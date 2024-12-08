@@ -1,8 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react"
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { deleteSession } from "./AppWriteServices";
-
+import { DatabaseService } from "./Appwrite/DatabaseService";
 export const AppContext = createContext({});
 
 export const AppContextProvider = ({children}) => {
@@ -11,25 +10,29 @@ export const AppContextProvider = ({children}) => {
     const [authData, setAuthData] = useState();
     const [selectedAddress, setUserSelectedAddress] = useState();
     const [userDetails, setUserDetails] = useState(null);
+    const [addresses, setAddresses] = useState([]);
+    const [coupons, setCoupons] = useState([]);
 
-    const setToken = async (userId, phoneNumber, loginType, name) => {
+    const setToken = async (userId, phoneNumber, loginType, name, email) => {
         const storeData = [];
         userId ? storeData.push(["user_token", userId]) : null;
         phoneNumber ? storeData.push(["phone_number", phoneNumber]) : null;
         loginType ? storeData.push(["login_type", loginType]) : null;
         name ? storeData.push(["name", name]) : null;
-        if (userDetails) storeData.push(["user_details", JSON.stringify(userDetails)]);
-
+        email ? storeData.push(["email", email]) : null;
+        userDetails ? storeData.push(["user_details", JSON.stringify(userDetails)]) : null;
+        console.log("Setting AsyncStorage data:", storeData);
         return await AsyncStorage.multiSet(storeData);
     }
 
     const getToken = async () => {
-        const val = await AsyncStorage.multiGet(["user_token", "phone_number", "selected_address", "name","user_details"]);
+        const val = await AsyncStorage.multiGet(["user_token", "email", "phone_number", "selected_address", "name","user_details"]);
+       
         const serialiseAsyncData = val.reduce((acc, item) => {
             acc[item[0]] = item[1];
             return acc;
         }, {});
-
+        console.log("Fetched token data:", serialiseAsyncData);
         val.forEach(storageItem => {
             if (storageItem[0] == "selected_address") {
                 setUserSelectedAddress(JSON.parse(storageItem[1]));
@@ -52,14 +55,16 @@ export const AppContextProvider = ({children}) => {
         getToken();
     }, [])
 
-    const signIn = async (userId, phoneNumber, loginType, name, userDetails) => { 
-        setToken(userId, phoneNumber, loginType, name, userDetails);
+    const signIn = async (userId, phoneNumber, loginType, name, userDetails, email) => { 
+        setToken(userId, phoneNumber, loginType, name, userDetails, email);
         const _authData = {
             user_token: userId,
             loginType,
             phone_number: phoneNumber,
-            name: name
+            name,
+            email,
         }
+        console.log("Signing in with data:", _authData);
         setAuthData(_authData);
         setUserDetails(userDetails);
     };
@@ -111,17 +116,35 @@ export const AppContextProvider = ({children}) => {
     const getSelectedAddress = () => {
         return selectedAddress;
     }
+    
 
     const setSelectedAddress = (addr) => {
         setUserSelectedAddress(addr);
         setAddressToAsyncStorage(addr);
     }
 
-    console.log("userDetails in context: ", userDetails);
+    const fetchCoupons = async () => {
+        try {
+            const databaseService = new DatabaseService();
+            const fetchedCoupons = await databaseService.getAllCoupons();    
+            if (Array.isArray(fetchedCoupons)) {
+                setCoupons(fetchedCoupons); 
+                console.log("fetch coupon: ",fetchedCoupons)
+            } else {
+                console.error("Fetched coupons is not an array.");
+            }
+        } catch (error) {
+            console.error("Error fetching coupons:", error);
+        }
+    };
+    
+    
+    
+    // console.log("userDetails in context: ", userDetails);
     return (
         //This component will be used to encapsulate the whole App,
         //so all components will have access to the Context
-        <AppContext.Provider value={{authData, loading, signIn, signOut, signUp, getToken, cartData, addToCart, clearCart, removeFromCart, getCart, getSelectedAddress, setSelectedAddress, setUserDetails, userDetails}}>
+        <AppContext.Provider value={{authData, loading,coupons, fetchCoupons, signIn, signOut, signUp, getToken, cartData, addToCart, clearCart, removeFromCart, getCart, getSelectedAddress, setSelectedAddress,addresses, setAddresses, setUserDetails, userDetails}}>
             {children}
         </AppContext.Provider>
     );

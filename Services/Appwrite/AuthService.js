@@ -44,6 +44,20 @@ export class AuthService {
         }
     }
 
+    async sendEmailToken(email) {
+        try {
+            let userAccount = await this.account.createEmailToken(
+                ID.unique(),
+                email
+            );
+            return userAccount.userId;
+        } catch(err) {
+            console.log(err);
+            Toast.show("Error while sending OTP to email", Toast.durations.SHORT);
+        }
+    }
+    
+
     async confirmOTPAndCreateSession (userId, otp) {
         try {
             await this.account.createSession(

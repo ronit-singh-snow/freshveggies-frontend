@@ -135,7 +135,7 @@ export default function OrdersList({ navigation }) {
                             })
                         }} >
                             {/* <Text style={styles.title}>Order ID: {item.$id}</Text> */}
-                            {item.order_date && item.status === "placed" ? <Text style={styles.unit}>Delivery by: {item.order_date}</Text> : null}
+                            {/* {item.order_date && item.status === "placed" ? <Text style={styles.unit}>Delivery by: {item.order_date}</Text> : null} */}
                             {item.delivered_at && item.status === "delivered" ? <Text style={styles.unit}>Delivered at: {item.delivered_at}</Text> : null}
                             <View style={styles.price}>
                                 <Text>Total value: </Text>
@@ -148,7 +148,7 @@ export default function OrdersList({ navigation }) {
                         </Pressable>
 
                         <View style={styles.cartFooter}>
-                            {item.status === "pending" ? 
+                            {item.status === "placed" ? 
                                 <View style={{width: "30%"}}>
                                     <CustomButton
                                         title={"Cancel order"}

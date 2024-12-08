@@ -19,7 +19,6 @@ export const OrderItems = () => {
 
     return <ScrollView>
         {orderItems.map((item, index) => {
-            // console.log("items",item);
             return <View style={[styles.container, styles.cardBackground]} key={index}>
                 <Image style={styles.image} source={item.img} contentFit="cover" transition={1000} />
                 <View>

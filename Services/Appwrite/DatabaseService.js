@@ -79,6 +79,7 @@ export class DatabaseService {
           timeslot: orderData.timeslot,
           address: orderData.address,
           delivered_at: orderData.date,
+          coupon: orderData.coupon,
         }
       );
 
@@ -220,6 +221,93 @@ async updateAddress(addressId, updatedData) {
     throw error;
   }
 }
+async getAllCoupons() {
+  try {
+    const currentDate = new Date().toISOString();
+    const response = await this.database.listDocuments(
+      DB_NAME,         
+      COLLECTIONS.COUPON ,
+      [Query.greaterThan("expiry_date", currentDate)]
+    );
+
+    return response.documents; 
+  } catch (error) {
+    console.error("Error fetching coupons:", error);
+    throw error; 
+  }
+}
+
+
+
+//  async validateCoupon(couponCode){
+//   try {
+//     const response = await this.database.listDocuments(
+//       DB_NAME,                 
+//       COLLECTIONS.COUPON,         
+//       [
+//         Query.equal('code', couponCode) 
+//       ]
+//     );
+
+//     if (response.documents.length > 0) {
+//       const coupon = response.documents[0];
+//       const discount = coupon.discount;
+
+//       if (coupon.expiry_date && new Date(coupon.expiry_date) < new Date()) {
+//         alert("Coupon expired.");
+//         return null;
+//       }
+
+//       return discount;  
+//     } else {
+//       alert("Invalid coupon code.");
+//       return null;
+//     }
+//   } catch (error) {
+//     console.error("Error validating coupon:", error);
+//     alert("Error validating coupon. Try again.");
+//   }
+// };
+async validateCoupon(couponCode, userId = null) {
+  try {
+    const response = await this.database.listDocuments(
+      DB_NAME,
+      COLLECTIONS.COUPON,
+      [Query.equal("code", couponCode)]
+    );
+
+    if (response.documents.length === 0) {
+      throw new Error("Invalid coupon code.");
+    }
+
+    const coupon = response.documents[0];
+
+    if (new Date(coupon.expiry_date) < new Date()) {
+      throw new Error("This coupon has expired.");
+    }
+
+    if (coupon.single_use && userId) {
+      const orderResponse = await this.database.listDocuments(
+        DB_NAME,
+        COLLECTIONS.ORDER,
+        [
+          Query.equal("coupon", couponCode),
+          Query.equal("user_id", userId),
+        ]
+      );
+
+      if (orderResponse.documents.length > 0) {
+        throw new Error("You have already used this coupon.");
+      }
+    }
+
+    return coupon.max_discount_amount;  
+  } catch (error) {
+    console.error("Error validating coupon:", error);
+    throw error;
+  }
+}
+
 
 
 }
