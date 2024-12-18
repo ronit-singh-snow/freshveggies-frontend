@@ -48,7 +48,7 @@ export default function CartSummary({ navigation, route }) {
   const { selectedCoupon } = route.params || {};
   const cartTotal = cartItemsValue.totalPrice;
   const [nextThresholdMessage, setNextThresholdMessage] = useState("");
-
+  console.log("Cart Items:", cartItems);
   useEffect(() => {
     const totalPrice = cartItemsValue.totalPrice;
 
@@ -79,7 +79,6 @@ export default function CartSummary({ navigation, route }) {
       setNextThresholdMessage("");
     }
   }, [cartItemsValue.totalPrice]);
-console.log("authdata in cartsummary: ", authData);
   useEffect(() => {
     if (authData) {
       if (authData.phone_number) {
@@ -148,9 +147,15 @@ console.log("authdata in cartsummary: ", authData);
       setDiscountValue(0);
     }
   }, [selectedCoupon]);
+  const gstAmount = cartItems.reduce((acc, item) => {
+    const itemGST = item.item.GST;
+    if (itemGST > 0) {
+      acc += (item.item.unitPrice * item.quantity * itemGST) / 100;
+    }
+    return acc;
+  }, 0);
 
-  const totalAmount = cartItemsValue.totalPrice + DELIVERY_FEE + PLATFORM_FEE;
-  // const discountAmount = (cartItemsValue.totalPrice * discountValue) / 100;
+  const totalAmount = cartItemsValue.totalPrice + DELIVERY_FEE + PLATFORM_FEE + gstAmount;
   const discountAmount = Math.min(
     (cartItemsValue.totalPrice * discountValue) / 100,
     coupons.find((coupon) => coupon.code === couponCode)?.max_discount_amount ||
@@ -366,6 +371,10 @@ console.log("authdata in cartsummary: ", authData);
             <View style={styles.summaryKeyMap}>
               <Text>Discount</Text>
               <PriceValue price={discountAmount} />
+            </View>
+            <View style={styles.summaryKeyMap}>
+              <Text>GST</Text>
+              <PriceValue price={gstAmount} />
             </View>
             <View style={styles.summaryKeyMap}>
               <Text>Grand total</Text>
