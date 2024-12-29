@@ -24,20 +24,20 @@ export default function LoginPage({ navigation }) {
             // console.log("Selected Login Type in login:", isPhone ? "Phone" : "Email");
             // console.log("Entered Phone Number login:", phoneNumber);
             // console.log("Entered Email login:", email);
-            if(isPhone){
+            if (isPhone) {
                 userId = await auth.sendPhoneToken(phoneNumber);
             }
-            else{
+            else {
                 userId = await auth.sendEmailToken(email);
             }
             navigation.navigate("OtpVerification", {
-                [isPhone ? 'phoneNumber' : 'email']: isPhone ? phoneNumber : email,  
+                [isPhone ? 'phoneNumber' : 'email']: isPhone ? phoneNumber : email,
                 userId: userId,
                 loginType: isPhone ? "phone" : "email",
                 phoneNumber,
                 email,
             });
-            
+
         } catch (error) {
             console.error("Error sending OTP:", error);
             Toast.show("Failed to send OTP. Try again.", { duration: Toast.durations.LONG });
@@ -51,43 +51,41 @@ export default function LoginPage({ navigation }) {
             <View style={styles.container}>
                 <View style={styles.loginContainer}>
                     <Text style={styles.enterNumberText}>
-                    {isPhone ? 'Enter your mobile number' : 'Enter your email ID'}
+                        {isPhone ? 'Enter your mobile number' : 'Enter your email ID'}
                     </Text>
                     <Text style={styles.textLightColor}>We will send you a confirmation code</Text>
-                    {isPhone ? ( 
-                    <View style={styles.countryInput}>
-                        <Image
-                            style={styles.image}
-                            source={countryImage}
-                            contentFit="cover"
-                            transition={1000}
-                        />
+                    {isPhone ? (
+                        <View style={styles.loginInput}>
+                            <Image
+                                style={styles.image}
+                                source={countryImage}
+                                contentFit="cover"
+                                transition={1000}
+                            />
 
-                        <Text style={styles.countryCode}>+91</Text>
+                            <Text style={styles.countryCode}>+91</Text>
+                            <TextInput
+                                style={styles.signInInput}
+                                keyboardType="phone-pad"
+                                maxLength={10}
+                                placeholder='Enter phone number'
+                                onChangeText={(val) => setPhoneNumber(`+91${val}`)}
+                            />
+                        </View>
+                    ) : (
                         <TextInput
-                            style={styles.signInInput}
-                            keyboardType="phone-pad"
-                            maxLength={10}
-                            placeholder='Enter phone number'
-                            onChangeText={(val) => setPhoneNumber(`+91${val}`)}
-                        />
-                    </View>
-                    ): (
-                        <View style={styles.inputContainer}>
-                        <TextInput
-                            style={styles.signInInput}
+                            style={styles.loginInput}
                             keyboardType="email-address"
                             placeholder="Enter email ID"
                             onChangeText={(val) => setEmail(val)}
                         />
-                    </View>
-                )}                  
-                 <TouchableOpacity onPress={() => setIsPhone(!isPhone)} style={styles.switchOptionContainer}>
+                    )}
+                    <TouchableOpacity onPress={() => setIsPhone(!isPhone)} style={styles.switchOptionContainer}>
                         <Text style={styles.switchOption}>
-                            {isPhone ? 'Use Email-ID' : 'Use Phone Number'}
+                            {isPhone ? 'Login with Email ID' : 'Login with Phone Number'}
                         </Text>
                     </TouchableOpacity>
-                  <CustomButton
+                    <CustomButton
                         title={"Send"}
                         loading={loading}
                         disabled={isPhone ? !phoneNumber : !email || loading}
@@ -100,11 +98,6 @@ export default function LoginPage({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-    inputContainer:{
-        height: 30,
-        width: "100%",
-        marginTop: 20,
-    },
     container: {
         flex: 1,
         justifyContent: "center",
@@ -126,7 +119,7 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         marginBottom: 15
     },
-    countryInput: {
+    loginInput: {
         flexDirection: "row",
         alignItems: "center",
         borderRadius: 10,
@@ -135,18 +128,21 @@ const styles = StyleSheet.create({
         width: "100%",
         marginTop: 20,
         borderColor: colors.darkGreen,
+        fontSize: getFontSize(18)
     },
     textLink: {
         color: colors.textLink
     },
     switchOption: {
-        color: '#007BFF',
+        color: colors.textLink,
         textAlign: 'right',
+        alignSelf: "flex-end",
         marginTop: 10,
     },
-    switchOptionContainer:{
-     width: "90%", 
-    alignItems: "flex-end", 
+    switchOptionContainer: {
+        alignItems: "flex-end",
+        flexDirection: "column",
+        width: "100%"
     },
     countryCode: {
         padding: 8,
@@ -157,7 +153,6 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingHorizontal: 15,
         borderColor: colors.darkGreen,
-        borderWidth: 1,
         borderRadius: 10,
         width: "100%",
         fontSize: getFontSize(18),

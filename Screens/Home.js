@@ -7,9 +7,8 @@ import Card from '../Components/Card.js';
 import Header from "../Components/Header.js";
 import Carousel from '../Components/Carousel.js';
 import { Footer } from '../Components/Footer.js';
-import { formatFruits, getResourceURL } from '../Services/Utils.js';
-import { homepageDetails } from '../Services/FetchData.js';
-import { getHomepageData, getProducts } from '../Services/AppWriteServices.js';
+import { formatFruits } from '../Services/Utils.js';
+import { getHomepageData } from '../Services/AppWriteServices.js';
 import { DatabaseService } from '../Services/Appwrite/DatabaseService.js';
 
 export default function Home({ navigation }) {
@@ -17,7 +16,6 @@ export default function Home({ navigation }) {
     const [downSections, setDownsections] = useState([]);
 
     const renderItem = (item) => {
-        console.log(item.$id);
         return (
             <Card 
                 item={item} 
