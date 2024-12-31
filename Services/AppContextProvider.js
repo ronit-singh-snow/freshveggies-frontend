@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { deleteSession } from "./AppWriteServices";
 import { DatabaseService } from "./Appwrite/DatabaseService";
+import { fetchEnvironmentVariables } from "./FetchData";
 export const AppContext = createContext({});
 
 export const AppContextProvider = ({children}) => {
@@ -12,6 +13,7 @@ export const AppContextProvider = ({children}) => {
     const [userDetails, setUserDetails] = useState(null);
     const [addresses, setAddresses] = useState([]);
     const [coupons, setCoupons] = useState([]);
+    const [envVariables, setEnvVariables] = useState({});
 
     const setToken = async (userId, phoneNumber, loginType, name, email) => {
         const storeData = [];
@@ -53,6 +55,10 @@ export const AppContextProvider = ({children}) => {
 
     useEffect(() => {
         getToken();
+        fetchEnvironmentVariables().then((response) => {
+            console.log(response.data);
+            setEnvVariables(response.data);
+        })
     }, [])
 
     const signIn = async (userId, phoneNumber, loginType, name, userDetails, email) => { 
@@ -143,7 +149,30 @@ export const AppContextProvider = ({children}) => {
     return (
         //This component will be used to encapsulate the whole App,
         //so all components will have access to the Context
-        <AppContext.Provider value={{authData, loading,coupons, fetchCoupons, signIn, signOut, signUp, getToken, cartData, addToCart, clearCart, removeFromCart, getCart, getSelectedAddress, setSelectedAddress,addresses, setAddresses, setUserDetails, userDetails}}>
+        <AppContext.Provider value={
+            {
+                authData,
+                loading,
+                coupons,
+                fetchCoupons,
+                signIn,
+                signOut,
+                signUp,
+                getToken,
+                cartData,
+                addToCart,
+                clearCart,
+                removeFromCart,
+                getCart,
+                getSelectedAddress,
+                setSelectedAddress,
+                addresses,
+                setAddresses,
+                setUserDetails,
+                userDetails,
+                envVariables
+            }
+        }>
             {children}
         </AppContext.Provider>
     );

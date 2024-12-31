@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, TextInput, FlatList, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { getCurrentLocation } from '../Services/Utils';
 import Toast from 'react-native-root-toast';
-import { searchNearbyPlaces } from '../Services/FetchData';
+import { autocompletePlaces } from '../Services/FetchData';
+import { AppContext } from '../Services/AppContextProvider';
 
 const SearchDropdown = ({ data }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -10,13 +11,15 @@ const SearchDropdown = ({ data }) => {
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [location, setLocation] = useState(null);
 
+    const {envVariables} = useContext(AppContext)
+
     const handleSearch = (text) => {
         setSearchTerm(text);
         if (text) {
             console.log(location, text);
-            searchNearbyPlaces(location, 5000, text).then(response => {
-                console.log(Object.keys(response.data));
-                setFilteredData(response.data.results);
+            autocompletePlaces(location, 5000, text, envVariables.GOOGLE_PLACES_API_KEY).then(response => {
+                console.log(response.data);
+                setFilteredData(response.data.suggestions);
                 setDropdownVisible(true);
             }).catch(err => {
                 console.log(err);
@@ -53,13 +56,13 @@ const SearchDropdown = ({ data }) => {
                     data={filteredData}
                     keyExtractor={(item, index) => `search_result${index}`}
                     renderItem={({ item }) => (
-                        <TouchableOpacity onPress={() => handleSelect(item)}>
+                        <TouchableOpacity onPress={() => handleSelect(item)} style={{padding: 10, borderBottomWidth: 1}}>
                             <Text style={{ fontWeight: "bold" }}>
-                                {item.name}
+                                {item.placePrediction.structuredFormat.mainText.text}
                             </Text>
                             <View style={{ flexDirection: "row" }}>
                                 <Text style={{ width: 0, flex: 1, flexWrap: "wrap" }}>
-                                    {item.vicinity}
+                                    {item.placePrediction.structuredFormat.secondaryText.text}
                                 </Text>
                             </View>
                         </TouchableOpacity>

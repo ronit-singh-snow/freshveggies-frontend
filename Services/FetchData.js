@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GOOGLE_API_KEY, HOST_URL } from "../Constants";
+import { APPWRITE_END_POINT, GOOGLE_API_KEY, HOST_URL } from "../Constants";
 
 export const getBannerImage = (imageName) => {
     const resourceId = "banner_images";
@@ -61,16 +61,28 @@ export const getOrderItems = (orderId) => {
     return axios.get(`${HOST_URL}/order_items?order_id=${orderId}`);
 }
 
-export const searchNearbyPlaces = (location, radius = 5000, searchText) => {
-    let url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=${GOOGLE_API_KEY}&location=${location.latitude},${location.longitude}&radius=${radius}&keyword=${searchText}`
-    // console.log(url);
-    const response =  fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=${GOOGLE_API_KEY}&location=${location.latitude},${location.longitude}&radius=5000&keyword=${searchText}`).then(res => {
-        console.log(response)
-        response.json().then(data => {
-            console.log(data.results)
-        });
-    });
-    
-   
+export const autocompletePlaces = (location, radius = 5000, searchText, apiKey) => {
+    const headers = {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": apiKey,
+        "X-Goog-FieldMask": "suggestions.placePrediction.structuredFormat.mainText.text,suggestions.placePrediction.structuredFormat.secondaryText"
+    };
+    const body = {
+        "input": searchText,
+        "locationBias": {
+            "circle": {
+                "center": {
+                    "latitude": location.latitude,
+                    "longitude": location.longitude
+                },
+                "radius": radius
+            }
+        }
+    }
+    return axios.post("https://places.googleapis.com/v1/places:autocomplete", body, {headers});
+}
+
+export const fetchEnvironmentVariables = () => {
+    const url = APPWRITE_END_POINT + "/api_keys";
     return axios.get(url);
 }

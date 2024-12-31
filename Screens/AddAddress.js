@@ -160,9 +160,7 @@ export const AddAddress = ({ navigation }) => {
   const {
     authData,
     setSelectedAddress,
-    getSelectedAddress,
-    setUserDetails,
-    userDetails,
+    getSelectedAddress
   } = useContext(AppContext);
   const [addresses, setAddresses] = useState([]);
   const [latLong, setLatLong] = useState({});
