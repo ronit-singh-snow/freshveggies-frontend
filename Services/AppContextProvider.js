@@ -129,19 +129,7 @@ export const AppContextProvider = ({children}) => {
         setAddressToAsyncStorage(addr);
     }
 
-    const fetchCoupons = async () => {
-        try {
-            const databaseService = new DatabaseService();
-            const fetchedCoupons = await databaseService.getAllCoupons();    
-            if (Array.isArray(fetchedCoupons)) {
-                setCoupons(fetchedCoupons); 
-            } else {
-                console.error("Fetched coupons is not an array.");
-            }
-        } catch (error) {
-            console.error("Error fetching coupons:", error);
-        }
-    };
+    
     
     
     
@@ -153,8 +141,6 @@ export const AppContextProvider = ({children}) => {
             {
                 authData,
                 loading,
-                coupons,
-                fetchCoupons,
                 signIn,
                 signOut,
                 signUp,

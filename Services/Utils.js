@@ -79,29 +79,22 @@ export const isTimeSlotDisabled = (deliveryDate, hour) => {
     return slotEndTime.getTime() < currentTime.getTime();
 }
 
-export const submitOrderUtil = (phoneNumber, items, itemValue, address, date, timeslot) => {
-    let orderData = {
-        phone_number: phoneNumber,
-        order_date: date + '',
-        status: "placed",
-        total_price: itemValue.totalPrice,
-        order_create_at: new Date().getTime() + '',
-        timeslot: timeslot,
-        address: address
-    };
-
-    return submitOrder({
-        orderData,
-        orderItems: items
-    });
-}
-
 export const formatDateToLocaleDateTime = (milliseconds) => {
     if (typeof milliseconds === "string")
         milliseconds = parseInt(milliseconds);
     console.log(milliseconds);
     const date = new Date(milliseconds);
     return date.toLocaleString();
+}
+
+export const getGSTAmount = (cartItems) => {
+    return cartItems.reduce((acc, item) => {
+        const itemGST = item.item.GST;
+        if (itemGST > 0) {
+            acc += (item.item.unitPrice * item.quantity * itemGST) / 100;
+        }
+        return acc;
+    }, 0);
 }
 
 export const getFontSize = (size) => {
