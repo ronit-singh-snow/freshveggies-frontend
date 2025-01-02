@@ -5,7 +5,7 @@ const RoundedIconButton = ({ onPress, title, source, buttonColor, textColor }) =
   return (
     <TouchableOpacity style={[styles.button, { backgroundColor: buttonColor }]} onPress={onPress}>
       <View style={styles.iconContainer}>
-        <Image style={styles.iconSize} source={source} />
+        {source ? <Image style={styles.iconSize} source={source} /> : null}
       </View>
       <Text style={[styles.text, { color: textColor }]}>{title}</Text>
     </TouchableOpacity>
@@ -18,8 +18,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 25, // Rounded border
-    paddingVertical: 2,
-    paddingHorizontal: 7,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
     elevation: 1, // Shadow for Android
     shadowColor: '#000', // Shadow for iOS
     shadowOffset: { width: 0, height: 1 },

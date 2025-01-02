@@ -1,10 +1,10 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { Alert, Image, Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { AppContext } from "../Services/AppContextProvider";
 import { useContext, useEffect, useState } from "react";
-// import { findUser } from "../Services/FetchData";
 import { findUser } from "../Services/AppWriteServices";
 import Avatar from "../Components/Avatar";
 import { colors } from "../Styles";
+import { DeleteAccountModal } from "../Components/DeleteAccountModal";
 
 const styles = StyleSheet.create({
     container: {
@@ -64,19 +64,25 @@ const styles = StyleSheet.create({
     }
 })
 
-export const MyProfile = ({navigation}) => {
-    const {authData, signOut} = useContext(AppContext);
+export const MyProfile = ({ navigation }) => {
+    const { authData, signOut } = useContext(AppContext);
     const [profileData, setProfileData] = useState({});
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const toggleModal = () => {
+        setModalVisible(!modalVisible);
+    }
+
     useEffect(() => {
-        findUser(authData.phone_number).then(res => {
+        findUser().then(res => {
+            console.log(res);
             if (res && res.data.length > 0) {
                 const data = res.data[0];
                 setProfileData({
-                    
-                    userName: authData.name,
-                    phoneNumber: authData.phone_number,
+                    userName: data.name,
+                    phoneNumber: data.phone,
                     email: data.email
-                })
+                });
             }
             else {
                 console.log("No user data found.");
@@ -87,6 +93,7 @@ export const MyProfile = ({navigation}) => {
     }, [])
 
     return <View style={styles.container}>
+        <DeleteAccountModal modalVisible={modalVisible} toggleModal={toggleModal}/>
         <View style={[styles.cardContainer, styles.rowDisplay]}>
             {profileData.userName ? <Avatar name={profileData.userName} size={60} backgroundColor="#CCC" color="#000" /> : null}
             <Text style={styles.profileTextHeader}>{profileData.userName} | {profileData.phoneNumber}</Text>
@@ -109,6 +116,18 @@ export const MyProfile = ({navigation}) => {
             <TouchableOpacity onPress={() => navigation.navigate("AboutUs")}>
                 <View style={styles.btns}>
                     <Text style={styles.btnText}>About us</Text>
+                    <Image style={styles.imageContainer} source={require("../assets/images/chevron_right.png")} />
+                </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setModalVisible(true)}>
+                <View style={styles.btns}>
+                    <Text style={styles.btnText}>Delete account</Text>
+                    <Image style={styles.imageContainer} source={require("../assets/images/chevron_right.png")} />
+                </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("TermsAndConditions")}>
+                <View style={styles.btns}>
+                    <Text style={styles.btnText}>Terms and conditions</Text>
                     <Image style={styles.imageContainer} source={require("../assets/images/chevron_right.png")} />
                 </View>
             </TouchableOpacity>
