@@ -14,6 +14,7 @@ import { OrderItems } from "../Screens/OrderItems.js";
 import { AboutUs } from "../Screens/AboutUs.js";
 // import CouponSelectionScreen from "../Screens/CouponSelectionScreen.js";
 import Coupons from "../Screens/Coupons.js";
+import TermsAndConditions from "../Screens/TermsAndConditions.js";
 const Stack = createNativeStackNavigator();
 
 export default function AppStack() {
@@ -84,7 +85,12 @@ export default function AppStack() {
             <Stack.Screen
                 name="AboutUs"
                 component={AboutUs}
-                options={{title: "About Orange Cart"}}
+                options={{title: "About V-Gram Cart"}}
+            />
+            <Stack.Screen
+                name="TermsAndConditions"
+                component={TermsAndConditions}
+                options={{title: "Terms and Conditions"}}
             />
         </Stack.Navigator>
     );

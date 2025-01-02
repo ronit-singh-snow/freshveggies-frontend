@@ -1,6 +1,7 @@
 import axios from "axios";
 import { APPWRITE_END_POINT, HOST_URL } from "../Constants";
 import { DatabaseService } from "./Appwrite/DatabaseService";
+import Toast from "react-native-root-toast";
 
 // export const getBannerImage = (imageName) => {
 //     const resourceId = "banner_images";
@@ -103,3 +104,15 @@ export const fetchCoupons = async () => {
         return [];
     }
 };
+
+export const deleteAccount = (userId) => {
+    try {
+        const url = APPWRITE_END_POINT + "/delete_account";
+        const body = {
+            userID: userId
+        };
+        return axios.delete(url, body);
+    } catch(err) {
+        console.log(err)
+    }
+}

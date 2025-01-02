@@ -77,28 +77,6 @@ export default function CartSummary({ navigation, route }) {
 		}
 	}, [cartItemsValue.totalPrice]);
 
-	// useEffect(() => {
-	// 	if (authData) {
-	// 		if (authData.phone_number) {
-	// 			findUser(authData.phone_number.replace("+", " ")).then((response) => {
-	// 				if (response.data && response.data.length > 0) {
-	// 					setUserData(response.data[0]);
-	// 				}
-	// 			});
-	// 		} else if (authData.email) {
-	// 			findUser(authData.email).then((response) => {
-	// 				if (response.data && response.data.length > 0) {
-	// 					setUserData(response.data[0]);
-	// 				}
-	// 			});
-	// 		} else {
-	// 			console.warn("Both phone_number and email are undefined in authData");
-	// 		}
-	// 	} else {
-	// 		console.warn("authData is undefined");
-	// 	}
-	// }, []);
-
 
 	useEffect(() => {
 		async function fetchDefaultUserAddress() {
