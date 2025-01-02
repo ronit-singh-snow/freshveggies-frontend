@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Orange Cart",
+    "slug": "orange-cart",
+    "version": "1.0.8",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "jsEngine": "hermes",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#FAF0CA"
+      },
+      "package": "com.ronit.singh.snow.FreshVeggies",
+      "versionCode": 8
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "09bb0b38-fdc8-4e9a-928d-fd0a342c783e"
+      }
+    },
+    "owner": "rhl_sngh"
+  }
+}
