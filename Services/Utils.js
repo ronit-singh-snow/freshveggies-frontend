@@ -12,7 +12,7 @@ export const getResourceURL = (resource) => {
 export const formatFruits = (data) => {
     return data.map((d) => {
         d.title = d.name;
-        d.unitPrice = parseInt(d.unit_price);
+        d.unitPrice = parseInt(d.unitPrice);
         d.unitValue = 1000;
         d.cardWidthRatio = 2;
         d.img = { uri: d.image_path };

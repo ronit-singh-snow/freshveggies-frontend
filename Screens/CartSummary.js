@@ -92,7 +92,7 @@ export default function CartSummary({ navigation, route }) {
 	useEffect(() => {
 		if (selectedCoupon) {
 			setCouponCode(selectedCoupon.code);
-			setDiscountValue(selectedCoupon.discount);
+			setDiscountValue(selectedCoupon.maxDiscount);
 		} else {
 			setCouponCode("");
 			setDiscountValue(0);
@@ -102,14 +102,8 @@ export default function CartSummary({ navigation, route }) {
 	const gstAmount = getGSTAmount(cartItems);
 
 	const totalAmount = cartItemsValue.totalPrice + DELIVERY_FEE + PLATFORM_FEE + gstAmount;
-	const discountAmount = 0;
-	//  Math.min(
-	// 	(cartItemsValue.totalPrice * discountValue) / 100,
-	// 	coupons.find((coupon) => coupon.code === couponCode)?.max_discount_amount ||
-	// 	Infinity
-	// );
-
-	const finalAmount = totalAmount - discountAmount;
+	
+	const finalAmount = totalAmount - discountValue;
 	cartItemsValue.grandTotalPrice = finalAmount;
 
 	const getAddress = () => {
@@ -273,13 +267,13 @@ export default function CartSummary({ navigation, route }) {
 						<View style={styles.card}>
 							<View style={styles.details}>
 								<Text style={styles.title}>
-									Flat ₹{discountAmount} Unlocked
+									Flat ₹{discountValue} Unlocked
 								</Text>
 								<Text style={styles.subtitle}>Apply code {couponCode}</Text>
 							</View>
 
 							<TouchableOpacity
-								onPress={() => navigation.navigate("Coupons", { couponCode, totalPrice: cartItemsValue.totalPrice, discountAmount })}
+								onPress={() => navigation.navigate("Coupons", { couponCode, totalPrice: cartItemsValue.totalPrice, discountValue })}
 							>
 								<Text style={styles.seeAll}>See all coupons</Text>
 							</TouchableOpacity>
@@ -304,7 +298,7 @@ export default function CartSummary({ navigation, route }) {
 						</View>
 						<View style={styles.summaryKeyMap}>
 							<Text>Discount</Text>
-							<PriceValue price={discountAmount} />
+							<PriceValue price={discountValue} />
 						</View>
 						<View style={styles.summaryKeyMap}>
 							<Text>GST</Text>
@@ -349,7 +343,7 @@ export default function CartSummary({ navigation, route }) {
 						onPress={() => {
 							navigation.navigate("OrderSummary", {
 								couponCode,
-								discountAmount,
+								discountValue,
 								items: cartItems,
 								itemValue: cartItemsValue,
 								address: selectedAddress.idaddress,

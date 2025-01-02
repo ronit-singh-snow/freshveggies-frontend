@@ -13,7 +13,9 @@ export const OrderItems = () => {
     useEffect(() => {
         const databaseService = new DatabaseService();
         databaseService.getOrderItems(route.params?.orderId).then(response => {
+            console.log(response);
             setOrderItems(formatFruits(response));
+            console.log(response);
         })
     }, [route.params?.orderId]);
 
@@ -23,7 +25,7 @@ export const OrderItems = () => {
                 <Image style={styles.image} source={item.img} contentFit="cover" transition={1000} />
                 <View>
                     <Text style={styles.title}>{item.title}</Text>
-                    <Text style={styles.unit}>{item.unit}</Text>
+                    <Text style={styles.unit}>{item.unitValue}gm</Text>
                     <PriceValue price={item.unitPrice} />
                 </View>
                 <View style={styles.listActions}>

@@ -123,9 +123,26 @@ export class DatabaseService {
                 COLLECTIONS.ORDER_ITEM,
                 [Query.equal("order_id", orderId)]
             );
-            return response.documents;
+            const orderItems = await Promise.all(
+                response.documents.map(async (item) => {
+                  const productResponse = await this.database.getDocument(
+                    DB_NAME,
+                    COLLECTIONS.PRODUCT, 
+                    item.product_id
+                  );
+                  return {
+                    ...item,
+                    name: productResponse.name,
+                    unitPrice: productResponse?.unit_price || 0, 
+                    image_path:"https://cloud.appwrite.io/v1/storage/buckets/6723636300050d7a50f2/files/6727863e00072c40d8cc/view?project=66efac960005a73d7247&project=66efac960005a73d7247&mode=admin"
+                  };
+                })
+              );
+            return orderItems;
         } catch (error) {
-            console.error("Error fetching order items: ", error);
+            console.error("Error fetching order items: ", error.message || error);
+            return [];
+
         }
     }
 
