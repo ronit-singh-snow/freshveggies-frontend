@@ -12,14 +12,16 @@ export const UpdateAddress = ({ navigation }) => {
     const route = useRoute();
     const address = route.params?.address || {};
     const isEdit = route.params?.editAddress || false;
+    const fullAddress = route.params?.fullAddress || "";
+    const locality = route.params?.locality || "";
 
     const [loading, setLoading] = useState(false);
     const [buttonDisabled, setButtonDisabled] = useState(false);
     const [userDetails, setUserDetails] = useState({
         username: authData?.name || "",
         phone_number: authData?.phone_number || "",
-        full_address: address?.full_address || "",
-        locality: address?.locality || "",
+        full_address: address?.full_address ||fullAddress || "",
+        locality: address?.locality || locality || "",
         pinCode: address?.zip_code || "",
         type: address?.type || "Home",
         isDefaultAddress: address?.isDefaultAddress || false,

@@ -4,14 +4,16 @@ import { getCurrentLocation } from '../Services/Utils';
 import Toast from 'react-native-root-toast';
 import { autocompletePlaces } from '../Services/FetchData';
 import { AppContext } from '../Services/AppContextProvider';
+import { useNavigation } from '@react-navigation/native';
 
 const SearchDropdown = ({ data }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredData, setFilteredData] = useState([]);
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     const [location, setLocation] = useState(null);
-
+    
     const {envVariables} = useContext(AppContext)
+    const navigation = useNavigation();
 
     const handleSearch = (text) => {
         setSearchTerm(text);
@@ -30,9 +32,16 @@ const SearchDropdown = ({ data }) => {
     };
 
     const handleSelect = (item) => {
-        setSearchTerm(item);
+        const locality = item.placePrediction.structuredFormat.mainText.text;
+       const full_address = item.placePrediction.structuredFormat.secondaryText.text;
+        setSearchTerm(item.placePrediction.structuredFormat.mainText.text);
         setDropdownVisible(false);
+        navigation.navigate('UpdateAddress', { 
+            fullAddress: full_address ,
+            locality : locality
+        });
     };
+    
 
     useEffect(() => {
 		getCurrentLocation().then(res => {
