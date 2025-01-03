@@ -6,10 +6,16 @@ export const CustomButton = ({title, loading, extraStyles, onPress, disabled=fal
     extraStyles = extraStyles ? extraStyles : {};
     const {buttonStyle, titleStyle} = extraStyles;
 
-    return <Pressable onPress={onPress} style={{width: "100%"}} disabled={disabled}>
-        <View style={[styles.button, buttonStyle ? buttonStyle : {}, disabled ? styles.disabledButton : {}]}>
+    return <Pressable onPress={onPress} style={{width: "100%"}} disabled={disabled || loading}>
+        <View style={[styles.button, buttonStyle ? buttonStyle : {}, disabled || loading ? styles.disabledButton : {}]}>
             <Text style={[styles.title, titleStyle ? titleStyle : {}]}>{title}</Text>
-            {loading ? <ActivityIndicator color={colors.orange}/> : null}
+            {/* {loading ? <ActivityIndicator color={colors.orange}/> : null} */}
+            {loading ? (
+    <ActivityIndicator color={colors.orange} />
+) : (
+    <Text style={[styles.title, titleStyle || {}]}>{title}</Text>
+)}
+
         </View>
     </Pressable>
 }
