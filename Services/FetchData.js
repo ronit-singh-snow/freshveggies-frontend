@@ -107,7 +107,7 @@ export const fetchCoupons = async () => {
 
 export const deleteAccount = (userId) => {
     try {
-        const url = APPWRITE_END_POINT + "/delete_account";
+        const url = APPWRITE_END_POINT + "/";
         const body = {
             userID: userId
         };

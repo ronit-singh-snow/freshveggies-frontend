@@ -14,6 +14,16 @@ export const DeleteAccountModal = ({ modalVisible, toggleModal }) => {
         // deleteAccount(authData.user_token).then((res) => {
         //     Toast.show("Your account has been deleted successfully", Toast.durations.LONG);
         // })
+        deleteAccount(authData.user_token)
+        .then(() => {
+            toggleLoader(false);
+            toggleModal(); 
+            signOut(); 
+        })
+        .catch((err) => {
+            console.error("Error deleting account:", err);
+            toggleLoader(false);
+        });
     }
 
     return <Modal
