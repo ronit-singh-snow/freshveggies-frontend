@@ -7,8 +7,6 @@ import { validateCoupon } from "../Services/FetchData";
 import Toast from "react-native-root-toast";
 const Coupons = () => {
     const [coupons, setCoupons] = useState([]);
-    const [applicableCoupons, setApplicableCoupons] = useState([]);
-    const [notApplicableCoupons, setNotApplicableCoupons] = useState([]);
     const [error, setError] = useState("");
     const route = useRoute();
     const navigation = useNavigation();
@@ -23,7 +21,6 @@ const Coupons = () => {
             try {
                 const validCoupons = await databaseService.getAllCoupons();
                 setCoupons(validCoupons);
-                categorizeCoupons(validCoupons);
             } catch (error) {
                 console.error("Error fetching coupons:", error);
             }
@@ -32,27 +29,8 @@ const Coupons = () => {
         fetchCoupons();
     }, []);
 
-    const categorizeCoupons = (coupons) => {
-        const applicable = [];
-        const notApplicable = [];
-
-        coupons.forEach((coupon) => {
-            if (coupon.min_purchase_amount <= cartPrice) {
-                applicable.push(coupon);
-            } else {
-                notApplicable.push(coupon);
-            }
-        });
-
-        setApplicableCoupons(applicable);
-        setNotApplicableCoupons(notApplicable);
-    };
-
     const handleCouponSelect = async (coupon) => {
-        if (notApplicableCoupons.some((notApplicableCoupon) => notApplicableCoupon.code === coupon.code)) {
-            setError("This coupon is not applicable to your order.");
-            return;
-        }
+       
         try {
             const response = await validateCoupon(authData.user_token, coupon, cartPrice);
             if (response.data && response.data.status === "error") {
@@ -75,6 +53,7 @@ const Coupons = () => {
 
     const renderCoupon = (coupon) => {
         const expiryDate = coupon.expiry_date.split("T")[0];
+        const isNotApplicable = coupon.min_purchase_amount > cartPrice;
         return (
             <View
                 style={[
@@ -89,9 +68,14 @@ const Coupons = () => {
 
                     <TouchableOpacity
                         onPress={() => handleCouponSelect(coupon)}
-                        style={styles.applyButton}
+                        style={[styles.applyButton,
+                            isNotApplicable && styles.disabledButton,
+
+                        ]}
+                        disabled={isNotApplicable}
+
                     >
-                        <Text style={styles.applyButtonText}>Apply</Text>
+                        <Text style={[styles.applyButtonText,  isNotApplicable && { color: "#333" },]}>Apply</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -112,16 +96,8 @@ const Coupons = () => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.sectionTitle}>Applicable Coupons</Text>
             <FlatList
-                data={applicableCoupons}
-                renderItem={({ item }) => renderCoupon(item)}
-                keyExtractor={(item) => item.$id}
-            />
-
-            <Text style={styles.sectionTitle}>Not Applicable Coupons</Text>
-            <FlatList
-                data={notApplicableCoupons}
+                data={coupons}
                 renderItem={({ item }) => renderCoupon(item)}
                 keyExtractor={(item) => item.$id}
             />
@@ -136,6 +112,10 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
         backgroundColor: "#fff",
+    },
+    disabledButton: {
+        backgroundColor: "white", 
+        borderColor: "#C0C0C0",  
     },
     sectionTitle: {
         fontSize: 16,
@@ -174,17 +154,17 @@ const styles = StyleSheet.create({
     applyButton: {
         paddingVertical: 6,
         paddingHorizontal: 12,
-        backgroundColor: "#D3D3D3", // Light gray background
+        backgroundColor: "#32cd32", 
         borderRadius: 12,
         alignItems: "center",
         borderWidth: 1,
-        borderColor: "#B0B0B0", // Darker gray border
-        marginTop: -4, // Moves the button up slightly
+        borderColor: "#B0B0B0", 
+        marginTop: -4, 
     },
     applyButtonText: {
-        color: "#007AFF", // Blue text color
+        color: "#FFF", 
         fontWeight: "bold",
-        fontSize: 12, // Smaller font size
+        fontSize: 12,
     },
     separator: {
         height: 1,
