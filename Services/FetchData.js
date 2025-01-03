@@ -116,3 +116,18 @@ export const deleteAccount = (userId) => {
         console.log(err)
     }
 }
+
+export const validateCoupon = (userId, coupon, cartPrice) => {
+    try {
+        const url = APPWRITE_END_POINT + "/validate_coupon";
+        const body = {
+            userID: userId,
+            couponCode: coupon.code,
+            couponId: coupon.$id,
+            totalCartValue: cartPrice
+        };
+        return axios.post(url, body);
+    } catch(err) {
+        console.log(err)
+    }
+}

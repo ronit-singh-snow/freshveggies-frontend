@@ -19,7 +19,6 @@ import {
 } from "../Services/Utils";
 import { PriceValue } from "../Components/PriceValue";
 import { DELIVERY_FEE, PLATFORM_FEE } from "../Constants";
-import { findUser } from "../Services/FetchData";
 import { colors } from "../Styles";
 import { DatabaseService } from "../Services/Appwrite/DatabaseService";
 
@@ -38,44 +37,12 @@ export default function CartSummary({ navigation, route }) {
 	const deliveryDates = getDeliveryDates();
 	const [selectedDeliveryDateIndex, setSelectedDeliveryDateIndex] = useState(0);
 	const [selectedTimeSlot, setSelectedTimeSlot] = useState(1);
-	const [userData, setUserData] = useState();
 	const [couponCode, setCouponCode] = useState("");
 	const [formattedDates, setFormattedDates] = useState([]);
 
 	const [discountValue, setDiscountValue] = useState(0);
 	const { selectedCoupon } = route.params || {};
 	const [nextThresholdMessage, setNextThresholdMessage] = useState("");
-	
-	useEffect(() => {
-		const totalPrice = cartItemsValue.totalPrice;
-
-		let nextCouponThreshold = null;
-		let nextDiscountValue = null;
-		let nextCouponCode = null;
-
-		if (totalPrice >= 400) {
-			nextCouponThreshold = 400;
-			nextDiscountValue = 60;
-			nextCouponCode = "NEWYEAR25";
-		} else if (totalPrice >= 300) {
-			nextCouponThreshold = 400;
-			nextDiscountValue = 30;
-			nextCouponCode = "NEWYEAR25";
-		} else if (totalPrice >= 200) {
-			nextCouponThreshold = 300;
-			nextDiscountValue = 15;
-			nextCouponCode = "SUMMERSALE15";
-		}
-
-		if (nextCouponThreshold) {
-			const amountToNextThreshold = nextCouponThreshold - totalPrice;
-			setNextThresholdMessage(
-				` Add items worth ₹${amountToNextThreshold} more to save ₹${nextDiscountValue} using ${nextCouponCode} `
-			);
-		} else {
-			setNextThresholdMessage("");
-		}
-	}, [cartItemsValue.totalPrice]);
 
 
 	useEffect(() => {
@@ -90,9 +57,10 @@ export default function CartSummary({ navigation, route }) {
 	}, []);
 
 	useEffect(() => {
+		console.log(selectedCoupon)
 		if (selectedCoupon) {
 			setCouponCode(selectedCoupon.code);
-			setDiscountValue(selectedCoupon.discount);
+			setDiscountValue(selectedCoupon.maxDiscount);
 		} else {
 			setCouponCode("");
 			setDiscountValue(0);
@@ -102,14 +70,8 @@ export default function CartSummary({ navigation, route }) {
 	const gstAmount = getGSTAmount(cartItems);
 
 	const totalAmount = cartItemsValue.totalPrice + DELIVERY_FEE + PLATFORM_FEE + gstAmount;
-	const discountAmount = 0;
-	//  Math.min(
-	// 	(cartItemsValue.totalPrice * discountValue) / 100,
-	// 	coupons.find((coupon) => coupon.code === couponCode)?.max_discount_amount ||
-	// 	Infinity
-	// );
 
-	const finalAmount = totalAmount - discountAmount;
+	const finalAmount = totalAmount - discountValue;
 	cartItemsValue.grandTotalPrice = finalAmount;
 
 	const getAddress = () => {
@@ -273,13 +235,13 @@ export default function CartSummary({ navigation, route }) {
 						<View style={styles.card}>
 							<View style={styles.details}>
 								<Text style={styles.title}>
-									Flat ₹{discountAmount} Unlocked
+									Flat ₹{discountValue} Unlocked
 								</Text>
 								<Text style={styles.subtitle}>Apply code {couponCode}</Text>
 							</View>
 
 							<TouchableOpacity
-								onPress={() => navigation.navigate("Coupons", { couponCode, totalPrice: cartItemsValue.totalPrice, discountAmount })}
+								onPress={() => navigation.navigate("Coupons", { couponCode, totalPrice: cartItemsValue.totalPrice, discountValue })}
 							>
 								<Text style={styles.seeAll}>See all coupons</Text>
 							</TouchableOpacity>
@@ -287,7 +249,7 @@ export default function CartSummary({ navigation, route }) {
 					</View>
 
 					<View style={styles.cardBackground}>
-						{getAddress(selectedAddress, navigation, userData)}
+						{getAddress()}
 					</View>
 					<View style={styles.cardBackground}>
 						<View style={styles.summaryKeyMap}>
@@ -304,7 +266,7 @@ export default function CartSummary({ navigation, route }) {
 						</View>
 						<View style={styles.summaryKeyMap}>
 							<Text>Discount</Text>
-							<PriceValue price={discountAmount} />
+							<PriceValue price={discountValue} />
 						</View>
 						<View style={styles.summaryKeyMap}>
 							<Text>GST</Text>
@@ -349,7 +311,7 @@ export default function CartSummary({ navigation, route }) {
 						onPress={() => {
 							navigation.navigate("OrderSummary", {
 								couponCode,
-								discountAmount,
+								discountValue,
 								items: cartItems,
 								itemValue: cartItemsValue,
 								address: selectedAddress.idaddress,
