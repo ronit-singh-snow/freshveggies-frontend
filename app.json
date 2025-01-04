@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Orange Cart",
-    "slug": "orange-cart",
+    "name": "V-Gram Cart",
+    "slug": "vgram-cart",
     "version": "1.0.8",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -23,7 +23,7 @@
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#FAF0CA"
       },
-      "package": "com.ronit.singh.snow.FreshVeggies",
+      "package": "com.vgram.cart",
       "versionCode": 8
     },
     "web": {
@@ -31,9 +31,15 @@
     },
     "extra": {
       "eas": {
-        "projectId": "09bb0b38-fdc8-4e9a-928d-fd0a342c783e"
+        "projectId": "bd52b3bc-9996-47d6-bf3b-b5ad72deda14"
       }
     },
-    "owner": "rhl_sngh"
+    "owner": "admin_vgramcart",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/bd52b3bc-9996-47d6-bf3b-b5ad72deda14"
+    }
   }
 }
