@@ -15,8 +15,8 @@ export const NewLoginExtraDetails = () => {
     const [name, setName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState(route.params?.phoneNumber || ''); 
     const [email, setEmail] = useState(route.params?.email || ''); 
+    const [password, setPassword] = useState(route.params?.password || ''); 
     const [loading, setLoading] = useState(false);
-
     const loginType = route.params?.loginType;
     
     const handleNameSubmit = async () => {
@@ -25,6 +25,11 @@ export const NewLoginExtraDetails = () => {
         
         try {
             await authService.updateName(name);
+            if (loginType && loginType == "phone")
+                await authService.updateEmail(email);
+            if (loginType && loginType == "email")
+                await authService.updatePhone(phoneNumber, password);
+
             const userId = route.params?.userId;
             const userData = {
                 userId,
@@ -33,7 +38,7 @@ export const NewLoginExtraDetails = () => {
                 loginType,
                 name,
             };
-            signIn(userData.userId, userData.phoneNumber, userData.loginType, userData.name, null, userData.email);
+            signIn(userData.userId, userData.phoneNumber, userData.loginType, userData.name, userData.email);
 
 
         } catch (error) {
@@ -63,7 +68,7 @@ export const NewLoginExtraDetails = () => {
                         <TextInput
                             style={styles.textinput}
                             placeholder="Enter your phone number"
-                            onChangeText={setPhoneNumber}
+                            onChangeText={(val) => setPhoneNumber(`+91${val}`)}
                             keyboardType="phone-pad"
                         />
                     </>

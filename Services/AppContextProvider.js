@@ -10,19 +10,16 @@ export const AppContextProvider = ({children}) => {
     const [loading, setLoading] = useState(true);
     const [authData, setAuthData] = useState();
     const [selectedAddress, setUserSelectedAddress] = useState();
-    const [userDetails, setUserDetails] = useState(null);
     const [addresses, setAddresses] = useState([]);
-    const [coupons, setCoupons] = useState([]);
     const [envVariables, setEnvVariables] = useState({});
 
-    const setToken = async (userId, phoneNumber, loginType, name, email) => {
+    const setToken = async (userId, phoneNumber, loginType, name,  email) => {
         const storeData = [];
         userId ? storeData.push(["user_token", userId]) : null;
         phoneNumber ? storeData.push(["phone_number", phoneNumber]) : null;
         loginType ? storeData.push(["login_type", loginType]) : null;
         name ? storeData.push(["name", name]) : null;
         email ? storeData.push(["email", email]) : null;
-        userDetails ? storeData.push(["user_details", JSON.stringify(userDetails)]) : null;
         console.log("Setting AsyncStorage data:", storeData);
         return await AsyncStorage.multiSet(storeData);
     }
@@ -61,8 +58,8 @@ export const AppContextProvider = ({children}) => {
         })
     }, [])
 
-    const signIn = async (userId, phoneNumber, loginType, name, userDetails, email) => { 
-        setToken(userId, phoneNumber, loginType, name, userDetails, email);
+    const signIn = async (userId, phoneNumber, loginType, name,  email) => { 
+        setToken(userId, phoneNumber, loginType, name, email);
         const _authData = {
             user_token: userId,
             loginType,
@@ -72,20 +69,15 @@ export const AppContextProvider = ({children}) => {
         }
         console.log("Signing in with data:", _authData);
         setAuthData(_authData);
-        setUserDetails(userDetails);
     };
 
     const signOut = async () => {
         //Remove data from context, so the App can be notified
         //and send the user to the AuthStack
         setAuthData(undefined);
-        setUserDetails(null);
         removeToken();
         deleteSession()
     };
-
-    const signUp = (email, password, name, mobile) => {
-    }
 
     const addToCart = (item, quantity) => {
         let cart = [...cartData];
@@ -129,11 +121,6 @@ export const AppContextProvider = ({children}) => {
         setAddressToAsyncStorage(addr);
     }
 
-    
-    
-    
-    
-    // console.log("userDetails in context: ", userDetails);
     return (
         //This component will be used to encapsulate the whole App,
         //so all components will have access to the Context
@@ -143,8 +130,6 @@ export const AppContextProvider = ({children}) => {
                 loading,
                 signIn,
                 signOut,
-                signUp,
-                getToken,
                 cartData,
                 addToCart,
                 clearCart,
@@ -154,8 +139,6 @@ export const AppContextProvider = ({children}) => {
                 setSelectedAddress,
                 addresses,
                 setAddresses,
-                setUserDetails,
-                userDetails,
                 envVariables
             }
         }>

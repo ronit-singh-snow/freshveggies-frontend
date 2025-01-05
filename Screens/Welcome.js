@@ -67,7 +67,7 @@ export const Welcome = ({ navigation }) => {
       }} style={{flex: 1, width: null, height: "100%"}}>
         <View style={styles.container}>
             <StatusBar />
-            <Text style={[styles.welcomeText]}>Welcome to Orange Cart!!</Text>
+            <Text style={[styles.welcomeText]}>Welcome to V-Gram Cart!!</Text>
             
             <View style={styles.moto}>
                 <Text style={styles.starIcon}>{`\u2605`}</Text>

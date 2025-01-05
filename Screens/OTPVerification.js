@@ -14,12 +14,9 @@ export default function OtpVerification({ navigation }) {
     const loginType = route.params?.loginType;
     const phoneNumber = route.params?.phoneNumber;
     const email = route.params?.email;
-    // console.log("logintype in otpver: ",loginType);
-    // console.log("phonenumber in otpver: ",phoneNumber);
-    // console.log("email in otpver: ",email);
+    
     const { signIn } = useContext(AppContext);
 
-    const [fetchingOtp, setFetchingOtp] = useState(true);
     const [otp, setOtp] = useState(new Array(6));
     const [timerActive, setTimerActive] = useState(true);
     const [userId, setUserId] = useState(route.params?.userId);
@@ -36,11 +33,9 @@ export default function OtpVerification({ navigation }) {
     ]
 
     const signInWithPhone = async () => {
-        setFetchingOtp(true);
         sendOTP(phoneNumber).then(res => {
             setUserId(res.userId);
-        })
-        setFetchingOtp(false);
+        });
     }
 
 
@@ -90,8 +85,6 @@ export default function OtpVerification({ navigation }) {
         return inputs;
     };
 
-    4928
-
     useEffect(() => {
         setTimeout(() => {
             setTimerActive(false);
@@ -127,7 +120,6 @@ export default function OtpVerification({ navigation }) {
                                         phoneNumber: phoneNumber,
                                         userId: userId,
                                         loginType: loginType,
-                                        email: email,
                                     });
                                 }    
                             }).catch(err => {

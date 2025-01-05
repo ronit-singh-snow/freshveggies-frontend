@@ -1,11 +1,12 @@
 import { StyleSheet, TextInput, View, ImageBackground, Text, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
-import { Image } from 'expo-image';
 import { CustomButton } from '../Components/CustomButton';
 import { colors } from '../Styles';
 import { getFontSize } from '../Services/Utils';
 import Toast from 'react-native-root-toast';
 import { AuthService } from '../Services/Appwrite/AuthService';
+import { LoginWithEmail } from '../Components/LoginWithEmail';
+import { LoginWithPhone } from '../Components/LoginWithPhone';
 
 export default function LoginPage({ navigation }) {
     const [phoneNumber, setPhoneNumber] = useState('');
@@ -13,7 +14,6 @@ export default function LoginPage({ navigation }) {
     const [loading, setLoading] = useState(false);
     const [isPhone, setIsPhone] = useState(true);
     const bgImage = require("../assets/images/background.png");
-    const countryImage = require("../assets/images/india.png");
 
     const handleSendOTP = async () => {
         setLoading(true);
@@ -21,9 +21,6 @@ export default function LoginPage({ navigation }) {
         try {
             const auth = new AuthService();
             await auth.deleteSessions();
-            // console.log("Selected Login Type in login:", isPhone ? "Phone" : "Email");
-            // console.log("Entered Phone Number login:", phoneNumber);
-            // console.log("Entered Email login:", email);
             if (isPhone) {
                 userId = await auth.sendPhoneToken(phoneNumber);
             }
@@ -50,47 +47,22 @@ export default function LoginPage({ navigation }) {
         <ImageBackground source={bgImage} style={{ flex: 1 }}>
             <View style={styles.container}>
                 <View style={styles.loginContainer}>
-                    <Text style={styles.enterNumberText}>
-                        {isPhone ? 'Enter your mobile number' : 'Enter your email ID'}
-                    </Text>
-                    <Text style={styles.textLightColor}>We will send you a confirmation code</Text>
                     {isPhone ? (
-                        <View style={styles.loginInput}>
-                            <Image
-                                style={styles.image}
-                                source={countryImage}
-                                contentFit="cover"
-                                transition={1000}
-                            />
-
-                            <Text style={styles.countryCode}>+91</Text>
-                            <TextInput
-                                style={styles.signInInput}
-                                keyboardType="phone-pad"
-                                maxLength={10}
-                                placeholder='Enter phone number'
-                                onChangeText={(val) => setPhoneNumber(`+91${val}`)}
-                            />
-                        </View>
+                        <LoginWithPhone />
                     ) : (
-                        <TextInput
-                            style={styles.loginInput}
-                            keyboardType="email-address"
-                            placeholder="Enter email ID"
-                            onChangeText={(val) => setEmail(val)}
-                        />
+                       <LoginWithEmail />
                     )}
                     <TouchableOpacity onPress={() => setIsPhone(!isPhone)} style={styles.switchOptionContainer}>
                         <Text style={styles.switchOption}>
                             {isPhone ? 'Login with Email ID' : 'Login with Phone Number'}
                         </Text>
                     </TouchableOpacity>
-                    <CustomButton
+                    {/* <CustomButton
                         title={"Send"}
                         loading={loading}
                         disabled={isPhone ? !phoneNumber : !email || loading}
                         onPress={handleSendOTP}
-                    />
+                    /> */}
                 </View>
             </View>
         </ImageBackground>
@@ -158,16 +130,6 @@ const styles = StyleSheet.create({
         fontSize: getFontSize(18),
 
     },
-    // signInButton: {
-    //     backgroundColor: colors.darkGreen,
-    //     marginTop: 30,
-    //     paddingVertical: 9,
-    //     borderRadius: 10,
-    //     color: "#FFF",
-    //     textAlign: "center",
-    //     fontSize: getFontSize(18),
-    //     width: "100%",
-    // },
     forgotPassword: {
         alignSelf: "flex-end",
         color: "#696969"

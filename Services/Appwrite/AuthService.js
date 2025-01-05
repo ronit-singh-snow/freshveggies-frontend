@@ -19,7 +19,7 @@ export class AuthService {
             const user = await this.account.get();
             return user;
         } catch(err) {
-            console.log(err)
+            console.log("getUser: " + JSON.stringify(err))
         }
     }
 
@@ -31,6 +31,24 @@ export class AuthService {
         }
     }
 
+    async updateEmail(email, password) {
+        try {
+            await this.account.updateEmail(email)
+        } catch(err) {
+            console.log(err);
+        }
+    }
+
+    async updatePhone(phone, password) {
+        try {
+            await this.account.updatePhone(phone, password)
+        } catch(err) {
+            if (err.type === "user_target_already_exists")
+                Toast.show("Phone number is already in use with different account.", Toast.durations.LONG)
+            console.log(JSON.stringify(err));
+        }
+    }
+
     async sendPhoneToken(phoneNumber) {
         try {
             let userAccount = await this.account.createPhoneToken(
@@ -39,7 +57,7 @@ export class AuthService {
             );
             return userAccount.userId;
         } catch(err) {
-            console.log(err);
+            console.log(JSON.stringify(err));
             Toast.show("Error while sending OTP", Toast.durations.SHORT);
         }
     }
@@ -85,5 +103,16 @@ export class AuthService {
         } catch(err) {
             console.log("No account session exist yet");
         }
+    }
+
+    async signInWithEmail(email, password) {
+        await this.account.createEmailPasswordSession(email, password);
+        const user = await this.getUser();
+        return user;
+    }
+
+    async signUpWithEmail(email, password) {
+        await this.account.create(ID.unique(), email, password);
+        return await this.getUser();
     }
 }
