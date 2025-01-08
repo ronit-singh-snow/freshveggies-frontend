@@ -67,11 +67,11 @@ const SearchDropdown = ({ data }) => {
                     renderItem={({ item }) => (
                         <TouchableOpacity onPress={() => handleSelect(item)} style={{padding: 10, borderBottomWidth: 1}}>
                             <Text style={{ fontWeight: "bold" }}>
-                                {item.placePrediction.structuredFormat.mainText.text}
+                                {item?.placePrediction?.structuredFormat?.mainText?.text}
                             </Text>
                             <View style={{ flexDirection: "row" }}>
                                 <Text style={{ width: 0, flex: 1, flexWrap: "wrap" }}>
-                                    {item.placePrediction.structuredFormat.secondaryText.text}
+                                    {item?.placePrediction?.structuredFormat?.secondaryText?.text}
                                 </Text>
                             </View>
                         </TouchableOpacity>

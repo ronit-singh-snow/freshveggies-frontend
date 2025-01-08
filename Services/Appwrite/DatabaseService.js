@@ -64,6 +64,26 @@ export class DatabaseService {
         }
     }
 
+    async searchProducts(text, category) {
+        try {
+            let query = [];
+            if (text)
+                query.push(Query.contains("name", text));
+            if (category)
+                query.push(Query.equal("category", category));
+
+            let result = await this.database.listDocuments(
+                DB_NAME,
+                COLLECTIONS.PRODUCT,
+                query
+            );
+
+            return result.documents;
+        } catch (err) {
+            console.log(JSON.stringify(err));
+        }
+    }
+
     async submitOrder(userId, orderData) {
         try {
             const orderResult = await this.database.createDocument(

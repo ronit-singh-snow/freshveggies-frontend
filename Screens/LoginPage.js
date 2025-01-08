@@ -1,50 +1,17 @@
-import { StyleSheet, TextInput, View, ImageBackground, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, ImageBackground, Text, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
-import { CustomButton } from '../Components/CustomButton';
 import { colors } from '../Styles';
 import { getFontSize } from '../Services/Utils';
-import Toast from 'react-native-root-toast';
-import { AuthService } from '../Services/Appwrite/AuthService';
 import { LoginWithEmail } from '../Components/LoginWithEmail';
 import { LoginWithPhone } from '../Components/LoginWithPhone';
 
-export default function LoginPage({ navigation }) {
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [email, setEmail] = useState('');
-    const [loading, setLoading] = useState(false);
+export default function LoginPage() {
     const [isPhone, setIsPhone] = useState(true);
     const bgImage = require("../assets/images/background.png");
 
-    const handleSendOTP = async () => {
-        setLoading(true);
-        let userId;
-        try {
-            const auth = new AuthService();
-            await auth.deleteSessions();
-            if (isPhone) {
-                userId = await auth.sendPhoneToken(phoneNumber);
-            }
-            else {
-                userId = await auth.sendEmailToken(email);
-            }
-            navigation.navigate("OtpVerification", {
-                [isPhone ? 'phoneNumber' : 'email']: isPhone ? phoneNumber : email,
-                userId: userId,
-                loginType: isPhone ? "phone" : "email",
-                phoneNumber,
-                email,
-            });
-
-        } catch (error) {
-            console.error("Error sending OTP:", error);
-            Toast.show("Failed to send OTP. Try again.", { duration: Toast.durations.LONG });
-        } finally {
-            setLoading(false);
-        }
-    };
-
     return (
-        <ImageBackground source={bgImage} style={{ flex: 1 }}>
+        <View style={styles.wrapper}>
+        <ImageBackground source={bgImage} resizeMode="contain" width="100%" style={{height: "100%", justifyContent: 'center' }}>
             <View style={styles.container}>
                 <View style={styles.loginContainer}>
                     {isPhone ? (
@@ -57,19 +24,18 @@ export default function LoginPage({ navigation }) {
                             {isPhone ? 'Login with Email ID' : 'Login with Phone Number'}
                         </Text>
                     </TouchableOpacity>
-                    {/* <CustomButton
-                        title={"Send"}
-                        loading={loading}
-                        disabled={isPhone ? !phoneNumber : !email || loading}
-                        onPress={handleSendOTP}
-                    /> */}
                 </View>
             </View>
         </ImageBackground>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
+    wrapper: {
+        flex: 1,
+        backgroundColor: colors.lightYellowBG
+    },
     container: {
         flex: 1,
         justifyContent: "center",

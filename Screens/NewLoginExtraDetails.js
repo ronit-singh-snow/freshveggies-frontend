@@ -13,16 +13,16 @@ export const NewLoginExtraDetails = () => {
     const { signIn } = useContext(AppContext);
 
     const [name, setName] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState(route.params?.phoneNumber || ''); 
-    const [email, setEmail] = useState(route.params?.email || ''); 
-    const [password, setPassword] = useState(route.params?.password || ''); 
+    const [phoneNumber, setPhoneNumber] = useState(route.params?.phoneNumber || '');
+    const [email, setEmail] = useState(route.params?.email || '');
+    const [password, setPassword] = useState(route.params?.password || '');
     const [loading, setLoading] = useState(false);
     const loginType = route.params?.loginType;
-    
+
     const handleNameSubmit = async () => {
         setLoading(true);
         const authService = new AuthService();
-        
+
         try {
             await authService.updateName(name);
             if (loginType && loginType == "phone")
@@ -33,7 +33,7 @@ export const NewLoginExtraDetails = () => {
             const userId = route.params?.userId;
             const userData = {
                 userId,
-                phoneNumber: phoneNumber || route.params?.phoneNumber || null, 
+                phoneNumber: phoneNumber || route.params?.phoneNumber || null,
                 email: email || route.params?.email || null,
                 loginType,
                 name,
@@ -50,52 +50,58 @@ export const NewLoginExtraDetails = () => {
     };
 
     return (
-        <ImageBackground source={bgImage} style={{ flex: 1 }}>
-            <View style={styles.container}>
-                <Text style={styles.enterNumberText}>Enter your Details</Text>
-                <Text style={[styles.textLightColor, styles.headerDescription]}>
-                Fill the required details to proceed
-                </Text>
-                <Text style={styles.inputLabel}>Name*</Text>
-                <TextInput
-                    style={styles.textinput}
-                    placeholder="Enter your full name"
-                    onChangeText={setName}
-                />
-                {loginType === "email" ? (
-                    <>
-                        <Text style={styles.inputLabel}>Phone Number*</Text>
-                        <TextInput
-                            style={styles.textinput}
-                            placeholder="Enter your phone number"
-                            onChangeText={(val) => setPhoneNumber(`+91${val}`)}
-                            keyboardType="phone-pad"
-                        />
-                    </>
-                ) : (
-                    <>
-                    <Text style={styles.inputLabel}>Email*</Text>
+        <View style={styles.wrapper}>
+            <ImageBackground source={bgImage} style={{ flex: 1 }}>
+                <View style={styles.container}>
+                    <Text style={styles.enterNumberText}>Enter your Details</Text>
+                    <Text style={[styles.textLightColor, styles.headerDescription]}>
+                        Fill the required details to proceed
+                    </Text>
+                    <Text style={styles.inputLabel}>Name*</Text>
                     <TextInput
                         style={styles.textinput}
-                        placeholder="Enter your email ID"
-                        onChangeText={setEmail}
-                        keyboardType="email-address"
+                        placeholder="Enter your full name"
+                        onChangeText={setName}
                     />
-                </>
-            )}
+                    {loginType === "email" ? (
+                        <>
+                            <Text style={styles.inputLabel}>Phone Number*</Text>
+                            <TextInput
+                                style={styles.textinput}
+                                placeholder="Enter your phone number"
+                                onChangeText={(val) => setPhoneNumber(`+91${val}`)}
+                                inputMode='tel'
+                            />
+                        </>
+                    ) : (
+                        <>
+                            <Text style={styles.inputLabel}>Email*</Text>
+                            <TextInput
+                                style={styles.textinput}
+                                placeholder="Enter your email ID"
+                                onChangeText={setEmail}
+                                keyboardType="email-address"
+                            />
+                        </>
+                    )}
 
-                <CustomButton
-                    title={"Submit"}
-                    disabled={!name || (loginType === "email" ? !phoneNumber : !email)}
-                    loading={loading}
-                    onPress={handleNameSubmit}
-                />
-            </View>
-        </ImageBackground>
+                    <CustomButton
+                        title={"Submit"}
+                        disabled={!name || (loginType === "email" ? !phoneNumber : !email)}
+                        loading={loading}
+                        onPress={handleNameSubmit}
+                    />
+                </View>
+            </ImageBackground>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
+    wrapper: {
+        flex: 1,
+        backgroundColor: colors.lightYellowBG
+    },
     container: {
         flex: 1,
         justifyContent: "center",

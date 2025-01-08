@@ -7,12 +7,14 @@ import Toast from "react-native-root-toast";
 import { AuthService } from "../Services/Appwrite/AuthService";
 import { useNavigation } from "@react-navigation/native";
 import { AppContext } from "../Services/AppContextProvider";
+import { Checkbox } from "react-native-paper";
 
 export const LoginWithEmail = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [flow, setFlow] = useState("login");
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const navigation = useNavigation();
 
     const {signIn} = useContext(AppContext);
@@ -27,9 +29,10 @@ export const LoginWithEmail = () => {
                 userData = await auth.signInWithEmail(email, password);
             else
                 userData = await auth.signUpWithEmail(email, password);
-
+            console.log(userData);
+            const userId = userData.userId || userData.$id;
             if(userData?.name) {
-                signIn(userData.userId, phoneNumber, "email", userData.name, email);
+                signIn(userId, userData?.phone, "email", userData?.name, email);
             } else {
                 navigation.navigate("NewLoginExtraDetails", {
                     phoneNumber: "",
@@ -42,7 +45,8 @@ export const LoginWithEmail = () => {
 
         } catch (error) {
             console.log("Error in signing in", JSON.stringify(error));
-            Toast.show(error.response.message, Toast.durations.LONG );
+            if (error && error.response)
+                Toast.show(error.response.message, Toast.durations.LONG );
         } finally {
             setLoading(false);
         }
@@ -59,10 +63,19 @@ export const LoginWithEmail = () => {
         />
         <TextInput
             style={styles.loginInput}
+            secureTextEntry={showPassword ? false : true}
             keyboardType="password"
             placeholder="Enter password"
             onChangeText={(val) => setPassword(val)}
         />
+        <View style={styles.row}>
+            <Checkbox
+                status={showPassword ? "checked" : "unchecked"}
+                onPress={() => setShowPassword(!showPassword)}
+            />
+            <Text>Show password</Text>
+        </View>
+        
 
         <CustomButton
             title={"Submit"}
@@ -116,7 +129,6 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontSize: getFontSize(28),
         color: colors.darkGreen,
-        textAlign: "center"
     },
     textLightColor: {
         color: "#3e4740b8",
@@ -124,7 +136,8 @@ const styles = StyleSheet.create({
     },
     row: {
         flexDirection: "row",
-        marginVertical: 10
+        marginVertical: 10,
+        alignItems: "center"
     },
     link: {
         color: colors.textLink

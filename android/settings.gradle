@@ -44,7 +44,7 @@ if (getRNMinorVersion() >= 75) {
   }
 }
 
-rootProject.name = 'Orange Cart'
+rootProject.name = 'V-Gram Cart'
 
 dependencyResolutionManagement {
   versionCatalogs {

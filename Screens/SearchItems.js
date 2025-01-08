@@ -7,6 +7,7 @@ import AddQuantity from "../Components/AddQuantity";
 import { AppContext } from "../Services/AppContextProvider";
 import { Footer } from "../Components/Footer";
 import { useNavigation } from "@react-navigation/native";
+import { DatabaseService } from "../Services/Appwrite/DatabaseService";
 
 const styles = StyleSheet.create({
     container: {
@@ -56,17 +57,20 @@ export const SearchItem = () => {
     const { addToCart, getCart, removeFromCart } = useContext(AppContext);
     const cartItems = getCart();
 
+    
+    async function getProducts(searchText) {
+        let databaseService = new DatabaseService();
+        const products = await databaseService.searchProducts(searchText);
+        setListItems(formatFruits(products));
+    };
+
     useEffect(() => {
-        getProductsList().then(response => {
-            setListItems(formatFruits(response.data));
-        })
+        getProducts();
     }, [])
 
     const handleSearch = (text) => {
         setSearchTerm(text);
-        getProductsList(text).then(response => {
-            setListItems(formatFruits(response.data));
-        });
+        getProducts(text);
     }
 
     return (<View style={styles.container}>

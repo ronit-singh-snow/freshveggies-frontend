@@ -28,18 +28,6 @@ const styles = StyleSheet.create({
     addressType: {
         fontWeight: "bold",
     },
-    radioBtn: {
-        flexBasis: 70,
-    },
-    addNewAddressBtn: {
-        marginTop: 20,
-        padding: 10,
-        borderWidth: 1,
-        borderRadius: 10,
-        textAlign: "center",
-        fontWeight: "bold",
-        marginBottom: 30,
-    },
     currentAddressContainer: {
         borderRadius: 10,
         padding: 8,
@@ -83,18 +71,6 @@ const styles = StyleSheet.create({
         borderColor: "#ddd",
         backgroundColor: "#44b678",
     },
-    placesSearchContainer: {
-        width: 40,
-        height: 40,
-        justifyContent: "center",
-        borderTopLeftRadius: 0,
-        borderBottomLeftRadius: 0,
-        backgroundColor: "#FFF",
-        borderWidth: 1,
-        borderRadius: 5,
-        borderLeftWidth: 0,
-        borderColor: "#ddd",
-    },
     cardBottomShadow: {
         shadowColor: "#171717",
         shadowOffset: { width: -2, height: 4 },
@@ -118,38 +94,6 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         paddingLeft: 20,
         fontSize: 16,
-    },
-});
-const autoCompleteStyles = StyleSheet.create({
-    container: {
-        width: "100%",
-        marginTop: 10,
-        zIndex: 1,
-    },
-    listView: {
-        borderColor: "#c8c7cc",
-        borderWidth: 1,
-        borderRadius: 2,
-        position: "absolute",
-        top: 47,
-    },
-    textInputContainer: {
-        width: "100%",
-        backgroundColor: "transparent",
-        flexDirection: "row",
-        alignItems: "flex-start",
-    },
-    textInput: {
-        height: 40,
-        borderColor: "#ddd",
-        borderWidth: 1,
-        borderRightWidth: 0,
-        borderRadius: 5,
-        borderTopRightRadius: 0,
-        borderBottomRightRadius: 0,
-        paddingHorizontal: 10,
-        fontSize: 16,
-        flex: 1,
     },
 });
 

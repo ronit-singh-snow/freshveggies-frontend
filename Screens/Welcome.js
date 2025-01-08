@@ -4,6 +4,10 @@ import { colors } from "../Styles";
 import { getFontSize } from "../Services/Utils";
 
 const styles = StyleSheet.create({
+    wrapper: {
+        flex: 1,
+        backgroundColor: colors.lightYellowBG
+    },
     container: {
         flex: 1,
         alignItems: "center",
@@ -45,7 +49,7 @@ const styles = StyleSheet.create({
     login: {
         flexDirection: "row",
         marginTop: 10,
-        
+
     },
     signUpButtonContainer: {
         width: "100%",
@@ -60,31 +64,32 @@ const styles = StyleSheet.create({
 })
 export const Welcome = ({ navigation }) => {
     const bgImage = require("../assets/images/background.png");
-    
-    return (<ImageBackground source={bgImage} imageStyle={{
-        resizeMode: "cover",
-        alignSelf: "flex-end"
-      }} style={{flex: 1, width: null, height: "100%"}}>
-        <View style={styles.container}>
-            <StatusBar />
-            <Text style={[styles.welcomeText]}>Welcome to V-Gram Cart!!</Text>
-            
-            <View style={styles.moto}>
-                <Text style={styles.starIcon}>{`\u2605`}</Text>
-                <Text style={styles.appMoto}>We are offering home delivery service of fresh fruits and vegetables to your doorstep.</Text>
+
+    return (<View style={styles.wrapper}>
+        <ImageBackground source={bgImage} resizeMode="contain" imageStyle={{
+            alignSelf: "flex-end"
+        }} style={{ flex: 1 }}>
+            <View style={styles.container}>
+                <StatusBar />
+                <Text style={[styles.welcomeText]}>Welcome to V-Gram Cart!!</Text>
+
+                <View style={styles.moto}>
+                    <Text style={styles.starIcon}>{`\u2605`}</Text>
+                    <Text style={styles.appMoto}>We are offering home delivery service of fresh fruits and vegetables to your doorstep.</Text>
+                </View>
+                <View style={styles.moto}>
+                    <Text style={styles.starIcon}>{`\u2605`}</Text>
+                    <Text style={styles.appMoto}>We are ensuring accurate weight specified on the product is very much crucial for us.</Text>
+                </View>
+                <View style={styles.moto}>
+                    <Text style={styles.starIcon}>{`\u2605`}</Text>
+                    <Text style={styles.appMoto}>We always ensure that quality of fruits and vegetables are never compromised.</Text>
+                </View>
+
+                <TouchableOpacity style={styles.signUpButtonContainer} onPress={() => navigation.navigate("Login")}>
+                    <Text style={[styles.signUpButton]}>Login</Text>
+                </TouchableOpacity>
             </View>
-            <View style={styles.moto}>
-                <Text style={styles.starIcon}>{`\u2605`}</Text>
-                <Text style={styles.appMoto}>We are ensuring accurate weight specified on the product is very much crucial for us.</Text>
-            </View>
-            <View style={styles.moto}>
-                <Text style={styles.starIcon}>{`\u2605`}</Text>
-                <Text style={styles.appMoto}>We always ensure that quality of fruits and vegetables are never compromised.</Text>
-            </View>
-            
-            <TouchableOpacity style={styles.signUpButtonContainer} onPress={() => navigation.navigate("Login")}>
-                <Text style={[styles.signUpButton]}>Login</Text>
-            </TouchableOpacity>
-        </View>
-    </ImageBackground>)
+        </ImageBackground>
+    </View>)
 }

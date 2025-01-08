@@ -31,7 +31,6 @@ export const AppContextProvider = ({children}) => {
             acc[item[0]] = item[1];
             return acc;
         }, {});
-        console.log("Fetched token data:", serialiseAsyncData);
         val.forEach(storageItem => {
             if (storageItem[0] == "selected_address") {
                 setUserSelectedAddress(JSON.parse(storageItem[1]));
