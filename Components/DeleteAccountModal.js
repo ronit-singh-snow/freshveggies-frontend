@@ -4,11 +4,13 @@ import { colors } from "../Styles";
 import { deleteAccount } from "../Services/FetchData";
 import { useContext, useState } from "react";
 import { AppContext } from "../Services/AppContextProvider";
+
 import Loader from "./Loader";
 
 export const DeleteAccountModal = ({ modalVisible, toggleModal }) => {
     const [loader, toggleLoader] = useState(false);
-    const {authData} = useContext(AppContext)
+    const { authData, signOut } = useContext(AppContext);
+
     const deleteAccountHandler = () => {
         toggleLoader(true);
         // deleteAccount(authData.user_token).then((res) => {
@@ -21,7 +23,9 @@ export const DeleteAccountModal = ({ modalVisible, toggleModal }) => {
             signOut(); 
         })
         .catch((err) => {
-            console.error("Error deleting account:", err);
+            // console.error("Error deleting account:", JSON.stringify(err, null, 2));
+            console.error("Error deleting account:", err.response?.data || err.message || err);
+
             toggleLoader(false);
         });
     }

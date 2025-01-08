@@ -2,6 +2,8 @@ import axios from "axios";
 import { APPWRITE_END_POINT, HOST_URL } from "../Constants";
 import { DatabaseService } from "./Appwrite/DatabaseService";
 import Toast from "react-native-root-toast";
+import { findUser } from "../Services/AppWriteServices";
+
 
 // export const getBannerImage = (imageName) => {
 //     const resourceId = "banner_images";
@@ -105,17 +107,35 @@ export const fetchCoupons = async () => {
     }
 };
 
-export const deleteAccount = (userId) => {
+
+export const deleteAccount = async (userId) => {
     try {
-        const url = APPWRITE_END_POINT + "/";
-        const body = {
-            userID: userId
-        };
-        return axios.delete(url, body);
-    } catch(err) {
-        console.log(err)
+        const userResponse = await findUser(userId); 
+        if (userResponse && userResponse.data && Array.isArray(userResponse.data) && userResponse.data.length > 0) {
+            const user = userResponse.data[0]; 
+            const email = user.email || ""; 
+            const phone = user.phone || ""; 
+
+            if (email || phone) {
+                const url = APPWRITE_END_POINT + "/delete_account";
+            
+                const body = {
+                    email: email,  
+                    phone: phone   
+                };
+                return  await axios.delete(url, { data: body });
+
+            } else {
+                console.log("Neither email nor phone is available for deletion");
+            }
+        } else {
+            console.log("User not found or invalid response structure");
+        }
+    } catch (err) {
+        console.error("Error in deleting account:", err);
     }
-}
+};
+
 
 export const validateCoupon = (userId, coupon, cartPrice) => {
     try {
