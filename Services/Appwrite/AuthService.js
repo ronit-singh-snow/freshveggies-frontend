@@ -112,7 +112,7 @@ export class AuthService {
     }
 
     async signUpWithEmail(email, password) {
-        await this.account.create(ID.unique(), email, password);
-        return await this.getUser();
+        const userAccount = await this.account.create(ID.unique(), email, password);
+        return userAccount;
     }
 }

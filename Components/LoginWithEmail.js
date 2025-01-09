@@ -27,16 +27,25 @@ export const LoginWithEmail = () => {
             await auth.deleteSessions();
             if (flow === "login")
                 userData = await auth.signInWithEmail(email, password);
-            else
+            else {
                 userData = await auth.signUpWithEmail(email, password);
-            console.log(userData);
+                if (userData?.$id || userData?.userId) {
+                    Toast.show("Account has been created successfully, Login again with the same credentials.", Toast.durations.LONG);
+                    setFlow("login");
+                    setEmail("");
+                    setPassword("");
+                }
+
+                return;
+            }
+
             const userId = userData.userId || userData.$id;
             if(userData?.name) {
                 signIn(userId, userData?.phone, "email", userData?.name, email);
             } else {
                 navigation.navigate("NewLoginExtraDetails", {
                     phoneNumber: "",
-                    userId: userData.userId,
+                    userId: userId,
                     loginType: "email",
                     email: email,
                     password: password
@@ -57,6 +66,7 @@ export const LoginWithEmail = () => {
         <Text style={styles.textLightColor}>Enter your email ID and password to connect</Text>
         <TextInput
             style={styles.loginInput}
+            value={email}
             keyboardType="email-address"
             placeholder="Enter email ID"
             onChangeText={(val) => setEmail(val)}
@@ -64,6 +74,7 @@ export const LoginWithEmail = () => {
         <TextInput
             style={styles.loginInput}
             secureTextEntry={showPassword ? false : true}
+            value={password}
             keyboardType="password"
             placeholder="Enter password"
             onChangeText={(val) => setPassword(val)}

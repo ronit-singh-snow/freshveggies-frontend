@@ -50,10 +50,10 @@ export const AppContextProvider = ({children}) => {
     }
 
     useEffect(() => {
-        getToken();
         fetchEnvironmentVariables().then((response) => {
             console.log(response.data);
             setEnvVariables(response.data);
+            getToken();
         })
     }, [])
 
