@@ -6,6 +6,7 @@ import { AppContext } from "../Services/AppContextProvider";
 import RoundedIconButton from "../Components/RoundedIconButton";
 import { DatabaseService } from "../Services/Appwrite/DatabaseService";
 import SearchDropdown from "../Components/SearchDropdown";
+import { getCurrentLocation } from "../Services/Utils";
 
 const styles = StyleSheet.create({
     mainContainer: {
@@ -104,45 +105,29 @@ export const AddAddress = ({ navigation }) => {
         getSelectedAddress
     } = useContext(AppContext);
     const [addresses, setAddresses] = useState([]);
-    const [latLong, setLatLong] = useState({});
     const [CurrentAddress, setCurrentAddress] = useState(null);
 
     const currentLocationPng = require("../assets/images/current_location.png");
     const chevronRight = require("../assets/images/chevron_right.png");
 
-    const getCurrentLocation = () => {
-        const getPermissions = async () => {
-            let { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== "granted") {
-                Toast.show("please grant location access", Toast.durations.SHORT);
-                return;
-            }
-
-            let {
-                coords: { latitude, longitude },
-            } = await Location.getCurrentPositionAsync({});
-            setLatLong({
-                latitude,
-                longitude,
-            });
-            const response = await Location.reverseGeocodeAsync({
-                latitude,
-                longitude,
-            });
-            if (response.length > 0) {
-                setCurrentAddress(response[0].formattedAddress);
-            }
-        };
-        getPermissions();
-    };
+    let selectedAddress = "";
+    if (!selectedAddress)
+        selectedAddress = getSelectedAddress();
 
     useEffect(() => {
-        getCurrentLocation();
+        if (!CurrentAddress) {
+            getCurrentLocation().then(result => {
+                if (result.formattedAddress) {
+                    setCurrentAddress(result.formattedAddress);
+                }
+            });
+        }
+        
         const databaseService = new DatabaseService();
-        databaseService.fetchAddresses().then((res) => {
+        databaseService.fetchAddresses(authData.user_token).then((res) => {
             setAddresses(res);
         });
-    }, []);
+    }, [selectedAddress]);
 
     const navigateToUpdateAddress = (selectedAddress) => {
         let routeParams = {};
@@ -152,25 +137,10 @@ export const AddAddress = ({ navigation }) => {
             };
         }
         navigation.navigate("UpdateAddress", {
-            address: selectedAddress,
-            onSave: (updatedAddress) => {
-                setAddresses((prevAddresses) => {
-                    const index = prevAddresses.findIndex(
-                        (addr) => addr.$id === updatedAddress.$id
-                    );
-                    if (index !== -1) {
-                        prevAddresses[index] = updatedAddress;
-                    } else {
-                        prevAddresses.push(updatedAddress);
-                    }
-                    return [...prevAddresses];
-                });
-            },
+            address: selectedAddress
         });
     };
 
-    const selectedAddress = getSelectedAddress();
-    
     return (
         <View style={styles.mainContainer}>
             <View style={styles.searchBarContainer}>
@@ -202,7 +172,7 @@ export const AddAddress = ({ navigation }) => {
                         </View>
                     </TouchableOpacity>
                     <Pressable onPress={() => navigateToUpdateAddress()}>
-                        <Text style={styles.addAddressBtn}> &#x2b; Add address</Text>
+                        <Text style={styles.addAddressBtn}> &#x2b;  Add address</Text>
                     </Pressable>
                 </View>
 
@@ -213,11 +183,10 @@ export const AddAddress = ({ navigation }) => {
                     >
                         <Text style={styles.savedAddrTitle}>Saved Addresses</Text>
                         {addresses
-                            .filter((addr) => addr.phone_number === authData?.phone_number)
                             .map((addr, index) => {
                                 const isAddressSelected =
                                     selectedAddress &&
-                                    selectedAddress.idaddress == addr.idaddress;
+                                    selectedAddress.$id == addr.$id;
                                 return (
                                     <TouchableOpacity
                                         key={addr.$id}

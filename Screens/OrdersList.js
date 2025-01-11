@@ -1,12 +1,12 @@
 import { StyleSheet, FlatList, Text, View, Pressable } from 'react-native';
 import { AppContext } from '../Services/AppContextProvider';
 import { useContext, useEffect, useState } from 'react';
-import { formatDateToLocaleDateTime } from '../Services/Utils';
 import { PriceValue } from '../Components/PriceValue';
-// import { listOrders } from '../Services/FetchData';
 import { colors } from '../Styles';
 import { CustomButton } from '../Components/CustomButton';
-import {DatabaseService} from '../Services/Appwrite/DatabaseService';
+import { DatabaseService } from '../Services/Appwrite/DatabaseService';
+import Toast from 'react-native-root-toast';
+import { EmptyState } from '../Components/EmptyState';
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -62,6 +62,10 @@ const styles = StyleSheet.create({
     returnOrderBtn: {
         backgroundColor: colors.orange,
         color: "#FFF"
+    },
+    emptyState: {
+        alignItems: "center",
+        justifyContent: "center"
     }
 });
 
@@ -70,7 +74,7 @@ export default function OrdersList({ navigation }) {
     const [orders, setOrders] = useState([]);
 
     useEffect(() => {
-        const databaseService= new DatabaseService();
+        const databaseService = new DatabaseService();
         databaseService.listOrders(authData.user_token).then(res => {
             setOrders(res);
         });
@@ -79,9 +83,9 @@ export default function OrdersList({ navigation }) {
     const cancelOrder = async (orderId) => {
         try {
             const databaseService = new DatabaseService();
-    
+
             await databaseService.updateOrder(orderId, { status: "cancelled" });
-    
+
             setOrders((prevOrders) =>
                 prevOrders.map((order) =>
                     order.$id === orderId
@@ -89,22 +93,22 @@ export default function OrdersList({ navigation }) {
                         : order
                 )
             );
-    
-            console.log("Order cancelled successfully");
+
+            Toast.show("Order cancelled successfully", Toast.durations.LONG);
         } catch (error) {
             console.error("Error cancelling order:", error);
         }
     };
-    
+
     const returnOrder = async (orderId) => {
         try {
             const databaseService = new DatabaseService();
-            
-            const order = await databaseService.getOrderById(orderId); 
-            
+
+            const order = await databaseService.getOrderById(orderId);
+
             if (order.status === "delivered") {
                 await databaseService.updateOrder(orderId, { status: "returned" });
-    
+
                 setOrders((prevOrders) =>
                     prevOrders.map((order) =>
                         order.$id === orderId
@@ -113,81 +117,90 @@ export default function OrdersList({ navigation }) {
                     )
                 );
             } else {
+                Toast.show("Order is not eligible for return", Toast.durations.LONG);
                 console.log("Order is not eligible for return");
             }
         } catch (error) {
             console.error("Error returning order:", error);
         }
     };
-    
-    
 
+
+    console.log(orders);
     return (
         <View style={styles.container}>
-            <FlatList
-                data={orders}
-                renderItem={({ item }) => {
-                    console.log("items: ",item);
-                    return <View style={[styles.row, styles.cardBackground]} >
-                        <Pressable onPress={() => {
-                            navigation.navigate("OrderItems", {
-                                orderId: item.$id
-                            })
-                        }} >
-                            {/* <Text style={styles.title}>Order ID: {item.$id}</Text> */}
-                            {/* {item.order_date && item.status === "placed" ? <Text style={styles.unit}>Delivery by: {item.order_date}</Text> : null} */}
-                            {item.delivered_at && item.status === "delivered" ? <Text style={styles.unit}>Delivered at: {item.delivered_at}</Text> : null}
-                            <View style={styles.price}>
-                                <Text>Total value: </Text>
-                                <PriceValue price={item.total_price} />
-                            </View>
-                            {item.status === "delivered"
-                                ? <Text style={[styles.delivered, styles.highlightedText]}>Delivered</Text>
-                                : <Text style={[styles.active, styles.highlightedText]}>{item.status}</Text>
-                            }
-                        </Pressable>
+            {
+                orders && orders.length == 0
+                    ? (
+                        <EmptyState message={"No orders placed yet!!"}/>
+                    )
+                    : (
+                        <FlatList
+                            data={orders}
+                            renderItem={({ item }) => {
+                                console.log("items: ", item);
+                                return <View style={[styles.row, styles.cardBackground]} >
+                                    <Pressable onPress={() => {
+                                        navigation.navigate("OrderItems", {
+                                            orderId: item.$id
+                                        })
+                                    }} >
+                                        {/* <Text style={styles.title}>Order ID: {item.$id}</Text> */}
+                                        {/* {item.order_date && item.status === "placed" ? <Text style={styles.unit}>Delivery by: {item.order_date}</Text> : null} */}
+                                        {item.delivered_at && item.status === "delivered" ? <Text style={styles.unit}>Delivered at: {item.delivered_at}</Text> : null}
+                                        <View style={styles.price}>
+                                            <Text>Total value: </Text>
+                                            <PriceValue price={item.total_price} />
+                                        </View>
+                                        {item.status === "delivered"
+                                            ? <Text style={[styles.delivered, styles.highlightedText]}>Delivered</Text>
+                                            : <Text style={[styles.active, styles.highlightedText]}>{item.status}</Text>
+                                        }
+                                    </Pressable>
 
-                        <View style={styles.cartFooter}>
-                            {item.status === "placed" ? 
-                                <View style={{width: "30%"}}>
-                                    <CustomButton
-                                        title={"Cancel order"}
-                                        extraStyles={{
-                                            buttonStyle: styles.cancelOrderBtn,
-                                            titleStyle: {
-                                                fontSize: 12
-                                            }
-                                        }}
-                                        onPress={() => {
-                                            cancelOrder(item.$id) 
-                                                                                                                      }}
-                                    />
-                                </View>
-                                : null
-                            }
-                            {
-                                item.status === "delivered" ?
-                                    <View style={{width: "30%"}}>
-                                        <CustomButton
-                                            title={"Return order"}
-                                            extraStyles={{
-                                                buttonStyle: styles.returnOrderBtn,
-                                                titleStyle: {
-                                                    fontSize: 12
-                                                }
-                                            }}
-                                            onPress={() => {
-                                                returnOrder(item.$id)
-                                            }}
-                                        />
+                                    <View style={styles.cartFooter}>
+                                        {item.status === "placed" ?
+                                            <View style={{ width: "30%" }}>
+                                                <CustomButton
+                                                    title={"Cancel order"}
+                                                    extraStyles={{
+                                                        buttonStyle: styles.cancelOrderBtn,
+                                                        titleStyle: {
+                                                            fontSize: 12
+                                                        }
+                                                    }}
+                                                    onPress={() => {
+                                                        cancelOrder(item.$id)
+                                                    }}
+                                                />
+                                            </View>
+                                            : null
+                                        }
+                                        {
+                                            item.status === "delivered" ?
+                                                <View style={{ width: "30%" }}>
+                                                    <CustomButton
+                                                        title={"Return order"}
+                                                        extraStyles={{
+                                                            buttonStyle: styles.returnOrderBtn,
+                                                            titleStyle: {
+                                                                fontSize: 12
+                                                            }
+                                                        }}
+                                                        onPress={() => {
+                                                            returnOrder(item.$id)
+                                                        }}
+                                                    />
+                                                </View>
+                                                : null
+                                        }
+
                                     </View>
-                                : null
-                            }
-                            
-                        </View>
-                    </View>
-                }}
-            />
+                                </View>
+                            }}
+                        />
+                    )
+            }
         </View>
     );
 }

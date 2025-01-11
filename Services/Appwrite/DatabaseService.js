@@ -1,4 +1,3 @@
-import Toast from "react-native-root-toast";
 import { APPWRITE_URL, COLLECTIONS, DB_NAME, PROJECT_ID } from "./Config";
 import { Client, ID, Databases, Query } from "react-native-appwrite";
 export class DatabaseService {
@@ -201,11 +200,16 @@ export class DatabaseService {
         }
     }
 
-    async fetchAddresses() {
+    async fetchAddresses(userId) {
+        let query = [];
+        if (userId)
+            query = [Query.equal("user_id", userId)];
+
         try {
             const response = await this.database.listDocuments(
                 DB_NAME,
-                COLLECTIONS.ADDRESS
+                COLLECTIONS.ADDRESS,
+                query
             );
             return response.documents;
         } catch (error) {
@@ -220,7 +224,6 @@ export class DatabaseService {
                 DB_NAME,
                 COLLECTIONS.ADDRESS,
                 documentId);
-            console.log(`Document ${documentId} deleted successfully.`);
         } catch (error) {
             console.error("Error deleting document:", error);
             throw error;

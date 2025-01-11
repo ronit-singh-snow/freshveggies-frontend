@@ -20,21 +20,17 @@ export const UpdateAddress = ({ navigation }) => {
     const [userDetails, setUserDetails] = useState({
         username: authData?.name || "",
         phone_number: authData?.phone_number || "",
-        full_address: address?.full_address ||fullAddress || "",
+        full_address: address?.full_address || fullAddress || "",
         locality: address?.locality || locality || "",
         pinCode: address?.zip_code || "",
         type: address?.type || "Home",
         isDefaultAddress: address?.isDefaultAddress || false,
         isEdit,
     });
-   
-    // useEffect(() => {
-    //     console.log("Updated userDetails:", userDetails);
-    // }, [userDetails]);
 
     useEffect(() => {
         const currentAddress = userDetails.full_address?.trim() || "";
-        const pinCodeMatch = currentAddress.match(/\b\d{6}\b/); 
+        const pinCodeMatch = currentAddress.match(/\b\d{6}\b/);
         const extractedPinCode = pinCodeMatch ? pinCodeMatch[0] : "";
         if (userDetails.pinCode !== extractedPinCode) {
             setUserDetails((prevDetails) => ({
@@ -68,32 +64,32 @@ export const UpdateAddress = ({ navigation }) => {
     const handleSubmit = () => {
         setLoading(true);
         const dbService = new DatabaseService();
-        if (isEdit){
+        if (isEdit) {
             dbService.updateAddress(address.$id, addressData).then((res) => {
                 console.log("Address updated successfully:", res);
                 setSelectedAddress(res);
                 setAddresses((prevAddresses) => {
                     const index = prevAddresses.findIndex((addr) => addr.$id === res.$id);
                     if (index !== -1) {
-                        prevAddresses[index] = res; 
+                        prevAddresses[index] = res;
                     }
-                    return [...prevAddresses]; 
-                }); 
-                navigation.goBack();
-            })
-            .catch((error) => console.error("Error updating address:", error))
-            .finally(() => setLoading(false));
-        }
-        else{  
-        dbService.insertAddresses(authData.user_token, addressData).then((res) => {
-                setSelectedAddress(res); 
-                setAddresses((prevAddresses) => {
-                    return [...prevAddresses, res]; 
+                    return [...prevAddresses];
                 });
                 navigation.goBack();
             })
-            .catch((error) => console.error("Error updating address:", error))
-            .finally(() => setLoading(false));
+                .catch((error) => console.error("Error updating address:", error))
+                .finally(() => setLoading(false));
+        }
+        else {
+            dbService.insertAddresses(authData.user_token, addressData).then((res) => {
+                setSelectedAddress(res);
+                setAddresses((prevAddresses) => {
+                    return [...prevAddresses, res];
+                });
+                navigation.goBack();
+            })
+                .catch((error) => console.error("Error updating address:", error))
+                .finally(() => setLoading(false));
         }
     };
 

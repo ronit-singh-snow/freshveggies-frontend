@@ -18,7 +18,6 @@ const SearchDropdown = ({ data }) => {
     const handleSearch = (text) => {
         setSearchTerm(text);
         if (text) {
-            console.log(location, text);
             autocompletePlaces(location, 5000, text, envVariables.GOOGLE_PLACES_API_KEY).then(response => {
                 console.log(response.data);
                 setFilteredData(response.data.suggestions);
@@ -32,9 +31,9 @@ const SearchDropdown = ({ data }) => {
     };
 
     const handleSelect = (item) => {
-        const locality = item.placePrediction.structuredFormat.mainText.text;
-       const full_address = item.placePrediction.structuredFormat.secondaryText.text;
-        setSearchTerm(item.placePrediction.structuredFormat.mainText.text);
+        const locality = item.placePrediction?.structuredFormat?.mainText?.text;
+       const full_address = item.placePrediction?.structuredFormat?.secondaryText?.text;
+        setSearchTerm("");
         setDropdownVisible(false);
         navigation.navigate('UpdateAddress', { 
             fullAddress: full_address ,
@@ -42,10 +41,8 @@ const SearchDropdown = ({ data }) => {
         });
     };
     
-
     useEffect(() => {
 		getCurrentLocation().then(res => {
-			console.log(res);
 			setLocation(res);
 		}).catch(message => {
 			Toast.show(message, Toast.durations.SHORT);

@@ -50,12 +50,13 @@ export const AppContextProvider = ({children}) => {
     }
 
     useEffect(() => {
-        fetchEnvironmentVariables().then((response) => {
-            console.log(response.data);
-            setEnvVariables(response.data);
-            getToken();
-        })
-    }, [])
+        if (loading)
+            fetchEnvironmentVariables().then((response) => {
+                console.log(response.data);
+                setEnvVariables(response.data);
+                getToken();
+            })
+    }, []);
 
     const signIn = async (userId, phoneNumber, loginType, name,  email) => { 
         setToken(userId, phoneNumber, loginType, name, email);

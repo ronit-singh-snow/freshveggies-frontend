@@ -29,6 +29,7 @@ export default function CartSummary({ navigation, route }) {
 		addToCart,
 		removeFromCart,
 		getSelectedAddress,
+		envVariables
 	} = useContext(AppContext);
 	
 	const cartItems = getCart();
@@ -38,26 +39,21 @@ export default function CartSummary({ navigation, route }) {
 	const [selectedDeliveryDateIndex, setSelectedDeliveryDateIndex] = useState(0);
 	const [selectedTimeSlot, setSelectedTimeSlot] = useState(1);
 	const [couponCode, setCouponCode] = useState("");
-	const [formattedDates, setFormattedDates] = useState([]);
 
 	const [discountValue, setDiscountValue] = useState(0);
 	const { selectedCoupon } = route.params || {};
 	const [nextThresholdMessage, setNextThresholdMessage] = useState("");
 
-
 	useEffect(() => {
 		async function fetchDefaultUserAddress() {
-			console.log(authData.user_token);
 			let databaseService = new DatabaseService();
 			let defaltAddresses = await databaseService.getUserDefaultAddress(authData.user_token);
-			console.log(defaltAddresses);
 		}
 		
 		fetchDefaultUserAddress();
 	}, []);
 
 	useEffect(() => {
-		console.log(selectedCoupon)
 		if (selectedCoupon) {
 			setCouponCode(selectedCoupon.code);
 			setDiscountValue(selectedCoupon.maxDiscount);
@@ -69,7 +65,7 @@ export default function CartSummary({ navigation, route }) {
 
 	const gstAmount = getGSTAmount(cartItems);
 
-	const totalAmount = cartItemsValue.totalPrice + DELIVERY_FEE + PLATFORM_FEE + gstAmount;
+	const totalAmount = cartItemsValue.totalPrice + (parseInt(envVariables.APP_DELIVERY_FEE) || 0) + (parseInt(envVariables.APP_PLATFORM_FEE) || 0) + gstAmount;
 
 	const finalAmount = totalAmount - discountValue;
 	cartItemsValue.grandTotalPrice = finalAmount;
@@ -126,6 +122,14 @@ export default function CartSummary({ navigation, route }) {
 		deliveryDates[selectedDeliveryDateIndex].dateObj,
 		20
 	);
+
+	const getWarningMessage = () => {
+		if (cartItemsValue.totalPrice < 150)
+			return "Add items worth ₹" + (150 - cartItemsValue.totalPrice) + " to proceed with the payment."
+		else if (!selectedAddress) 
+			return "Select a delivery address to proceed with the payment.";
+		else return "";
+	}
 
 	if (slot1Disabled && !slot2Disabled && selectedTimeSlot == 1)
 		setSelectedTimeSlot(2);
@@ -235,16 +239,18 @@ export default function CartSummary({ navigation, route }) {
 						<View style={styles.card}>
 							<View style={styles.details}>
 								<Text style={styles.title}>
-									Flat ₹{discountValue} Unlocked
+									{couponCode
+										? `You saved ₹${discountValue} with ${couponCode}`
+										: `Select a coupon code`
+									}
 								</Text>
-								<Text style={styles.subtitle}>Apply code {couponCode}</Text>
 							</View>
 
-							<TouchableOpacity
+							<Pressable
 								onPress={() => navigation.navigate("Coupons", { couponCode, totalPrice: cartItemsValue.totalPrice, discountValue })}
 							>
 								<Text style={styles.seeAll}>See all coupons</Text>
-							</TouchableOpacity>
+							</Pressable>
 						</View>
 					</View>
 
@@ -258,11 +264,11 @@ export default function CartSummary({ navigation, route }) {
 						</View>
 						<View style={styles.summaryKeyMap}>
 							<Text>Delivery fee</Text>
-							<PriceValue price={DELIVERY_FEE} />
+							<PriceValue price={envVariables.APP_DELIVERY_FEE || 0} />
 						</View>
 						<View style={styles.summaryKeyMap}>
 							<Text>Platform fee</Text>
-							<PriceValue price={PLATFORM_FEE} />
+							<PriceValue price={envVariables.APP_PLATFORM_FEE || 0} />
 						</View>
 						<View style={styles.summaryKeyMap}>
 							<Text>Discount</Text>
@@ -276,17 +282,11 @@ export default function CartSummary({ navigation, route }) {
 							<Text>Grand total</Text>
 							<PriceValue
 								price={cartItemsValue.grandTotalPrice}
-							// price={cartItemsValue.totalPrice + DELIVERY_FEE + PLATFORM_FEE}
 							/>
 						</View>
 					</View>
 				</ScrollView>
-				{cartItemsValue.totalPrice < 150 ? (
-					<Text style={styles.warningMessage}>
-						Add items worth {150 - cartItemsValue.totalPrice} to place the
-						order.
-					</Text>
-				) : null}
+				<Text style={styles.warningMessage}>{getWarningMessage()}</Text>
 				{nextThresholdMessage ? (
 					<Text style={styles.nextThresholdMessage}>
 						{nextThresholdMessage}
@@ -294,6 +294,7 @@ export default function CartSummary({ navigation, route }) {
 				) : null}
 
 				<View style={styles.footer}>
+					<Text></Text>
 					<Pressable
 						style={[
 							styles.payBtn,

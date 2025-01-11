@@ -1,13 +1,7 @@
-// import * as SecureStore from "expo-secure-store";
 import { PixelRatio } from "react-native";
-import { HOST_URL } from "../Constants.js";
-import { submitOrder } from "./FetchData.js";
 import * as Location from "expo-location";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-export const getResourceURL = (resource) => {
-    return `${HOST_URL}${resource}`;
-}
 
 export const formatFruits = (data) => {
     return data.map((d) => {
@@ -24,7 +18,7 @@ export const formatFruits = (data) => {
 export const findAddedCartItem = (cartItems, id) => {
     const itemIndex = cartItems.findIndex((item) => item.item.$id == id);
     if (itemIndex >= 0) {
-        return cartItems[itemIndex].quantity
+        return cartItems[itemIndex].quantity;
     }
     return 0;
 }
