@@ -29,25 +29,10 @@ const Coupons = () => {
         fetchCoupons();
     }, []);
 
-    const handleCouponSelect = async (coupon) => {
-       
-        try {
-            const response = await validateCoupon(authData.user_token, coupon, cartPrice);
-            if (response.data && response.data.status === "error") {
-                Toast.show(response.data.message, Toast.durations.LONG);
-            } else {
-                navigation.navigate('CartSummary', {
-                    selectedCoupon: {
-                        code: coupon.code,
-                        discount: coupon.discount,
-                        maxDiscount: response.data.maxDiscount,
-                    },
-                });
-            }
-
-        } catch (error) {
-            setError(error.message);
-        }
+    const handleCouponSelect = (coupon) => {
+        navigation.navigate('CartSummary', {
+            selectedCouponCode: coupon.code
+        });  
     };
 
 

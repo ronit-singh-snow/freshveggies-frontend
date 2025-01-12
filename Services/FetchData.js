@@ -75,13 +75,12 @@ export const deleteAccount = async (userId) => {
 };
 
 
-export const validateCoupon = (userId, coupon, cartPrice) => {
+export const validateCoupon = (userId, couponCode, cartPrice) => {
     try {
         const url = APPWRITE_END_POINT + "/validate_coupon";
         const body = {
             userID: userId,
-            couponCode: coupon.code,
-            couponId: coupon.$id,
+            couponCode,
             totalCartValue: cartPrice
         };
         return axios.post(url, body);

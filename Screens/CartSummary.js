@@ -18,9 +18,9 @@ import {
 	isTimeSlotDisabled,
 } from "../Services/Utils";
 import { PriceValue } from "../Components/PriceValue";
-import { DELIVERY_FEE, PLATFORM_FEE } from "../Constants";
 import { colors } from "../Styles";
-import { DatabaseService } from "../Services/Appwrite/DatabaseService";
+import { validateCoupon } from "../Services/FetchData";
+import Toast from "react-native-root-toast";
 
 export default function CartSummary({ navigation, route }) {
 	const {
@@ -34,41 +34,54 @@ export default function CartSummary({ navigation, route }) {
 	
 	const cartItems = getCart();
 	let cartItemsValue = cartItemsAndValue(cartItems);
+
+	const {selectedCouponCode} = route.params || {};
+
 	const selectedAddress = getSelectedAddress();
 	const deliveryDates = getDeliveryDates();
 	const [selectedDeliveryDateIndex, setSelectedDeliveryDateIndex] = useState(0);
 	const [selectedTimeSlot, setSelectedTimeSlot] = useState(1);
-	const [couponCode, setCouponCode] = useState("");
-
-	const [discountValue, setDiscountValue] = useState(0);
-	const { selectedCoupon } = route.params || {};
+	
+	const [selectedCoupon, setSelectedCoupon] = useState();
+	
 	const [nextThresholdMessage, setNextThresholdMessage] = useState("");
+	
+	const validateSelectedCoupon = async () => {
+		let couponCode = selectedCouponCode || selectedCoupon?.code;
+		if (!couponCode)
+			return;
+		try {
+			const response = await validateCoupon(authData.user_token, couponCode, cartItemsValue.totalPrice);
+			if (response.data && response.data.status === "error") {
+				Toast.show(response.data.message, Toast.durations.LONG);
+				setSelectedCoupon({...selectedCoupon, maxDiscount: 0});
+			} else {
+				setSelectedCoupon({
+					code: couponCode,
+					maxDiscount: response.data.maxDiscount,
+				});
+			}
+		} catch (error) {
+			console.log(JSON.stringify(error));
+			Toast.show("Error occurred while appying the coupon", Toast.durations.LONG);
+		}
+	}
 
 	useEffect(() => {
-		async function fetchDefaultUserAddress() {
-			let databaseService = new DatabaseService();
-			let defaltAddresses = await databaseService.getUserDefaultAddress(authData.user_token);
-		}
-		
-		fetchDefaultUserAddress();
-	}, []);
+		console.log("cart updated");
+		validateSelectedCoupon();
+	}, [cartItemsValue.totalPrice])
+
 
 	useEffect(() => {
-		if (selectedCoupon) {
-			setCouponCode(selectedCoupon.code);
-			setDiscountValue(selectedCoupon.maxDiscount);
-		} else {
-			setCouponCode("");
-			setDiscountValue(0);
-		}
-	}, [selectedCoupon]);
+		validateSelectedCoupon();
+	}, [selectedCouponCode]);
 
 	const gstAmount = getGSTAmount(cartItems);
 
 	const totalAmount = cartItemsValue.totalPrice + (parseInt(envVariables.APP_DELIVERY_FEE) || 0) + (parseInt(envVariables.APP_PLATFORM_FEE) || 0) + gstAmount;
 
-	const finalAmount = totalAmount - discountValue;
-	cartItemsValue.grandTotalPrice = finalAmount;
+	cartItemsValue.grandTotalPrice = totalAmount - (selectedCoupon?.maxDiscount || 0);;
 
 	const getAddress = () => {
 		if (!selectedAddress)
@@ -164,7 +177,7 @@ export default function CartSummary({ navigation, route }) {
 								</View>
 								<View style={styles.listActions}>
 									<AddQuantity
-										stock={5}
+										stock={10}
 										initialQuantity={item.quantity}
 										onQuantityChange={(quantity) => {
 											quantity === 0
@@ -239,15 +252,27 @@ export default function CartSummary({ navigation, route }) {
 						<View style={styles.card}>
 							<View style={styles.details}>
 								<Text style={styles.title}>
-									{couponCode
-										? `You saved ₹${discountValue} with ${couponCode}`
+									{selectedCoupon
+										? `You saved ₹${selectedCoupon.maxDiscount} with ${selectedCoupon.code}`
 										: `Select a coupon code`
 									}
 								</Text>
+								{selectedCoupon
+									? (<Pressable onPress={() => {
+											setSelectedCoupon(null);
+										}}>
+											<Text style={styles.removeCoupon}>Remove</Text>
+										</Pressable>)
+									:  null
+								}
+								
 							</View>
 
 							<Pressable
-								onPress={() => navigation.navigate("Coupons", { couponCode, totalPrice: cartItemsValue.totalPrice, discountValue })}
+								onPress={() => navigation.navigate("Coupons", { 
+									couponCode: selectedCoupon?.code,
+									totalPrice: cartItemsValue.totalPrice,
+								})}
 							>
 								<Text style={styles.seeAll}>See all coupons</Text>
 							</Pressable>
@@ -272,7 +297,7 @@ export default function CartSummary({ navigation, route }) {
 						</View>
 						<View style={styles.summaryKeyMap}>
 							<Text>Discount</Text>
-							<PriceValue price={discountValue} />
+							<PriceValue price={selectedCoupon?.maxDiscount || 0} />
 						</View>
 						<View style={styles.summaryKeyMap}>
 							<Text>GST</Text>
@@ -311,8 +336,8 @@ export default function CartSummary({ navigation, route }) {
 						}
 						onPress={() => {
 							navigation.navigate("OrderSummary", {
-								couponCode,
-								discountValue,
+								couponCode: selectedCoupon?.code,
+								discountValue: selectedCoupon?.maxDiscount || 0,
 								items: cartItems,
 								itemValue: cartItemsValue,
 								address: selectedAddress.idaddress,
@@ -465,6 +490,13 @@ const styles = StyleSheet.create({
 	payBtn: {
 		width: "100%",
 	},
+	removeCoupon: {
+		backgroundColor: colors.warningMessage,
+		color: "#FFF",
+		paddingVertical: 5,
+		paddingHorizontal: 10,
+		borderRadius: 5
+	},
 	payBtnDisabled: {
 		opacity: 0.4,
 	},
@@ -514,6 +546,8 @@ const styles = StyleSheet.create({
 	},
 	details: {
 		marginBottom: 10,
+		flexDirection: "row",
+		justifyContent: "space-between"
 	},
 	title: {
 		fontSize: 16,
