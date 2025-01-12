@@ -35,8 +35,8 @@ export default function CartSummary({ navigation, route }) {
 	const cartItems = getCart();
 	let cartItemsValue = cartItemsAndValue(cartItems);
 
-	const {selectedCouponCode} = route.params || {};
-
+	let {selectedCouponCode} = route.params || {};
+	
 	const selectedAddress = getSelectedAddress();
 	const deliveryDates = getDeliveryDates();
 	const [selectedDeliveryDateIndex, setSelectedDeliveryDateIndex] = useState(0);
@@ -45,7 +45,7 @@ export default function CartSummary({ navigation, route }) {
 	const [selectedCoupon, setSelectedCoupon] = useState();
 	
 	const [nextThresholdMessage, setNextThresholdMessage] = useState("");
-	
+
 	const validateSelectedCoupon = async () => {
 		let couponCode = selectedCouponCode || selectedCoupon?.code;
 		if (!couponCode)
@@ -68,7 +68,6 @@ export default function CartSummary({ navigation, route }) {
 	}
 
 	useEffect(() => {
-		console.log("cart updated");
 		validateSelectedCoupon();
 	}, [cartItemsValue.totalPrice])
 
@@ -260,6 +259,9 @@ export default function CartSummary({ navigation, route }) {
 								{selectedCoupon
 									? (<Pressable onPress={() => {
 											setSelectedCoupon(null);
+											navigation.setParams({
+												selectedCouponCode: undefined
+											})
 										}}>
 											<Text style={styles.removeCoupon}>Remove</Text>
 										</Pressable>)
@@ -269,10 +271,12 @@ export default function CartSummary({ navigation, route }) {
 							</View>
 
 							<Pressable
-								onPress={() => navigation.navigate("Coupons", { 
-									couponCode: selectedCoupon?.code,
-									totalPrice: cartItemsValue.totalPrice,
-								})}
+								onPress={() => {
+									navigation.navigate("Coupons", { 
+										couponCode: selectedCoupon?.code,
+										totalPrice: cartItemsValue.totalPrice
+									});
+								}}
 							>
 								<Text style={styles.seeAll}>See all coupons</Text>
 							</Pressable>

@@ -3,15 +3,13 @@ import { View, Text, TouchableOpacity, FlatList, StyleSheet } from "react-native
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { AppContext } from '../Services/AppContextProvider';
 import { DatabaseService } from "../Services/Appwrite/DatabaseService";
-import { validateCoupon } from "../Services/FetchData";
-import Toast from "react-native-root-toast";
+
 const Coupons = () => {
     const [coupons, setCoupons] = useState([]);
     const [error, setError] = useState("");
     const route = useRoute();
     const navigation = useNavigation();
     const databaseService = new DatabaseService();
-    const { authData } = useContext(AppContext);
 
     const cartPrice = route.params?.totalPrice || 0;
     const appliedCouponCode = route.params?.couponCode || null;

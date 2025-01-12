@@ -47,7 +47,8 @@ Date.prototype.addDays = function (days) {
 export const getDeliveryDates = () => {
     let dates = [];
     let currentDate = new Date();
-    if (isTimeSlotDisabled(20)) {
+    
+    if (isTimeSlotDisabled(currentDate, 20)) {
         currentDate = currentDate.addDays(1);
     }
     for (let i = 0; i < 4; i++) {
@@ -69,16 +70,7 @@ export const isTimeSlotDisabled = (deliveryDate, hour) => {
     slotEndTime.setMinutes(0);
     slotEndTime.setSeconds(0);
     slotEndTime.setMilliseconds(0);
-
     return slotEndTime.getTime() < currentTime.getTime();
-}
-
-export const formatDateToLocaleDateTime = (milliseconds) => {
-    if (typeof milliseconds === "string")
-        milliseconds = parseInt(milliseconds);
-    console.log(milliseconds);
-    const date = new Date(milliseconds);
-    return date.toLocaleString();
 }
 
 export const getGSTAmount = (cartItems) => {
