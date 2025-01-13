@@ -29,7 +29,8 @@ export default function CartSummary({ navigation, route }) {
 		addToCart,
 		removeFromCart,
 		getSelectedAddress,
-		envVariables
+		envVariables,
+		clearCart
 	} = useContext(AppContext);
 	
 	const cartItems = getCart();
@@ -153,10 +154,16 @@ export default function CartSummary({ navigation, route }) {
 		return (
 			<View style={styles.summaryWrapper}>
 				<ScrollView style={styles.summaryContainer}>
-					<Text style={styles.myCartText}>
-						My cart ({cartItemsValue.count}{" "}
-						{cartItemsValue.count === 1 ? "item" : "items"})
-					</Text>
+					<View style={styles.cartHeader}>
+						<Text style={styles.myCartText}>
+							My cart ({cartItemsValue.count}{" "}
+							{cartItemsValue.count === 1 ? "item" : "items"})
+						</Text>
+						<Pressable onPress={clearCart}>
+							<Text style={styles.clearCart}>Clear cart</Text>
+						</Pressable>
+					</View>
+					
 					{cartItems.map((item, index) => {
 						return (
 							<View
@@ -573,4 +580,16 @@ const styles = StyleSheet.create({
 		borderRadius: 8,
 		elevation: 2,
 	},
+	cartHeader: {
+		flexDirection: "row",
+		justifyContent: "space-between"
+	},
+	clearCart: {
+		backgroundColor: colors.warningMessage,
+		color: "#FFF",
+		paddingVertical: 5,
+		paddingHorizontal: 10,
+		borderRadius: 5,
+		marginRight: 10
+	}
 });

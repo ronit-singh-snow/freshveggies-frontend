@@ -9,22 +9,37 @@ import { DatabaseService } from "../Services/Appwrite/DatabaseService"
 
 export const OrderItems = () => {
     const route = useRoute();
-    const [orderItems, setOrderItems] = useState([])
+    const [orderItems, setOrderItems] = useState([]);
+    const [products, setProducts] = useState({});
     useEffect(() => {
         const databaseService = new DatabaseService();
         databaseService.getOrderItems(route.params?.orderId).then(response => {
-            setOrderItems(formatFruits(response));
-        })
-    }, [route.params?.orderId]);
+            let productIds = [];
+            response.forEach(orderItem => productIds.push(orderItem.product_id));
+            databaseService.getProducts(`$id=${productIds.join(",")}`).then(productsResponse => {
+                if (productsResponse && productsResponse.length > 0) {
+                    let formatProducts = formatFruits(productsResponse)
+                    let productsMap = formatProducts.reduce((accu, product) => {
+                        accu[product.$id] = product;
+                        return accu;
+                    }, {});
 
+                    setProducts(productsMap);
+                    setOrderItems(response);
+                }
+            });
+        });
+    }, [route.params?.orderId]);
+    
     return <ScrollView>
         {orderItems.map((item, index) => {
+            const product = products[item.product_id];
             return <View style={[styles.container, styles.cardBackground]} key={index}>
-                <Image style={styles.image} source={item.img} contentFit="cover" transition={1000} />
+                <Image style={styles.image} source={product.img} contentFit="cover" transition={1000} />
                 <View>
-                    <Text style={styles.title}>{item.title}</Text>
-                    <Text style={styles.unit}>{item.unit}</Text>
-                    <PriceValue price={item.unitPrice} />
+                    <Text style={styles.title}>{product.title}</Text>
+                    <Text style={styles.unit}>{product.unit}</Text>
+                    <PriceValue price={product.unitPrice} />
                 </View>
                 <View style={styles.listActions}>
                     <Text style={styles.quantity}>&times; {item.quantity}</Text>

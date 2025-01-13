@@ -75,7 +75,6 @@ export const MyProfile = ({ navigation }) => {
 
     useEffect(() => {
         findUser().then(res => {
-            console.log(res);
             if (res && res.data.length > 0) {
                 const data = res.data[0];
                 setProfileData({

@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { getFontSize } from '../Services/Utils';
 
 const AddQuantity = ({ initialQuantity, onQuantityChange, stock }) => {
     const [quantity, setQuantity] = useState(initialQuantity);
+    
+    useEffect(() => {
+        setQuantity(initialQuantity);
+    }, [initialQuantity]);
+
     const handleIncrement = () => {
-        if (quantity < stock) { // Check for stock availability (optional)
+        if (quantity < stock) { // Check for stock availability (optional) 
             setQuantity(quantity + 1);
             onQuantityChange?.(quantity + 1); // Call external function if provided
         }
@@ -30,7 +35,7 @@ const AddQuantity = ({ initialQuantity, onQuantityChange, stock }) => {
                 <TouchableOpacity onPress={handleDecrement} disabled={quantity === 0}>
                     <Text style={styles.quantityButtons}>-</Text>
                 </TouchableOpacity>
-                <Text style={styles.quantityText}>{initialQuantity}</Text>
+                <Text style={styles.quantityText}>{quantity}</Text>
                 <TouchableOpacity onPress={handleIncrement} disabled={quantity > stock}>
                     <Text style={styles.quantityButtons}>+</Text>
                 </TouchableOpacity>

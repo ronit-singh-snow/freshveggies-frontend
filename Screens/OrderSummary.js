@@ -3,10 +3,7 @@ import { View, Text, StyleSheet, Image, Pressable } from "react-native"
 import { RadioButton } from "react-native-paper"
 import { AppContext } from "../Services/AppContextProvider"
 import { useRoute } from "@react-navigation/native"
-// import { submitOrder } from "../Services/FetchData"
-// import { submitOrderUtil } from "../Services/Utils"
 import {DatabaseService} from "../Services/Appwrite/DatabaseService"
-import { ID } from "react-native-appwrite"
 
 export const OrderSummary = ({ navigation }) => {
     const { authData, clearCart } = useContext(AppContext);
@@ -22,15 +19,12 @@ export const OrderSummary = ({ navigation }) => {
         totalPrice: itemValue.grandTotalPrice,
         coupon: couponCode,
         discount: discountAmount,
-            items: items.map((item) => ({  
+        items: items.map((item) => ({  
             productId: item.item.$id,
             quantity: item.quantity,
         }))
     };
-    console.log("items price: ",itemValue)
-
     
-
     return (<View style={styles.container}>
         <View style={{ flex: 1 }}>
             <View>
@@ -50,9 +44,9 @@ export const OrderSummary = ({ navigation }) => {
         </View>
         <View>
             <Pressable onPress={() => {
-               const databaseService = new DatabaseService();
-               databaseService.submitOrder(authData.user_token, orderData).then(response => {
-                clearCart();
+                const databaseService = new DatabaseService();
+                databaseService.submitOrder(authData.user_token, orderData).then(response => {
+                    clearCart();
                     navigation.navigate("OrderConfirmation", {
                         orderId: response.$id
                     });
