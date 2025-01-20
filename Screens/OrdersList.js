@@ -142,7 +142,10 @@ export default function OrdersList({ navigation }) {
                                 return <View style={[styles.row, styles.cardBackground]} >
                                     <Pressable onPress={() => {
                                         navigation.navigate("OrderItems", {
-                                            orderId: item.$id
+                                            orderId: item.$id,
+                                            totalPrice: item.total_price,
+                                            discount: item.discount,
+                                            itemPrice: item.item_price,
                                         })
                                     }} >
                                         {/* <Text style={styles.title}>Order ID: {item.$id}</Text> */}

@@ -12,7 +12,7 @@ export class DatabaseService {
 
     parseExpression(expression) {
         if (!expression) return "";
-
+console.log(expression);
         // Split the expression into key-value pairs
         const pairs = expression.split(" ");
 
@@ -99,6 +99,8 @@ export class DatabaseService {
                     address: orderData.address,
                     delivered_at: orderData.date,
                     coupon: orderData.coupon,
+                    discount: orderData.discount,
+                    item_price: orderData.itemPrice,
                 }
             );
 

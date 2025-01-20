@@ -9,6 +9,7 @@ import { DatabaseService } from "../Services/Appwrite/DatabaseService"
 
 export const OrderItems = () => {
     const route = useRoute();
+    const { totalPrice,discount,itemPrice } = route.params;
     const [orderItems, setOrderItems] = useState([]);
     const [products, setProducts] = useState({});
     useEffect(() => {
@@ -29,7 +30,7 @@ export const OrderItems = () => {
                 }
             });
         });
-    }, [route.params?.orderId]);
+    }, [route.params?.orderId,totalPrice,discount,itemPrice]);
     
     return <ScrollView>
         {orderItems.map((item, index) => {
@@ -44,8 +45,23 @@ export const OrderItems = () => {
                 <View style={styles.listActions}>
                     <Text style={styles.quantity}>&times; {item.quantity}</Text>
                 </View>
+               
             </View>
         })}
+  <View style={styles.cardBackground}>
+                <View style={styles.summaryRow}>
+                    <Text style={styles.summaryLabel}>Items Total</Text>
+                    <Text style={styles.summaryValue}>{itemPrice}</Text>
+                </View>
+                <View style={styles.summaryRow}>
+                    <Text style={styles.summaryLabel}>Discount</Text>
+                    <Text style={styles.summaryValue}>{discount}</Text>
+                </View>
+                <View style={styles.summaryRow}>
+                    <Text style={styles.summaryLabel}>Total Amount</Text>
+                    <Text style={styles.summaryValue}>{totalPrice}</Text>
+                </View>
+            </View>
     </ScrollView>
 }
 
@@ -76,5 +92,12 @@ const styles = StyleSheet.create({
     quantity: {
         fontSize: 16,
         fontWeight: "bold"
-    }
+    },
+    summaryRow : {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center", 
+        marginVertical: 5, 
+        marginHorizontal: 10
+      }
 })
