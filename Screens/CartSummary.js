@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { AppContext } from "../Services/AppContextProvider";
+import Icon from 'react-native-vector-icons/Ionicons';
 import {
 	Image,
 	Pressable,
@@ -46,6 +47,11 @@ export default function CartSummary({ navigation, route }) {
 	const [selectedCoupon, setSelectedCoupon] = useState();
 	
 	const [nextThresholdMessage, setNextThresholdMessage] = useState("");
+	const [isExpanded, setIsExpanded] = useState(false);
+
+	const toggleExpanded = () => {
+	  setIsExpanded(!isExpanded);
+	};
 
 	const validateSelectedCoupon = async () => {
 		let couponCode = selectedCouponCode || selectedCoupon?.code;
@@ -294,6 +300,26 @@ export default function CartSummary({ navigation, route }) {
 						{getAddress()}
 					</View>
 					<View style={styles.cardBackground}>
+					<View style={styles.summaryKeyMap}>
+							<Text>Total Amount</Text>
+							<TouchableOpacity style={[styles.priceWithArrow, { flexDirection: 'row', alignItems: 'center' }]} onPress={toggleExpanded}>
+
+							<PriceValue
+								price={cartItemsValue.grandTotalPrice}
+							/>
+ <Icon
+            name={isExpanded ? 'chevron-down' : 'chevron-forward'}
+            size={20}
+            color="#000"
+            style={styles.arrowIcon}
+          />
+        </TouchableOpacity>
+						</View>
+
+						{isExpanded && (  
+							        <View style={styles.expandableContent}>
+
+						  
 						<View style={styles.summaryKeyMap}>
 							<Text>Item total</Text>
 							<PriceValue price={cartItemsValue.totalPrice} />
@@ -320,6 +346,9 @@ export default function CartSummary({ navigation, route }) {
 								price={cartItemsValue.grandTotalPrice}
 							/>
 						</View>
+</View>
+)}						      
+     <Text style={styles.noteText}> Note: The final price will be collected at the time of delivery.</Text>
 					</View>
 				</ScrollView>
 				<Text style={styles.warningMessage}>{getWarningMessage()}</Text>
@@ -591,5 +620,17 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 10,
 		borderRadius: 5,
 		marginRight: 10
+	},
+	expandableContent: {
+		padding: 10,
+		backgroundColor: "#f9f9f9",
+		borderRadius: 5,
+		marginTop: 10,
+	},
+	noteText: {
+		fontSize: 14,
+		color: colors.warningMessage,
+		textAlign: 'center',
 	}
+	
 });

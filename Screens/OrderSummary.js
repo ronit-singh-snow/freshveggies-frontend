@@ -9,7 +9,8 @@ export const OrderSummary = ({ navigation }) => {
     const { authData, clearCart } = useContext(AppContext);
    
     const route = useRoute();
-    const {items, itemValue, address, date, timeslot, couponCode, discountAmount} = route.params;
+    const {items, itemValue, address, date, timeslot, couponCode, discountValue} = route.params;
+   
     const orderData = {
         date: date + '',
         status: "placed",
@@ -18,7 +19,8 @@ export const OrderSummary = ({ navigation }) => {
         address: address,
         totalPrice: itemValue.grandTotalPrice,
         coupon: couponCode,
-        discount: discountAmount,
+        discount: discountValue,
+        itemPrice: itemValue.totalPrice,
         items: items.map((item) => ({  
             productId: item.item.$id,
             quantity: item.quantity,
@@ -41,6 +43,22 @@ export const OrderSummary = ({ navigation }) => {
                     <Text>Other payment methods are coming soon!!!</Text>
                 </View>
             </View>
+        <View style={styles.cardBackground }>
+        <Text style={styles.paymentMethodText}>Order Summary</Text>
+
+        <View style={styles.summaryKeyMap}>
+                        <Text>Items Total</Text>
+                        <Text>{itemValue.totalPrice}</Text>
+                    </View>
+                    <View style={styles.summaryKeyMap}>
+                        <Text>Discount</Text>
+                        <Text>{discountValue}</Text>
+                    </View>
+                    <View style={styles.summaryKeyMap}>
+                        <Text>Total Amount</Text>
+                        <Text>{itemValue.grandTotalPrice}</Text>
+                    </View>
+              </View>
         </View>
         <View>
             <Pressable onPress={() => {
@@ -100,5 +118,13 @@ const styles = StyleSheet.create({
     },
     radioButton: {
         marginLeft: "auto"
+    },
+    summaryKeyMap: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center", 
+        marginVertical: 5, 
+        marginHorizontal: 10
     }
+    
 })
