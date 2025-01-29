@@ -88,3 +88,12 @@ export const validateCoupon = (userId, couponCode, cartPrice) => {
         console.log(err)
     }
 }
+
+export const updateUserInfo = (userInfo) => {
+    try {
+        const url = APPWRITE_END_POINT + "/update_user_info";
+        return axios.post(url, userInfo);
+    } catch(err) {
+        console.log(err)
+    }
+}

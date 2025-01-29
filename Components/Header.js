@@ -28,7 +28,7 @@ export default function Header() {
                         />
                         {selectedAddress
                             ? <Text style={styles.location} numberOfLines={1}>{selectedAddress.full_address}</Text>
-                            : <Text>Select an address</Text>
+                            : <Text style={{color: colors.almostWhite}}>Select an address</Text>
                         }
                     </View>
                 </TouchableOpacity>
@@ -56,13 +56,13 @@ const styles = StyleSheet.create({
         
     },
     location: {
-        color: colors.darkGreen,
+        color: colors.almostWhite,
         flexWrap: "wrap",
         width: "80%",
         fontWeight: "bold"
     },
     main: {
-        backgroundColor: "#6cbb8a",
+        backgroundColor: "#0F3460",
         paddingBottom: 30
     },
     container: {
@@ -82,12 +82,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15,
         fontWeight: "bold",
         fontSize: 18,
-        color: colors.darkGreen
+        color: colors.almostWhite
     },
     description: {
         paddingHorizontal: 15,
-        // opacity: 0.9,
-        color: colors.darkGreen
+        color: colors.almostWhite
     },
     searchInput: {
         height: 40,
@@ -98,6 +97,6 @@ const styles = StyleSheet.create({
         marginRight: 10,
         paddingHorizontal: 10,
         borderRadius: 10,
-        backgroundColor: "#FFF"
+        backgroundColor: "#F2F3F4"
     }
 });

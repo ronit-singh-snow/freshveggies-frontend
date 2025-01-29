@@ -4,8 +4,9 @@ import { AppContext } from '../Services/AppContextProvider';
 import { CustomButton } from '../Components/CustomButton';
 import { useRoute } from '@react-navigation/native';
 import { colors } from '../Styles';
-import { AuthService } from '../Services/Appwrite/AuthService';
 import { getFontSize } from '../Services/Utils';
+import { updateUserInfo } from '../Services/FetchData';
+import Toast from 'react-native-root-toast';
 
 export const NewLoginExtraDetails = () => {
     const route = useRoute();
@@ -15,32 +16,32 @@ export const NewLoginExtraDetails = () => {
     const [name, setName] = useState('');
     const [phoneNumber, setPhoneNumber] = useState(route.params?.phoneNumber || '');
     const [email, setEmail] = useState(route.params?.email || '');
-    const [password, setPassword] = useState(route.params?.password || '');
     const [loading, setLoading] = useState(false);
     const loginType = route.params?.loginType;
 
     const handleNameSubmit = async () => {
         setLoading(true);
-        const authService = new AuthService();
 
         try {
-            await authService.updateName(name);
-            if (loginType && loginType == "phone")
-                await authService.updateEmail(email);
-            if (loginType && loginType == "email")
-                await authService.updatePhone(phoneNumber, password);
-
             const userId = route.params?.userId;
+            if (!userId) {
+                Toast.show("User ID is not Valid, sign in again", Toast.durations.LONG);
+                return;
+            }
+            await updateUserInfo({
+                userId: userId,
+                name: name,
+                email: email,
+                phoneNumber: phoneNumber
+            });
             const userData = {
                 userId,
                 phoneNumber: phoneNumber || route.params?.phoneNumber || null,
                 email: email || route.params?.email || null,
                 loginType,
-                name,
+                name
             };
             signIn(userData.userId, userData.phoneNumber, userData.loginType, userData.name, userData.email);
-
-
         } catch (error) {
             console.error("Error updating name:", error);
             // Optionally show an error message to the user here
@@ -75,7 +76,7 @@ export const NewLoginExtraDetails = () => {
                         </>
                     ) : (
                         <>
-                            <Text style={styles.inputLabel}>Email*</Text>
+                            <Text style={styles.inputLabel}>Email</Text>
                             <TextInput
                                 style={styles.textinput}
                                 placeholder="Enter your email ID"
@@ -87,7 +88,7 @@ export const NewLoginExtraDetails = () => {
 
                     <CustomButton
                         title={"Submit"}
-                        disabled={!name || (loginType === "email" ? !phoneNumber : !email)}
+                        disabled={!name || (loginType === "email" ? !phoneNumber : false)}
                         loading={loading}
                         onPress={handleNameSubmit}
                     />

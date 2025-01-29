@@ -99,6 +99,7 @@ const styles = StyleSheet.create({
     disabledButton: {
         backgroundColor: "white", 
         borderColor: "#C0C0C0",  
+        opacity: .5
     },
     sectionTitle: {
         fontSize: 16,
