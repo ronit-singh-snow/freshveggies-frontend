@@ -5,6 +5,7 @@ import { findUser } from "../Services/AppWriteServices";
 import Avatar from "../Components/Avatar";
 import { colors } from "../Styles";
 import { DeleteAccountModal } from "../Components/DeleteAccountModal";
+import RoundedIconButton from "../Components/RoundedIconButton";
 
 const styles = StyleSheet.create({
     container: {
@@ -61,6 +62,13 @@ const styles = StyleSheet.create({
     },
     btnText: {
         fontSize: 18
+    },
+    editProfile: {
+        position: "absolute",
+        textAlign: "right",
+        right: 0,
+        marginRight: 10,
+        marginVertical: 10
     }
 })
 
@@ -68,7 +76,7 @@ export const MyProfile = ({ navigation }) => {
     const { authData, signOut } = useContext(AppContext);
     const [profileData, setProfileData] = useState({});
     const [modalVisible, setModalVisible] = useState(false);
-
+    
     const toggleModal = () => {
         setModalVisible(!modalVisible);
     }
@@ -80,7 +88,8 @@ export const MyProfile = ({ navigation }) => {
                 setProfileData({
                     userName: data.name,
                     phoneNumber: data.phone,
-                    email: data.email
+                    email: data.email,
+                    userId: data.$id
                 });
             }
             else {
@@ -89,11 +98,25 @@ export const MyProfile = ({ navigation }) => {
         }).catch(err => {
             console.error("Error fetching user data:", err);
         });
-    }, [])
+    }, [authData.name, authData.email, authData.phoneNumber]);
 
     return <View style={styles.container}>
         <DeleteAccountModal modalVisible={modalVisible} toggleModal={toggleModal}/>
         <View style={[styles.cardContainer, styles.rowDisplay]}>
+            <View style={styles.editProfile} >
+                <RoundedIconButton
+                    onPress={() => {
+                        navigation.navigate("EditProfile", {
+                            name: profileData?.userName,
+                            email: profileData?.email,
+                            phoneNumber: profileData?.phoneNumber,
+                            userId: profileData.userId
+                        });
+                    }}
+                    buttonColor="#ddd"
+                    source={require("../assets/images/pen.png")}
+                />
+            </View>
             {profileData.userName ? <Avatar name={profileData.userName} size={60} backgroundColor="#CCC" color="#000" /> : null}
             <Text style={styles.profileTextHeader}>{profileData.userName} | {profileData.phoneNumber}</Text>
             <Text style={styles.profileTextHeader}>{profileData.email}</Text>

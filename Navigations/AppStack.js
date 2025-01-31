@@ -15,6 +15,7 @@ import { AboutUs } from "../Screens/AboutUs.js";
 // import CouponSelectionScreen from "../Screens/CouponSelectionScreen.js";
 import Coupons from "../Screens/Coupons.js";
 import TermsAndConditions from "../Screens/TermsAndConditions.js";
+import { EditProfile } from "../Screens/EditProfile.js";
 const Stack = createNativeStackNavigator();
 
 export default function AppStack() {
@@ -91,6 +92,11 @@ export default function AppStack() {
                 name="TermsAndConditions"
                 component={TermsAndConditions}
                 options={{title: "Terms and Conditions"}}
+            />
+            <Stack.Screen
+                name="EditProfile"
+                component={EditProfile}
+                options={{title: "Edit Profile"}}
             />
         </Stack.Navigator>
     );
