@@ -82,6 +82,7 @@ export default function OrdersList({ navigation }) {
         });
     }, [])
 
+
     const cancelOrder = async (orderId) => {
         try {
             const databaseService = new DatabaseService();
@@ -152,10 +153,24 @@ export default function OrdersList({ navigation }) {
                                     }} >
                                         {/* <Text style={styles.title}>Order ID: {item.$id}</Text> */}
                                         {/* {item.order_date && item.status === "placed" ? <Text style={styles.unit}>Delivery by: {item.order_date}</Text> : null} */}
-                                        {item.delivered_at && item.status === "delivered" ? <Text style={styles.unit}>Delivered at: {item.delivered_at}</Text> : null}
                                         <View style={styles.price}>
                                             <Text>Total value: </Text>
                                             <PriceValue price={item.total_price} />
+                                        </View>
+                                        <View>
+                                        {item.delivered_at && item.status === "delivered" ? (
+                                        <Text style={[styles.unit, {marginTop: 3, fontSize: 11, marginBottom: 3}]}>
+                                            Delivered at:  {new Date(item.delivered_at).toLocaleString()}
+                                            </Text>
+                                        ) : null}
+                                      </View>
+                                      <View>
+                                      {item.order_date && item.status === "placed" ? (
+                                <Text style={[styles.unit, { marginTop: 3, fontSize: 11, marginBottom: 3 }]}>
+                                 Order placed at: {new Date(item.order_date).toLocaleString()}
+                                </Text>
+                                              ) : null }
+      
                                         </View>
                                         {item.status === "delivered"
                                             ? <Text style={[styles.delivered, styles.highlightedText]}>Delivered</Text>
@@ -178,7 +193,8 @@ export default function OrdersList({ navigation }) {
                                                         cancelOrder(item.$id)
                                                     }}
                                                 />
-                                            </View>
+                   
+        </View>
                                             : null
                                         }
                                         {
