@@ -33,11 +33,22 @@ export class AuthService {
 
     async updateEmail(email, password) {
         try {
-            await this.account.updateEmail(email)
+            await this.account.updateEmail(email, password);
         } catch(err) {
             console.log(err);
         }
     }
+
+    async updateEmailAfterPhoneLogin(email, password) {
+        try {
+            await this.account.updateEmail(email, password);
+            Toast.show("Email successfully updated.", Toast.durations.LONG);
+        } catch (err) {
+            console.error("Failed to update email after phone login", err);
+            Toast.show(err.message || "Error updating email", Toast.durations.LONG);
+        }
+    }
+    
 
     async updatePhone(phone, password) {
         try {
@@ -114,5 +125,5 @@ export class AuthService {
     async signUpWithEmail(email, password) {
         const userAccount = await this.account.create(ID.unique(), email, password);
         return userAccount;
-    }
+    } 
 }
