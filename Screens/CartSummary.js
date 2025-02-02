@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from "react";
-import { useNavigation, useRoute } from "@react-navigation/native";
 import { AppContext } from "../Services/AppContextProvider";
 import Icon from 'react-native-vector-icons/Ionicons';
 import {
@@ -33,24 +32,24 @@ export default function CartSummary({ navigation, route }) {
 		envVariables,
 		clearCart
 	} = useContext(AppContext);
-	
+
 	const cartItems = getCart();
 	let cartItemsValue = cartItemsAndValue(cartItems);
 
-	let {selectedCouponCode} = route.params || {};
-	
+	let { selectedCouponCode } = route.params || {};
+
 	const selectedAddress = getSelectedAddress();
 	const deliveryDates = getDeliveryDates();
 	const [selectedDeliveryDateIndex, setSelectedDeliveryDateIndex] = useState(0);
 	const [selectedTimeSlot, setSelectedTimeSlot] = useState(1);
-	
+
 	const [selectedCoupon, setSelectedCoupon] = useState();
-	
+
 	const [nextThresholdMessage, setNextThresholdMessage] = useState("");
 	const [isExpanded, setIsExpanded] = useState(false);
 
 	const toggleExpanded = () => {
-	  setIsExpanded(!isExpanded);
+		setIsExpanded(!isExpanded);
 	};
 
 	const validateSelectedCoupon = async () => {
@@ -61,7 +60,7 @@ export default function CartSummary({ navigation, route }) {
 			const response = await validateCoupon(authData.user_token, couponCode, cartItemsValue.totalPrice);
 			if (response.data && response.data.status === "error") {
 				Toast.show(response.data.message, Toast.durations.LONG);
-				setSelectedCoupon({...selectedCoupon, maxDiscount: 0});
+				setSelectedCoupon({ ...selectedCoupon, maxDiscount: 0 });
 			} else {
 				setSelectedCoupon({
 					code: couponCode,
@@ -145,7 +144,7 @@ export default function CartSummary({ navigation, route }) {
 	const getWarningMessage = () => {
 		if (cartItemsValue.totalPrice < 150)
 			return "Add items worth ₹" + (150 - cartItemsValue.totalPrice) + " to proceed with the payment."
-		else if (!selectedAddress) 
+		else if (!selectedAddress)
 			return "Select a delivery address to proceed with the payment.";
 		else return "";
 	}
@@ -169,7 +168,7 @@ export default function CartSummary({ navigation, route }) {
 							<Text style={styles.clearCart}>Clear cart</Text>
 						</Pressable>
 					</View>
-					
+
 					{cartItems.map((item, index) => {
 						return (
 							<View
@@ -271,21 +270,21 @@ export default function CartSummary({ navigation, route }) {
 								</Text>
 								{selectedCoupon
 									? (<Pressable onPress={() => {
-											setSelectedCoupon(null);
-											navigation.setParams({
-												selectedCouponCode: undefined
-											})
-										}}>
-											<Text style={styles.removeCoupon}>Remove</Text>
-										</Pressable>)
-									:  null
+										setSelectedCoupon(null);
+										navigation.setParams({
+											selectedCouponCode: undefined
+										})
+									}}>
+										<Text style={styles.removeCoupon}>Remove</Text>
+									</Pressable>)
+									: null
 								}
-								
+
 							</View>
 
 							<Pressable
 								onPress={() => {
-									navigation.navigate("Coupons", { 
+									navigation.navigate("Coupons", {
 										couponCode: selectedCoupon?.code,
 										totalPrice: cartItemsValue.totalPrice
 									});
@@ -300,56 +299,56 @@ export default function CartSummary({ navigation, route }) {
 						{getAddress()}
 					</View>
 					<View style={styles.cardBackground}>
-					<View style={styles.summaryKeyMap}>
+						<View style={styles.summaryKeyMap}>
 							<Text>Total Amount</Text>
 							<TouchableOpacity style={[styles.priceWithArrow, { flexDirection: 'row', alignItems: 'center' }]} onPress={toggleExpanded}>
 
-							<PriceValue
-								price={cartItemsValue.grandTotalPrice}
-							/>
- <Icon
-            name={isExpanded ? 'chevron-down' : 'chevron-forward'}
-            size={20}
-            color="#000"
-            style={styles.arrowIcon}
-          />
-        </TouchableOpacity>
+								<PriceValue
+									price={cartItemsValue.grandTotalPrice}
+								/>
+								<Icon
+									name={isExpanded ? 'chevron-down' : 'chevron-forward'}
+									size={20}
+									color="#000"
+									style={styles.arrowIcon}
+								/>
+							</TouchableOpacity>
 						</View>
 
-						{isExpanded && (  
-							        <View style={styles.expandableContent}>
+						{isExpanded && (
+							<View style={styles.expandableContent}>
 
-						  
-						<View style={styles.summaryKeyMap}>
-							<Text>Item total</Text>
-							<PriceValue price={cartItemsValue.totalPrice} />
-						</View>
-						<View style={styles.summaryKeyMap}>
-							<Text>Delivery fee</Text>
-							<PriceValue price={envVariables.APP_DELIVERY_FEE || 0} />
-						</View>
-						<View style={styles.summaryKeyMap}>
-							<Text>Platform fee</Text>
-							<PriceValue price={envVariables.APP_PLATFORM_FEE || 0} />
-						</View>
-						<View style={styles.summaryKeyMap}>
-							<Text>Discount</Text>
-							<PriceValue price={selectedCoupon?.maxDiscount || 0} />
-						</View>
-						<View style={styles.summaryKeyMap}>
-							<Text>GST</Text>
-							<PriceValue price={gstAmount} />
-						</View>
-						<View style={styles.summaryKeyMap}>
-							<Text>Grand total</Text>
-							<PriceValue
-								price={cartItemsValue.grandTotalPrice}
-							/>
-						</View>
-</View>
-)}						      
-     <Text style={styles.noteText}> Note: The final price will be collected at the time of delivery.</Text>
+
+								<View style={styles.summaryKeyMap}>
+									<Text>Item total</Text>
+									<PriceValue price={cartItemsValue.totalPrice} />
+								</View>
+								<View style={styles.summaryKeyMap}>
+									<Text>Delivery fee</Text>
+									<PriceValue price={envVariables.APP_DELIVERY_FEE || 0} />
+								</View>
+								<View style={styles.summaryKeyMap}>
+									<Text>Platform fee</Text>
+									<PriceValue price={envVariables.APP_PLATFORM_FEE || 0} />
+								</View>
+								<View style={styles.summaryKeyMap}>
+									<Text>Discount</Text>
+									<PriceValue price={selectedCoupon?.maxDiscount || 0} />
+								</View>
+								<View style={styles.summaryKeyMap}>
+									<Text>GST</Text>
+									<PriceValue price={gstAmount} />
+								</View>
+								<View style={styles.summaryKeyMap}>
+									<Text>Grand total</Text>
+									<PriceValue
+										price={cartItemsValue.grandTotalPrice}
+									/>
+								</View>
+							</View>
+						)}
 					</View>
+					<Text style={styles.noteText}> Note: Final price might vary at the time of delivery.</Text>
 				</ScrollView>
 				<Text style={styles.warningMessage}>{getWarningMessage()}</Text>
 				{nextThresholdMessage ? (
@@ -531,7 +530,7 @@ const styles = StyleSheet.create({
 		width: "100%",
 	},
 	removeCoupon: {
-		backgroundColor: colors.warningMessage,
+		backgroundColor: "#FF474c",
 		color: "#FFF",
 		paddingVertical: 5,
 		paddingHorizontal: 10,
@@ -628,9 +627,8 @@ const styles = StyleSheet.create({
 		marginTop: 10,
 	},
 	noteText: {
-		fontSize: 14,
-		color: colors.warningMessage,
-		textAlign: 'center',
+		fontSize: 10,
+		marginLeft: 15
 	}
-	
+
 });

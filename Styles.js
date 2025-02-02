@@ -4,5 +4,6 @@ export const colors = {
     textLink: "#0000FF",
     lightGrey: "#d3d3d3",
     warningMessage: "#800000",
-    lightYellowBG: "#FAF0CA"
+    lightYellowBG: "#FAF0CA",
+    almostWhite: "#F5F5F5"
 };
