@@ -85,6 +85,11 @@ console.log(expression);
 
     async submitOrder(userId, orderData) {
         try {
+            console.log("Order Data to be submitted: ", orderData);
+            const orderDate = new Date().toISOString(); 
+
+            orderData.date = orderDate;
+            orderData.orderCreate = orderDate;
             const orderResult = await this.database.createDocument(
                 DB_NAME,
                 COLLECTIONS.ORDER,
