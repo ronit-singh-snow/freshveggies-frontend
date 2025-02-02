@@ -76,7 +76,9 @@ export default function OrdersList({ navigation }) {
     useEffect(() => {
         const databaseService = new DatabaseService();
         databaseService.listOrders(authData.user_token).then(res => {
-            setOrders(res);
+            const sortedOrders = res.sort((a, b) => b.$id.localeCompare(a.$id));
+
+            setOrders(sortedOrders);
         });
     }, [])
 

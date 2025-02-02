@@ -26,7 +26,8 @@ export const NewLoginExtraDetails = () => {
         try {
             await authService.updateName(name);
             if (loginType && loginType == "phone")
-                await authService.updateEmail(email);
+                await authService.updateEmailAfterPhoneLogin(email, password);
+
             if (loginType && loginType == "email")
                 await authService.updatePhone(phoneNumber, password);
 

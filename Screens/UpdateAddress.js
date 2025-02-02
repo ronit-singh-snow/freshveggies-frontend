@@ -43,7 +43,7 @@ export const UpdateAddress = ({ navigation }) => {
     useEffect(() => {
         const { username, phone_number, full_address, pinCode } = userDetails;
         const disable =
-            !username?.trim() || !phone_number?.trim() || !full_address?.trim() || !pinCode?.trim();
+            !username?.trim() || !phone_number?.trim() || !full_address?.trim() ;
         setButtonDisabled(disable);
     }, [userDetails]);
 
@@ -139,7 +139,7 @@ export const UpdateAddress = ({ navigation }) => {
                     }
                 />
 
-                <Text style={styles.inputLabel}>Pin Code*</Text>
+                <Text style={styles.inputLabel}>Pin Code</Text>
                 <TextInput
                     placeholder="Enter pin code"
                     style={styles.input}
