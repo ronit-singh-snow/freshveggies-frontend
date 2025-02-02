@@ -534,7 +534,9 @@ const styles = StyleSheet.create({
 		color: "#FFF",
 		paddingVertical: 5,
 		paddingHorizontal: 10,
-		borderRadius: 5
+		borderRadius: 5,
+		width:'auto',
+		marginLeft: 'auto'
 	},
 	payBtnDisabled: {
 		opacity: 0.4,
@@ -585,7 +587,7 @@ const styles = StyleSheet.create({
 	},
 	details: {
 		marginBottom: 10,
-		flexDirection: "row",
+		flexDirection: "column",
 		justifyContent: "space-between"
 	},
 	title: {

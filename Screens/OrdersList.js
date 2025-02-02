@@ -31,7 +31,8 @@ const styles = StyleSheet.create({
         fontWeight: "bold"
     },
     price: {
-        flexDirection: "row"
+        flexDirection: "row",
+          fontWeight: "bold"
     },
     active: {
         backgroundColor: "#24ca4f",
@@ -158,20 +159,22 @@ export default function OrdersList({ navigation }) {
                                             <PriceValue price={item.total_price} />
                                         </View>
                                         <View>
+                                        <Text style={[styles.unit, { marginTop: 3, fontSize: 11}]}>
+                                            Order ID: {item.$id}</Text>
+
                                         {item.delivered_at && item.status === "delivered" ? (
                                         <Text style={[styles.unit, {marginTop: 3, fontSize: 11, marginBottom: 3}]}>
                                             Delivered at:  {new Date(item.delivered_at).toLocaleString()}
                                             </Text>
                                         ) : null}
-                                      </View>
-                                      <View>
+                                  
                                       {item.order_date && item.status === "placed" ? (
                                 <Text style={[styles.unit, { marginTop: 3, fontSize: 11, marginBottom: 3 }]}>
                                  Order placed at: {new Date(item.order_date).toLocaleString()}
                                 </Text>
                                               ) : null }
-      
                                         </View>
+
                                         {item.status === "delivered"
                                             ? <Text style={[styles.delivered, styles.highlightedText]}>Delivered</Text>
                                             : <Text style={[styles.active, styles.highlightedText]}>{item.status}</Text>
