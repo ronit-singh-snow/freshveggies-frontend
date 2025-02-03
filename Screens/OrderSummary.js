@@ -4,12 +4,13 @@ import { RadioButton } from "react-native-paper"
 import { AppContext } from "../Services/AppContextProvider"
 import { useRoute } from "@react-navigation/native"
 import {DatabaseService} from "../Services/Appwrite/DatabaseService"
+import { PriceValue } from "../Components/PriceValue";
 
 export const OrderSummary = ({ navigation }) => {
     const { authData, clearCart } = useContext(AppContext);
    
     const route = useRoute();
-    const {items, itemValue, address, date, timeslot, couponCode, discountValue} = route.params;
+    const {items, itemValue, address, date, timeslot, couponCode, discountValue, GST} = route.params;
    
     const orderData = {
         date: date + '',
@@ -26,6 +27,7 @@ export const OrderSummary = ({ navigation }) => {
             quantity: item.quantity,
         }))
     };
+ 
     
     return (<View style={styles.container}>
         <View style={{ flex: 1 }}>
@@ -44,19 +46,26 @@ export const OrderSummary = ({ navigation }) => {
                 </View>
             </View>
         <View style={styles.cardBackground }>
-        <Text style={styles.paymentMethodText}>Order Summary</Text>
+        <Text style={styles.billdetails}>Bill details</Text>
 
         <View style={styles.summaryKeyMap}>
-                        <Text>Items Total</Text>
-                        <Text>{itemValue.totalPrice}</Text>
-                    </View>
+                        <Text>Items total</Text>
+                        <PriceValue price={itemValue.totalPrice} />
+                        </View>
                     <View style={styles.summaryKeyMap}>
                         <Text>Discount</Text>
-                        <Text>{discountValue}</Text>
+                        <PriceValue price={discountValue}/>
                     </View>
                     <View style={styles.summaryKeyMap}>
-                        <Text>Total Amount</Text>
-                        <Text>{itemValue.grandTotalPrice}</Text>
+                        <Text>GST</Text>
+                        <PriceValue price={GST}/>
+
+                    </View>
+                    <View style={styles.separator} />
+
+                    <View style={styles.summaryKeyMap}>
+                        <Text style={styles.boldText}>Grand total </Text>
+                        <PriceValue  price={itemValue.grandTotalPrice} style={styles.boldText}/>
                     </View>
               </View>
         </View>
@@ -108,6 +117,10 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         fontSize: 20
     },
+    billdetails:{
+     fontWeight: "bold",
+        fontSize: 18
+    },
     orderNow: {
         backgroundColor: "#32cd32",
         padding: 10,
@@ -125,6 +138,15 @@ const styles = StyleSheet.create({
         alignItems: "center", 
         marginVertical: 5, 
         marginHorizontal: 10
-    }
+    },
+    boldText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+      separator: {
+    borderBottomColor: '#ddd',
+    borderBottomWidth: 1,
+    marginVertical: 10,
+  },
     
 })
