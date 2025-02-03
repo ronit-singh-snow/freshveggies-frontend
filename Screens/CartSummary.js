@@ -377,6 +377,7 @@ export default function CartSummary({ navigation, route }) {
 							navigation.navigate("OrderSummary", {
 								couponCode: selectedCoupon?.code,
 								discountValue: selectedCoupon?.maxDiscount || 0,
+								GST: gstAmount,
 								items: cartItems,
 								itemValue: cartItemsValue,
 								address: selectedAddress.idaddress,
