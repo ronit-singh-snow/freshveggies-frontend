@@ -7,7 +7,7 @@ import { CustomButton } from '../Components/CustomButton';
 import { DatabaseService } from '../Services/Appwrite/DatabaseService';
 import Toast from 'react-native-root-toast';
 import { EmptyState } from '../Components/EmptyState';
-import { getGSTAmount } from "../Services/Utils";
+import { getGSTAmount } from '../Services/Utils';
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -74,6 +74,7 @@ const styles = StyleSheet.create({
 export default function OrdersList({ navigation }) {
     const { authData } = useContext(AppContext);
     const [orders, setOrders] = useState([]);
+    const [cartItems, setCartItems] = useState([]);
 
     useEffect(() => {
         const databaseService = new DatabaseService();
@@ -130,7 +131,8 @@ export default function OrdersList({ navigation }) {
         }
     };
 
-
+const gstAmount = getGSTAmount( cartItems);
+console.log("gstamount: ",gstAmount);
     console.log(orders);
     return (
         <View style={styles.container}>
@@ -144,7 +146,6 @@ export default function OrdersList({ navigation }) {
                             data={orders}
                             renderItem={({ item }) => {
                                 console.log("items: ", item);
-                                const gstAmount = getGSTAmount(item.total_price);
 
                                 return <View style={[styles.row, styles.cardBackground]} >
                                     <Pressable onPress={() => {
@@ -153,7 +154,6 @@ export default function OrdersList({ navigation }) {
                                             totalPrice: item.total_price,
                                             discount: item.discount,
                                             itemPrice: item.item_price,
-                                            GST: gstAmount
                                         })
                                     }} >
                                         {/* <Text style={styles.title}>Order ID: {item.$id}</Text> */}
@@ -161,7 +161,6 @@ export default function OrdersList({ navigation }) {
                                         <View style={styles.price}>
                                             <Text>Total value: </Text>
                                             <PriceValue price={item.total_price} />
-                                            <PriceValue price={gstAmount} />
                                         </View>
                                         <View>
                                         <Text style={[styles.unit, { marginTop: 3, fontSize: 11}]}>

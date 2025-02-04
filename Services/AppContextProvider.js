@@ -87,7 +87,7 @@ export const AppContextProvider = ({children}) => {
         setSelectedAddress(null);
         setAddresses([]);
         setAddressToAsyncStorage(null);
-
+        clearCart();
         removeToken();
         deleteSession()
     };
