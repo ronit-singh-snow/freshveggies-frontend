@@ -41,9 +41,15 @@ export const AppContextProvider = ({children}) => {
         setLoading(false);
     }
 
+    // const setAddressToAsyncStorage = async (addr) => {
+    //     return await AsyncStorage.setItem("selected_address", JSON.stringify(addr));
+    // }
     const setAddressToAsyncStorage = async (addr) => {
+        if (!addr) {
+            return await AsyncStorage.removeItem("selected_address");
+        }
         return await AsyncStorage.setItem("selected_address", JSON.stringify(addr));
-    }
+    };
 
     const removeToken = () => {
         AsyncStorage.clear();
@@ -70,11 +76,18 @@ export const AppContextProvider = ({children}) => {
         console.log("Signing in with data:", _authData);
         setAuthData(_authData);
     };
+   
 
     const signOut = async () => {
         //Remove data from context, so the App can be notified
         //and send the user to the AuthStack
+        await AsyncStorage.clear();
+
         setAuthData(undefined);
+        setSelectedAddress(null);
+        setAddresses([]);
+        setAddressToAsyncStorage(null);
+
         removeToken();
         deleteSession()
     };
