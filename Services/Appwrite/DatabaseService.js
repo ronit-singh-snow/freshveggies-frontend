@@ -225,6 +225,7 @@ console.log(expression);
         }
     }
 
+  
     async deleteAddress(documentId) {
         try {
             await this.database.deleteDocument(

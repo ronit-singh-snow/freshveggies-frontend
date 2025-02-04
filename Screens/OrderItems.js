@@ -51,16 +51,16 @@ export const OrderItems = () => {
   <View style={styles.cardBackground}>
                 <View style={styles.summaryRow}>
                     <Text style={styles.summaryLabel}>Items Total</Text>
-                    <Text style={styles.summaryValue}>{itemPrice}</Text>
-                </View>
+                    <PriceValue price={itemPrice} />
+                    </View>
                 <View style={styles.summaryRow}>
                     <Text style={styles.summaryLabel}>Discount</Text>
-                    <Text style={styles.summaryValue}>{discount}</Text>
-                </View>
+                    <PriceValue price={discount} />
+                    </View>
                 <View style={styles.summaryRow}>
                     <Text style={styles.summaryLabel}>Total Amount</Text>
-                    <Text style={styles.summaryValue}>{totalPrice}</Text>
-                </View>
+                    <PriceValue price={totalPrice} />
+                    </View>
             </View>
     </ScrollView>
 }
