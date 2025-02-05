@@ -2,7 +2,7 @@
   "expo": {
     "name": "V-Gram Cart",
     "slug": "vgram-cart",
-    "version": "1.0.8",
+    "version": "1.0.15",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -24,7 +24,7 @@
         "backgroundColor": "#FAF0CA"
       },
       "package": "com.vgram.cart",
-      "versionCode": 8
+      "versionCode": 15
     },
     "web": {
       "favicon": "./assets/favicon.png"

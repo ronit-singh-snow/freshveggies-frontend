@@ -380,7 +380,7 @@ export default function CartSummary({ navigation, route }) {
 								GST: gstAmount,
 								items: cartItems,
 								itemValue: cartItemsValue,
-								address: selectedAddress.idaddress,
+								address: selectedAddress.$id,
 								date: deliveryDates[
 									selectedDeliveryDateIndex
 								].dateObj.getTime(),

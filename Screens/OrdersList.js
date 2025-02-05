@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     },
     price: {
         flexDirection: "row",
-          fontWeight: "bold"
+        fontWeight: "bold"
     },
     active: {
         backgroundColor: "#24ca4f",
@@ -74,7 +74,6 @@ const styles = StyleSheet.create({
 export default function OrdersList({ navigation }) {
     const { authData } = useContext(AppContext);
     const [orders, setOrders] = useState([]);
-    const [cartItems, setCartItems] = useState([]);
 
     useEffect(() => {
         const databaseService = new DatabaseService();
@@ -83,7 +82,7 @@ export default function OrdersList({ navigation }) {
 
             setOrders(sortedOrders);
         });
-    }, [])
+    }, []);
 
 
     const cancelOrder = async (orderId) => {
@@ -131,22 +130,17 @@ export default function OrdersList({ navigation }) {
         }
     };
 
-const gstAmount = getGSTAmount( cartItems);
-console.log("gstamount: ",gstAmount);
-    console.log(orders);
     return (
         <View style={styles.container}>
             {
                 orders && orders.length == 0
                     ? (
-                        <EmptyState message={"No orders placed yet!!"}/>
+                        <EmptyState message={"No orders placed yet!!"} />
                     )
                     : (
                         <FlatList
                             data={orders}
                             renderItem={({ item }) => {
-                                console.log("items: ", item);
-
                                 return <View style={[styles.row, styles.cardBackground]} >
                                     <Pressable onPress={() => {
                                         navigation.navigate("OrderItems", {
@@ -156,27 +150,25 @@ console.log("gstamount: ",gstAmount);
                                             itemPrice: item.item_price,
                                         })
                                     }} >
-                                        {/* <Text style={styles.title}>Order ID: {item.$id}</Text> */}
-                                        {/* {item.order_date && item.status === "placed" ? <Text style={styles.unit}>Delivery by: {item.order_date}</Text> : null} */}
                                         <View style={styles.price}>
                                             <Text>Total value: </Text>
                                             <PriceValue price={item.total_price} />
                                         </View>
                                         <View>
-                                        <Text style={[styles.unit, { marginTop: 3, fontSize: 11}]}>
-                                            Order ID: {item.$id}</Text>
+                                            <Text style={[styles.unit, { marginTop: 3, fontSize: 11 }]}>
+                                                Order ID: {item.$id}</Text>
 
-                                        {item.delivered_at && item.status === "delivered" ? (
-                                        <Text style={[styles.unit, {marginTop: 3, fontSize: 11, marginBottom: 3}]}>
-                                            Delivered at:  {new Date(item.delivered_at).toLocaleString()}
-                                            </Text>
-                                        ) : null}
-                                  
-                                      {item.order_date && item.status === "placed" ? (
-                                <Text style={[styles.unit, { marginTop: 3, fontSize: 11, marginBottom: 3 }]}>
-                                 Order placed at: {new Date(item.order_date).toLocaleString()}
-                                </Text>
-                                              ) : null }
+                                            {item.delivered_at && item.status === "delivered" ? (
+                                                <Text style={[styles.unit, { marginTop: 3, fontSize: 11, marginBottom: 3 }]}>
+                                                    Delivered at:  {new Date(item.delivered_at).toLocaleString()}
+                                                </Text>
+                                            ) : null}
+
+                                            {item.order_date && item.status === "placed" ? (
+                                                <Text style={[styles.unit, { marginTop: 3, fontSize: 11, marginBottom: 3 }]}>
+                                                    Order placed at: {new Date(item.order_date).toLocaleString()}
+                                                </Text>
+                                            ) : null}
                                         </View>
 
                                         {item.status === "delivered"
@@ -200,8 +192,8 @@ console.log("gstamount: ",gstAmount);
                                                         cancelOrder(item.$id)
                                                     }}
                                                 />
-                   
-        </View>
+
+                                            </View>
                                             : null
                                         }
                                         {
