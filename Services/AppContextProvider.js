@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState } from "react"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { deleteSession } from "./AppWriteServices";
 import { DatabaseService } from "./Appwrite/DatabaseService";
-import { fetchEnvironmentVariables } from "./FetchData";
 export const AppContext = createContext({});
 
 export const AppContextProvider = ({children}) => {
@@ -35,10 +34,12 @@ export const AppContextProvider = ({children}) => {
             if (storageItem[0] == "selected_address") {
                 setUserSelectedAddress(JSON.parse(storageItem[1]));
             }
-        })
-        
+        });
+
         setAuthData(serialiseAsyncData);
         setLoading(false);
+
+        return serialiseAsyncData;
     }
 
     // const setAddressToAsyncStorage = async (addr) => {
@@ -55,13 +56,19 @@ export const AppContextProvider = ({children}) => {
         AsyncStorage.clear();
     }
 
+    const onLoad = async () => {
+        if (loading) {
+            let tokenData = await getToken();
+            if (tokenData && tokenData.user_token) {
+                let dbService = new DatabaseService();
+                let keys = await dbService.getApiKeys();
+                setEnvVariables(keys);
+            }
+        }
+    }
+
     useEffect(() => {
-        if (loading)
-            fetchEnvironmentVariables().then((response) => {
-                console.log(response.data);
-                setEnvVariables(response.data);
-                getToken();
-            })
+        onLoad()
     }, []);
 
     const signIn = async (userId, phoneNumber, loginType, name,  email) => { 
@@ -75,6 +82,9 @@ export const AppContextProvider = ({children}) => {
         }
         console.log("Signing in with data:", _authData);
         setAuthData(_authData);
+        var dbService = new DatabaseService();
+        const keys = await dbService.getApiKeys();
+        setEnvVariables(keys);
     };
    
 

@@ -8,7 +8,6 @@ import Header from "../Components/Header.js";
 import Carousel from '../Components/Carousel.js';
 import { Footer } from '../Components/Footer.js';
 import { formatFruits } from '../Services/Utils.js';
-import { getHomepageData } from '../Services/AppWriteServices.js';
 import { DatabaseService } from '../Services/Appwrite/DatabaseService.js';
 
 export default function Home({ navigation }) {
@@ -28,7 +27,8 @@ export default function Home({ navigation }) {
     }
 
     useEffect(() => {
-        getHomepageData((homepageData) => {
+        let dbService = new DatabaseService();
+        dbService.getHomepageData((homepageData) => {
             let bannerData = homepageData.filter(data => data.type === "banner");
             bannerData.forEach((banner, index) => {
                 banner.$id = `banner_${index}`;

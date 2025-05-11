@@ -1,5 +1,9 @@
 import { PixelRatio } from "react-native";
 import * as Location from "expo-location";
+import { getRazorpayOrderId } from "./FetchData";
+import RazorpayCheckout from "react-native-razorpay";
+import Toast from "react-native-root-toast";
+import { DatabaseService } from "./Appwrite/DatabaseService";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -113,4 +117,41 @@ export const getCurrentLocation = () => {
         }
         getPermissions();
     });
+}
+
+export const startRazorpayPaymentProcessing = (orderData, envVariables, authData) => {
+    let promise = new Promise((resolve, reject) => {
+        getRazorpayOrderId(orderData.totalPrice, envVariables).then(razorpayOrder => {
+            if (razorpayOrder && razorpayOrder.data && razorpayOrder.data.id) {
+                var options = {
+                    description: 'Thanks for using V-GRAM Cart services',
+                    image: require("../assets/icon.png"),
+                    currency: 'INR',
+                    key: envVariables.RAZORPAY_KEY_ID,
+                    amount: orderData.totalPrice * 100,
+                    name: 'V-GRAM CART',
+                    order_id: razorpayOrder.data.id,//Replace this with an order_id created using Orders API.
+                    prefill: {
+                        email: authData.email,
+                        contact: authData.phone_number,
+                        name: authData.name
+                    },
+                    theme: { color: '#53a20e' }
+                }
+                RazorpayCheckout.open(options).then((data) => {
+                    console.log(`Success: ${data.razorpay_payment_id}`);
+                    resolve(data);
+                }).catch((error) => {
+                    // handle failure
+                    console.log("error while opening the checkout screen");
+                    reject(`Error: ${error.code} | ${error.description}`);
+                });
+            }
+        }).catch(err => {
+            console.log(err);
+            reject("error while getting the order id");
+        });
+    });
+
+    return promise;
 }

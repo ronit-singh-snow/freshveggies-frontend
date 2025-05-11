@@ -6,7 +6,6 @@ import { AppContext } from '../Services/AppContextProvider';
 import { useContext, useEffect, useState } from 'react';
 import { findAddedCartItem, formatFruits } from '../Services/Utils';
 import { PriceValue } from '../Components/PriceValue';
-import { getProducts } from '../Services/FetchData';
 import { DatabaseService } from '../Services/Appwrite/DatabaseService';
 
 const styles = StyleSheet.create({

@@ -6,7 +6,7 @@ import { autocompletePlaces } from '../Services/FetchData';
 import { AppContext } from '../Services/AppContextProvider';
 import { useNavigation } from '@react-navigation/native';
 
-const SearchDropdown = ({ data }) => {
+const SearchDropdown = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredData, setFilteredData] = useState([]);
     const [isDropdownVisible, setDropdownVisible] = useState(false);

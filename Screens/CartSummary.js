@@ -142,8 +142,10 @@ export default function CartSummary({ navigation, route }) {
 	);
 
 	const getWarningMessage = () => {
-		if (cartItemsValue.totalPrice < 150)
-			return "Add items worth ₹" + (150 - cartItemsValue.totalPrice) + " to proceed with the payment."
+		console.log(envVariables.MIN_CHECKOUT_AMOUNT);
+		let minCheckoutAmount = envVariables.MIN_CHECKOUT_AMOUNT ? parseInt(envVariables.MIN_CHECKOUT_AMOUNT) : 120;
+		if (cartItemsValue.totalPrice < minCheckoutAmount)
+			return "Add items worth ₹" + (minCheckoutAmount - cartItemsValue.totalPrice) + " to proceed with the payment."
 		else if (!selectedAddress)
 			return "Select a delivery address to proceed with the payment.";
 		else return "";
@@ -364,14 +366,14 @@ export default function CartSummary({ navigation, route }) {
 							styles.payBtn,
 							(slot1Disabled && slot2Disabled) ||
 								!selectedAddress ||
-								cartItemsValue.totalPrice < 150
+								cartItemsValue.totalPrice < (parseInt(envVariables.MIN_CHECKOUT_AMOUNT) || 120)
 								? styles.payBtnDisabled
 								: "",
 						]}
 						disabled={
 							(slot1Disabled && slot2Disabled) ||
 							!selectedAddress ||
-							cartItemsValue.totalPrice < 150
+							cartItemsValue.totalPrice < (parseInt(envVariables.MIN_CHECKOUT_AMOUNT) || 120)
 						}
 						onPress={() => {
 							navigation.navigate("OrderSummary", {

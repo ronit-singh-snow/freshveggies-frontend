@@ -57,21 +57,6 @@ export const deleteExistingSession = () => {
 
 }
 
-export const insertCollectionDocument = (collection, data) => {
-    const databases = new Databases(createClient());
-    const promise = databases.createDocument(
-        DB_NAME,
-        collection,
-        ID.unique(),
-        data
-    );
-
-    promise.then(function (response) {
-        console.log(response);
-    }, function (error) {
-        Toast.show("The current user is not authorized to perform the requested action.", Toast.durations.LONG);
-    });
-}
 
 export const getCollectionDocument = (collection, query) => {
     const database =  new Databases(createClient());

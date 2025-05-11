@@ -3,7 +3,6 @@ import { PriceValue } from "../Components/PriceValue";
 import AddQuantity from "../Components/AddQuantity";
 import { useEffect, useState } from "react";
 import { useRoute } from "@react-navigation/native";
-// import { getOrderItems } from "../Services/FetchData";
 import { formatFruits } from "../Services/Utils";
 import { DatabaseService } from "../Services/Appwrite/DatabaseService"
 

@@ -12,7 +12,6 @@ export class DatabaseService {
 
     parseExpression(expression) {
         if (!expression) return "";
-console.log(expression);
         // Split the expression into key-value pairs
         const pairs = expression.split(" ");
 
@@ -90,6 +89,7 @@ console.log(expression);
 
             orderData.date = orderDate;
             orderData.orderCreate = orderDate;
+            console.log(orderData);
             const orderResult = await this.database.createDocument(
                 DB_NAME,
                 COLLECTIONS.ORDER,
@@ -106,11 +106,14 @@ console.log(expression);
                     coupon: orderData.coupon,
                     discount: orderData.discount,
                     item_price: orderData.itemPrice,
+                    razorpay_payment_id: orderData?.razorpay_payment_id,
+                    razorpay_order_id: orderData?.razorpay_order_id,
+                    razorpay_signature: orderData?.razorpay_signature
                 }
             );
 
-            (orderData.items || []).forEach(async (item) => {
-                await this.database.createDocument(
+            (orderData.items || []).forEach((item) => {
+                this.database.createDocument(
                     DB_NAME,
                     COLLECTIONS.ORDER_ITEM,
                     ID.unique(),
@@ -268,37 +271,24 @@ console.log(expression);
         }
     }
 
+    async updatePaymentId(orderId, paymentId) {
+        try {
+            await this.database.updateDocument(
+                DB_NAME,
+                COLLECTIONS.ORDER,
+                orderId,
+                {
+                    "payment_id": paymentId
+                }
+            );
 
+            return "success";
+        } catch(err) {
+            console.log("error");
+            return "error";
+        }
+    }
 
-    //  async validateCoupon(couponCode){
-    //   try {
-    //     const response = await this.database.listDocuments(
-    //       DB_NAME,                 
-    //       COLLECTIONS.COUPON,         
-    //       [
-    //         Query.equal('code', couponCode) 
-    //       ]
-    //     );
-
-    //     if (response.documents.length > 0) {
-    //       const coupon = response.documents[0];
-    //       const discount = coupon.discount;
-
-    //       if (coupon.expiry_date && new Date(coupon.expiry_date) < new Date()) {
-    //         alert("Coupon expired.");
-    //         return null;
-    //       }
-
-    //       return discount;  
-    //     } else {
-    //       alert("Invalid coupon code.");
-    //       return null;
-    //     }
-    //   } catch (error) {
-    //     console.error("Error validating coupon:", error);
-    //     alert("Error validating coupon. Try again.");
-    //   }
-    // };
     async validateCoupon(couponCode, userId = null) {
         try {
             const response = await this.database.listDocuments(
@@ -351,4 +341,35 @@ console.log(expression);
 
         return response.documents;
     }
+
+    async getApiKeys() {
+        let result = await this.database.listDocuments(
+            DB_NAME,
+            COLLECTIONS.SECRET_KEYS
+        );
+
+        if (result && result.total > 0) {
+            return result.documents.reduce((acc, keySecret) => {
+                if (!acc[keySecret["Name"]]) {
+
+                    acc[keySecret["Name"]] = keySecret["Value"]
+                }
+                return acc;
+            }, {})
+        }
+
+        return {};
+    }
+
+    async getHomepageData (callback) {
+        this.database.listDocuments(
+            DB_NAME,
+            COLLECTIONS.HOMEPAGE
+        ).then(response => {
+            callback(response.documents)
+        }).catch(err => {
+            console.log("err",err);
+        });
+    }
+    
 }

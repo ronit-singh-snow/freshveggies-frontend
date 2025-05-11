@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react";
 import { FlatList, Image, Pressable, StyleSheet, Text, TextInput, View } from "react-native"
-import { getFruits, getProductsList } from "../Services/FetchData";
 import { findAddedCartItem, formatFruits } from "../Services/Utils";
 import { PriceValue } from "../Components/PriceValue";
 import AddQuantity from "../Components/AddQuantity";

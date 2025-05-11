@@ -2,6 +2,7 @@ import axios from "axios";
 import { APPWRITE_END_POINT } from "../Constants";
 import { DatabaseService } from "./Appwrite/DatabaseService";
 import { findUser } from "../Services/AppWriteServices";
+import { ID } from "react-native-appwrite";
 
 export const autocompletePlaces = (location, radius = 5000, searchText, apiKey) => {
     const headers = {
@@ -93,6 +94,25 @@ export const updateUserInfo = (userInfo) => {
     try {
         const url = APPWRITE_END_POINT + "/update_user_info";
         return axios.post(url, userInfo);
+    } catch(err) {
+        console.log(err);
+    }
+}
+
+export const getRazorpayOrderId = (amount, envVariables) => {
+    const url = "https://api.razorpay.com/v1/orders";
+    var basicAuth = 'Basic ' + btoa(`${envVariables.RAZORPAY_KEY_ID}:${envVariables.RAZORPAY_KEY_SECRET}`);
+    console.log(basicAuth);
+    try {
+        return axios.post(url, {
+            "currency": "INR",
+            "amount": amount * 100,
+            "receipt": ID.unique()
+        }, {
+            headers: { 
+                'Authorization': basicAuth 
+            }
+        });
     } catch(err) {
         console.log(err)
     }
