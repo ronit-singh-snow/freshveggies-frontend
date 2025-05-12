@@ -139,7 +139,6 @@ export const startRazorpayPaymentProcessing = (orderData, envVariables, authData
                     theme: { color: '#53a20e' }
                 }
                 RazorpayCheckout.open(options).then((data) => {
-                    console.log(`Success: ${data.razorpay_payment_id}`);
                     resolve(data);
                 }).catch((error) => {
                     // handle failure

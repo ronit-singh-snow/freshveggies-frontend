@@ -1,14 +1,42 @@
-import { Image, Pressable, StyleSheet, Text, View } from "react-native"
+import { BackHandler, Image, Pressable, StyleSheet, Text, View } from "react-native"
 import { useRoute } from "@react-navigation/native";
+import { useEffect } from "react";
 
 export const OrderConfirmation = ({navigation}) => {
     const route = useRoute();
+    const orderStatus = route?.params?.orderStatus || "confirmed";
+
+    useEffect(() => {
+        const backAction = () => {
+            navigation.navigate("Home");
+            return true;
+        };
+
+        const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+        return () => backHandler.remove();
+    }, []);
 
     return <View style={styles.container}>
-        <Image style={styles.tickIcon} source={require("../assets/images/success_tick_icon.png")} />
-        <Text style={styles.confirmationText}>Your order has been confirmed</Text>
-        <Text>Order no #{route.params?.orderId}</Text>
+        {
+            orderStatus === "confirmed"
+            ? <Image style={styles.tickIcon} source={require("../assets/images/success_tick_icon.png")} />
+            : <Image style={styles.tickIcon} source={require("../assets/images/transport.png")} />
+        }
+        
+        {orderStatus === "confirmed" ? <Text style={styles.confirmationText}>Your order has been confirmed!!</Text> : null}
+        {orderStatus === "cancelled" ? <Text style={styles.confirmationText}>Your order has been Cancelled.</Text> : null}
 
+        {orderStatus == "cancelled" ?
+            (
+                <View width="60%" style={{paddingVertical: 10}}>
+                    <Text style={{textAlign: "justify"}}>If you have made the payment already then amount will be refunded within 5-7 working days.</Text>
+                </View>
+            )
+            : null
+        }
+
+        <Text>Order no #{route.params?.orderId}</Text>
 
         <Pressable onPress={() => navigation.navigate("Home")}>
             <Text style={styles.continueShopping}>Continue shopping</Text>

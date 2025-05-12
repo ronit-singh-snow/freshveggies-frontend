@@ -36,11 +36,11 @@ export const OrderSummary = ({ navigation }) => {
     const submitOrderRecord = (updatedOrderData) => {
         var databaseService = new DatabaseService();
         databaseService.submitOrder(authData.user_token, updatedOrderData).then(response => {
-            console.log(response);
             Toast.show("Order Submitted successfully!!", Toast.durations.LONG);
             clearCart();
             navigation.navigate("OrderConfirmation", {
-                orderId: response.$id
+                orderId: response.$id,
+                orderStatus: "confirmed"
             });
         }).catch((error) => {
             console.log("Failed while submitting order", error);
@@ -106,7 +106,6 @@ export const OrderSummary = ({ navigation }) => {
                     submitOrderRecord(orderData);
                 } else {
                     startRazorpayPaymentProcessing(orderData, envVariables, authData).then(paymentData => {
-                        console.log(paymentData);
                         Toast.show("Payment successful", Toast.durations.LONG);
 
                         const databaseService = new DatabaseService();

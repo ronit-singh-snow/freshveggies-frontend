@@ -102,7 +102,6 @@ export const updateUserInfo = (userInfo) => {
 export const getRazorpayOrderId = (amount, envVariables) => {
     const url = "https://api.razorpay.com/v1/orders";
     var basicAuth = 'Basic ' + btoa(`${envVariables.RAZORPAY_KEY_ID}:${envVariables.RAZORPAY_KEY_SECRET}`);
-    console.log(basicAuth);
     try {
         return axios.post(url, {
             "currency": "INR",

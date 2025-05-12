@@ -19,7 +19,6 @@ export const AppContextProvider = ({children}) => {
         loginType ? storeData.push(["login_type", loginType]) : null;
         name ? storeData.push(["name", name]) : null;
         email ? storeData.push(["email", email]) : null;
-        console.log("Setting AsyncStorage data:", storeData);
         return await AsyncStorage.multiSet(storeData);
     }
 

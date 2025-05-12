@@ -7,7 +7,7 @@ import { CustomButton } from '../Components/CustomButton';
 import { DatabaseService } from '../Services/Appwrite/DatabaseService';
 import Toast from 'react-native-root-toast';
 import { EmptyState } from '../Components/EmptyState';
-import { getGSTAmount } from '../Services/Utils';
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -41,6 +41,10 @@ const styles = StyleSheet.create({
     },
     delivered: {
         backgroundColor: "#dbdfe3"
+    },
+    cancelled: {
+        backgroundColor: colors.warningMessage,
+        color: "#FFF"
     },
     highlightedText: {
         paddingVertical: 5,
@@ -85,21 +89,36 @@ export default function OrdersList({ navigation }) {
     }, []);
 
 
+    const getOrderStatus = (status) => {
+        if (status === "delivered")
+            return <Text style={[styles.delivered, styles.highlightedText]}>Delivered</Text>;
+        else if (status === "cancelled")
+            return <Text style={[styles.cancelled, styles.highlightedText]}>Cancelled</Text>;
+        else
+            return <Text style={[styles.active, styles.highlightedText]}>{status}</Text>;
+    }
+
     const cancelOrder = async (orderId) => {
         try {
             const databaseService = new DatabaseService();
 
-            await databaseService.updateOrder(orderId, { status: "cancelled" });
+            await databaseService.updateOrder(orderId, { status: "cancelled" }).then(response => {
+                setOrders((prevOrders) =>
+                    prevOrders.map((order) =>
+                        order.$id === orderId
+                            ? { ...order, status: "cancelled" }
+                            : order
+                    )
+                );
 
-            setOrders((prevOrders) =>
-                prevOrders.map((order) =>
-                    order.$id === orderId
-                        ? { ...order, status: "cancelled" }
-                        : order
-                )
-            );
+                Toast.show("Order cancelled successfully", Toast.durations.LONG);
+                    navigation.navigate("OrderConfirmation", {
+                        orderId: orderId,
+                        orderStatus: "cancelled"
+                    });
+            });
 
-            Toast.show("Order cancelled successfully", Toast.durations.LONG);
+            
         } catch (error) {
             console.error("Error cancelling order:", error);
         }
@@ -171,10 +190,7 @@ export default function OrdersList({ navigation }) {
                                             ) : null}
                                         </View>
 
-                                        {item.status === "delivered"
-                                            ? <Text style={[styles.delivered, styles.highlightedText]}>Delivered</Text>
-                                            : <Text style={[styles.active, styles.highlightedText]}>{item.status}</Text>
-                                        }
+                                        {getOrderStatus(item.status)}
                                     </Pressable>
 
                                     <View style={styles.cartFooter}>

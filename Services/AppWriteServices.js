@@ -31,7 +31,6 @@ export const sendOTP = (phoneNumber) => {
 
 export const confirmOTPAndCreateSession = (userId, otp) => {
     const account = getAccount();
-    console.log(userId);
     return account.createSession(
         userId,
         otp

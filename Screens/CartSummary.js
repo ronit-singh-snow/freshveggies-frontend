@@ -142,7 +142,6 @@ export default function CartSummary({ navigation, route }) {
 	);
 
 	const getWarningMessage = () => {
-		console.log(envVariables.MIN_CHECKOUT_AMOUNT);
 		let minCheckoutAmount = envVariables.MIN_CHECKOUT_AMOUNT ? parseInt(envVariables.MIN_CHECKOUT_AMOUNT) : 120;
 		if (cartItemsValue.totalPrice < minCheckoutAmount)
 			return "Add items worth ₹" + (minCheckoutAmount - cartItemsValue.totalPrice) + " to proceed with the payment."
