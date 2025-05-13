@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react"
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { deleteSession } from "./AppWriteServices";
 import { DatabaseService } from "./Appwrite/DatabaseService";
+import { deepCloneArray } from "./Utils";
 export const AppContext = createContext({});
 
 export const AppContextProvider = ({children}) => {
@@ -121,7 +122,7 @@ export const AppContextProvider = ({children}) => {
     }
 
     const removeFromCart = (itemId) => {
-        let cart = [...cartData];
+        let cart = deepCloneArray(cartData);
         let itemIndex = cart.findIndex((cartItem) => cartItem.item.$id === itemId);
         if (itemIndex > -1) {
             cart.splice(itemIndex, 1);

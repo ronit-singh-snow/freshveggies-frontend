@@ -154,3 +154,9 @@ export const startRazorpayPaymentProcessing = (orderData, envVariables, authData
 
     return promise;
 }
+
+export const deepCloneArray = (originalArray) => {
+    return originalArray.map(a =>  {
+        return {...a}
+    })
+}

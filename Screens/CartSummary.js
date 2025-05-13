@@ -190,6 +190,7 @@ export default function CartSummary({ navigation, route }) {
 								<View style={styles.listActions}>
 									<AddQuantity
 										stock={10}
+										key={item.item.$id}
 										initialQuantity={item.quantity}
 										onQuantityChange={(quantity) => {
 											quantity === 0
